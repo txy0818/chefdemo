@@ -1,0 +1,21 @@
+package com.txy.chefdemo.resp;
+
+import com.txy.chefdemo.domain.dto.ReviewDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+/**
+ * @Author tianxinyu
+ * @Create 2026-04-02
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChefReviewDetailResp {
+    private BaseResp baseResp;
+    private List<ReviewDTO> data;
+    private int total;
+}

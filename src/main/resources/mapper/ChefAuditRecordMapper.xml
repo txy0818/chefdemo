@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.txy.chefdemo.mapper.ChefAuditRecordMapper">
+
+    <resultMap id="ChefAuditRecordResultMap" type="com.txy.chefdemo.domain.ChefAuditRecord">
+        <id column="id" property="id"/>
+        <result column="chef_user_id" property="chefUserId"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="create_time" property="createTime"/>
+        <result column="audit_time" property="auditTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="record.id">
+        INSERT INTO chef_audit_record
+        (chef_user_id, audit_status, operator_id, reject_reason, create_time, audit_time)
+        VALUES
+            (#{record.chefUserId}, #{record.auditStatus}, #{record.operatorId}, #{record.rejectReason},
+             #{record.createTime}, #{record.auditTime})
+    </insert>
+    <update id="updateById">
+        <foreach collection="records" item="record" separator=";">
+            UPDATE chef_audit_record
+            SET chef_user_id = #{record.chefUserId},
+                audit_status = #{record.auditStatus},
+                operator_id = #{record.operatorId},
+                reject_reason = #{record.rejectReason},
+                create_time = #{record.createTime},
+                audit_time = #{record.auditTime}
+            WHERE id = #{record.id}
+        </foreach>
+    </update>
+
+    <select id="queryPendingRecordByChefUserId" resultMap="ChefAuditRecordResultMap">
+        SELECT *
+        FROM chef_audit_record
+        WHERE chef_user_id = #{chefUserId}
+          AND audit_status = 1
+        ORDER BY create_time DESC
+        limit 0, 1;
+    </select>
+
+    <select id="queryPendingRecord" resultMap="ChefAuditRecordResultMap">
+        SELECT *
+        FROM chef_audit_record
+        WHERE audit_status = 1
+        and
+            id IN (
+            SELECT MAX(id)
+            FROM chef_audit_record
+            GROUP BY chef_user_id
+        )
+        ORDER BY create_time DESC
+    </select>
+
+
+</mapper>

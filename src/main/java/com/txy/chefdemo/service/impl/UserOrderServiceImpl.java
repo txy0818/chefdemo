@@ -1,0 +1,177 @@
+package com.txy.chefdemo.service.impl;
+
+import com.google.common.base.Preconditions;
+import com.txy.chefdemo.domain.ChefAvailableTime;
+import com.txy.chefdemo.domain.ChefProfile;
+import com.txy.chefdemo.domain.ReservationOrder;
+import com.txy.chefdemo.domain.User;
+import com.txy.chefdemo.domain.bo.ChefAvailableTimeSearchBo;
+import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
+import com.txy.chefdemo.domain.constant.AuditStatus;
+import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
+import com.txy.chefdemo.domain.constant.OrderStatus;
+import com.txy.chefdemo.domain.constant.PayStatus;
+import com.txy.chefdemo.domain.dto.OrderViewDTO;
+import com.txy.chefdemo.exp.BusinessException;
+import com.txy.chefdemo.req.CancelOrderReq;
+import com.txy.chefdemo.req.CreateOrderReq;
+import com.txy.chefdemo.req.PayOrderReq;
+import com.txy.chefdemo.service.ChefAvailableTimeService;
+import com.txy.chefdemo.service.ChefProfileService;
+import com.txy.chefdemo.service.OrderFlowService;
+import com.txy.chefdemo.service.ReservationOrderService;
+import com.txy.chefdemo.service.UserOrderService;
+import com.txy.chefdemo.service.UserService;
+import com.txy.chefdemo.transition.order.OrderContext;
+import com.txy.chefdemo.transition.order.OrderStateEvent;
+import org.apache.commons.lang3.ObjectUtils;
+import org.redisson.api.RDelayedQueue;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class UserOrderServiceImpl implements UserOrderService {
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ChefProfileService chefProfileService;
+    @Autowired
+    private ChefAvailableTimeService chefAvailableTimeService;
+    @Autowired
+    private ReservationOrderService reservationOrderService;
+    @Autowired
+    private OrderFlowService orderFlowService;
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @Override
+    @Transactional
+    public OrderViewDTO createOrder(Long currentUserId, CreateOrderReq req) {
+        Preconditions.checkArgument(req.getChefUserId() != null, "厨师不能为空");
+        Preconditions.checkArgument(req.getChefAvailableTimeId() != null, "时间段不能为空");
+        Preconditions.checkArgument(req.getStartTime() != null && req.getEndTime() != null, "预约时间不能为空");
+        Preconditions.checkArgument(req.getStartTime() < req.getEndTime(), "开始时间必须早于结束时间");
+        Preconditions.checkArgument(req.getPeopleCount() != null && req.getPeopleCount() > 0, "人数非法");
+
+        User user = userService.queryById(currentUserId);
+        if (ObjectUtils.isEmpty(user)) {
+            throw new BusinessException("用户不存在");
+        }
+
+        ChefProfile profile = chefProfileService.queryByUserId(req.getChefUserId());
+        if (ObjectUtils.isEmpty(profile)) {
+            throw new BusinessException("厨师不存在");
+        }
+        if (!Objects.equals(profile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
+            throw new BusinessException("厨师审核尚未通过");
+        }
+
+        long now = System.currentTimeMillis();
+        ChefAvailableTimeSearchBo timeSearchBo = new ChefAvailableTimeSearchBo();
+        timeSearchBo.setId(req.getChefAvailableTimeId());
+        List<ChefAvailableTime> times = chefAvailableTimeService.queryByCondition(timeSearchBo);
+        if (CollectionUtils.isEmpty(times)) {
+            throw new BusinessException("时间段不存在");
+        }
+        ChefAvailableTime time = times.get(0);
+        if (!Objects.equals(time.getChefId(), req.getChefUserId())
+                || !Objects.equals(time.getStatus(), AvailableTimeStatus.AVAILABLE.getCode())
+                || time.getEndTime() < now) {
+            throw new BusinessException("时间段不可预约");
+        }
+        if (req.getStartTime() < time.getStartTime() || req.getEndTime() > time.getEndTime()) {
+            throw new BusinessException("预约时间不在时间段内");
+        }
+
+        ReservationOrderSearchBo orderSearchBo = new ReservationOrderSearchBo();
+        orderSearchBo.setChefAvailableTimeId(req.getChefAvailableTimeId());
+        orderSearchBo.setStatuses(OrderStatus.getValidCodes());
+        List<ReservationOrder> existingOrders = reservationOrderService.queryByCondition(orderSearchBo);
+        long minGap = 30 * 60 * 1000L;
+        for (ReservationOrder existingOrder : existingOrders) {
+            if (!(req.getEndTime() + minGap <= existingOrder.getStartTime()
+                    || req.getStartTime() >= existingOrder.getEndTime() + minGap)) {
+                throw new BusinessException("时间段不可预约");
+            }
+        }
+
+        long totalTime = req.getEndTime() - req.getStartTime();
+        long avgPrice = profile.getPrice() != null ? profile.getPrice() : 0L;
+        long totalAmount = Math.max(avgPrice, (long) Math.ceil(avgPrice * (totalTime / 3600000D)));
+
+        ReservationOrder order = new ReservationOrder();
+        order.setUserId(currentUserId);
+        order.setChefId(req.getChefUserId());
+        order.setChefAvailableTimeId(req.getChefAvailableTimeId());
+        order.setStartTime(req.getStartTime());
+        order.setEndTime(req.getEndTime());
+        order.setTotalTime(totalTime);
+        order.setTotalAmount(totalAmount);
+        order.setPeopleCount(req.getPeopleCount());
+        order.setSpecialRequirements(req.getSpecialRequirements());
+        order.setContactName(req.getContactName());
+        order.setContactPhone(req.getContactPhone());
+        order.setContactAddress(req.getContactAddress());
+        order.setStatus(OrderStatus.PENDING_PAYMENT.getCode());
+        order.setPayStatus(PayStatus.UNPAID.getCode());
+        order.setPayDeadlineTime(now + 5 * 60 * 1000L);
+        order.setCreateTime(now);
+        order.setUpdateTime(now);
+        reservationOrderService.insert(order);
+
+        RDelayedQueue<Long> delayedQueue = redissonClient.getDelayedQueue(
+                redissonClient.getBlockingQueue("order:cancel:queue"));
+        delayedQueue.offer(order.getId(), 5, TimeUnit.MINUTES);
+
+        return reservationOrderService.buildOrderView(order);
+    }
+
+    @Override
+    @Transactional
+    public void payOrder(Long currentUserId, PayOrderReq req) {
+        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());
+        if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())) {
+            throw new BusinessException("订单状态错误");
+        }
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.PAY,
+                new OrderContext(order.getId(), currentUserId, req.getPayType(), null));
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(Long currentUserId, CancelOrderReq req) {
+        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(org.apache.commons.lang3.StringUtils.isNotBlank(req.getCancelReason()), "取消原因不能为空");
+        String cancelReason = req.getCancelReason().trim();
+        ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());
+        if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())
+                && !Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
+            throw new BusinessException("订单状态错误");
+        }
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.USER_CANCEL,
+                new OrderContext(order.getId(), currentUserId, null, cancelReason));
+    }
+
+    private ReservationOrder requireOwnedOrder(Long currentUserId, Long orderId) {
+        ReservationOrderSearchBo searchBo = new ReservationOrderSearchBo();
+        searchBo.setOrderId(orderId);
+        List<ReservationOrder> orders = reservationOrderService.queryByCondition(searchBo);
+        if (CollectionUtils.isEmpty(orders)) {
+            throw new BusinessException("订单不存在");
+        }
+        ReservationOrder order = orders.get(0);
+        if (!Objects.equals(order.getUserId(), currentUserId)) {
+            throw new BusinessException("无权限");
+        }
+        return order;
+    }
+}
