@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.txy.chefdemo.mapper.ChefAvailableTimeMapper">
+
+    <!-- ========================= -->
+    <!-- 1. ResultMap -->
+    <!-- ========================= -->
+    <resultMap id="ChefAvailableTimeResultMap" type="com.txy.chefdemo.domain.ChefAvailableTime">
+        <id column="id" property="id"/>
+        <result column="chef_id" property="chefId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+
+    <!-- ========================= -->
+    <!-- 2. insert -->
+    <!-- ========================= -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="time.id">
+        INSERT INTO chef_available_time
+            (chef_id, start_time, end_time, status, create_time, update_time)
+        VALUES
+            (#{time.chefId}, #{time.startTime}, #{time.endTime},
+             #{time.status}, #{time.createTime}, #{time.updateTime})
+    </insert>
+
+
+    <!-- ========================= -->
+    <!-- 3. 基础查询 -->
+    <!-- ========================= -->
+    <select id="queryById" resultMap="ChefAvailableTimeResultMap">
+        SELECT * FROM chef_available_time WHERE id = #{id}
+    </select>
+
+    <select id="queryByChefId" resultMap="ChefAvailableTimeResultMap">
+        SELECT * FROM chef_available_time
+        WHERE chef_id = #{chefId}
+        ORDER BY start_time
+    </select>
+
+
+    <!-- ========================= -->
+    <!-- 4. 动态条件 -->
+    <!-- ========================= -->
+    <sql id="Base_Where_Clause">
+        <where>
+
+            <if test="searchBo.id != null">
+                AND id = #{searchBo.id}
+            </if>
+
+            <if test="searchBo.idList != null and searchBo.idList.size() > 0">
+                AND id IN
+                <foreach collection="searchBo.idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+            <if test="searchBo.chefId != null">
+                AND chef_id = #{searchBo.chefId}
+            </if>
+
+            <if test="searchBo.chefIdList != null and searchBo.chefIdList.size() > 0">
+                AND chef_id IN
+                <foreach collection="searchBo.chefIdList" item="cid" open="(" separator="," close=")">
+                    #{cid}
+                </foreach>
+            </if>
+
+            <if test="searchBo.status != null">
+                AND status = #{searchBo.status}
+            </if>
+
+            <if test="searchBo.statusList != null and searchBo.statusList.size() > 0">
+                AND status IN
+                <foreach collection="searchBo.statusList" item="st" open="(" separator="," close=")">
+                    #{st}
+                </foreach>
+            </if>
+
+            <!-- 时间范围（毫秒） -->
+            <if test="searchBo.startTime != null and searchBo.startTime > 0">
+                AND start_time &gt;= #{searchBo.startTime}
+            </if>
+
+            <if test="searchBo.endTime != null and searchBo.endTime > 0">
+                AND end_time &lt;= #{searchBo.endTime}
+            </if>
+
+        </where>
+    </sql>
+
+
+    <!-- ========================= -->
+    <!-- 5. 条件查询 -->
+    <!-- ========================= -->
+    <select id="queryByCondition" resultMap="ChefAvailableTimeResultMap">
+        SELECT *
+        FROM chef_available_time
+        <include refid="Base_Where_Clause"/>
+        ORDER BY start_time ASC
+        <if test="searchBo.offset != null and searchBo.size != null">
+            LIMIT #{searchBo.offset}, #{searchBo.size}
+        </if>
+    </select>
+
+
+    <!-- ========================= -->
+    <!-- 6. count -->
+    <!-- ========================= -->
+    <select id="queryChefListCnt" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM chef_available_time
+        <include refid="Base_Where_Clause"/>
+    </select>
+
+
+    <!-- ========================= -->
+    <!-- 7. 动态更新 -->
+    <!-- ========================= -->
+    <update id="updateById" parameterType="com.txy.chefdemo.domain.ChefAvailableTime">
+        UPDATE chef_available_time
+        <set>
+
+            <if test="time.chefId != null and time.chefId > 0">
+                chef_id = #{time.chefId},
+            </if>
+
+            <if test="time.startTime != null and time.startTime > 0">
+                start_time = #{time.startTime},
+            </if>
+
+            <if test="time.endTime != null and time.endTime > 0">
+                end_time = #{time.endTime},
+            </if>
+
+            <if test="time.status != null">
+                status = #{time.status},
+            </if>
+
+            update_time = #{time.updateTime}
+
+        </set>
+        WHERE id = #{time.id}
+    </update>
+
+</mapper>

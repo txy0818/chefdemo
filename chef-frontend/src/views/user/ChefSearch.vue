@@ -1,7 +1,14 @@
 <template>
   <div class="chef-search">
-    <!-- 搜索筛选区 -->
-    <el-card class="search-card">
+    <section class="section-heading search-heading">
+      <div>
+        <h2>挑选今天的私厨人选</h2>
+        <p>先按服务场景和预算缩小范围，再从评分与菜系里找到更贴近你口味的一位。</p>
+      </div>
+      <div class="metric-pill">当前结果 {{ chefList.length }} 位</div>
+    </section>
+
+    <el-card class="search-card glass-panel" shadow="never">
       <el-form
         :model="searchForm"
         class="search-form"
@@ -68,13 +75,12 @@
         </el-form-item>
         
         <el-form-item class="filter-item filter-actions">
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button class="primary-action" type="primary" @click="handleSearch">开始搜索</el-button>
+          <el-button class="secondary-action" @click="handleReset">恢复默认</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     
-    <!-- 厨师卡片列表 -->
     <div class="chef-list" v-loading="loading">
       <el-empty v-if="chefList.length === 0 && !loading" description="暂无厨师" />
       
@@ -87,13 +93,19 @@
           :md="8"
           :lg="6"
         >
-          <el-card class="chef-card" shadow="hover" @click="goToDetail(chef.chefUserId)">
-            <div class="chef-avatar">
-              <el-avatar :size="80" :src="chef.avatar" />
+          <el-card class="chef-card" shadow="never" @click="goToDetail(chef.chefUserId)">
+            <div class="chef-card-top">
+              <div class="chef-avatar">
+                <el-avatar :size="84" :src="chef.avatar" />
+              </div>
+              <el-tag class="service-tag" effect="dark" round>
+                {{ chef.cuisineType || '家常定制' }}
+              </el-tag>
             </div>
             
             <div class="chef-info">
               <h3>{{ chef.displayName }}</h3>
+              <p class="chef-summary">适合家庭聚餐、轻宴请和定制家宴场景，支持按区域预约上门。</p>
               
               <div class="info-item">
                 <el-icon><Location /></el-icon>
@@ -107,7 +119,7 @@
               
               <div class="info-item">
                 <el-icon><Money /></el-icon>
-                <span>¥{{ (chef.price / 100).toFixed(0) }}/小时</span>
+                <span class="price-text">¥{{ (chef.price / 100).toFixed(0) }}/小时</span>
               </div>
               
               <div class="rating">
@@ -219,14 +231,19 @@ onMounted(() => {
 
 <style scoped>
 .chef-search {
-  max-width: 1400px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 12px;
+}
+
+.search-heading {
+  margin-bottom: 4px;
 }
 
 .search-card {
-  margin-bottom: 20px;
-  border-radius: 22px;
-  box-shadow: 0 16px 36px rgba(23, 43, 77, 0.08);
+  border: none;
+  border-radius: var(--radius-card);
 }
 
 .search-form {
@@ -277,41 +294,81 @@ onMounted(() => {
 .chef-card {
   margin-bottom: 20px;
   cursor: pointer;
-  transition: transform 0.3s;
+  border: 1px solid rgba(220, 38, 38, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 249, 245, 0.96));
+  box-shadow: 0 18px 36px rgba(127, 29, 29, 0.08);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
 
 .chef-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  border-color: rgba(220, 38, 38, 0.18);
+  box-shadow: 0 24px 48px rgba(127, 29, 29, 0.12);
+}
+
+.chef-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .chef-avatar {
-  text-align: center;
-  margin-bottom: 15px;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.9), rgba(161, 98, 7, 0.75));
+  box-shadow: 0 16px 28px rgba(248, 113, 113, 0.22);
+}
+
+.service-tag {
+  border: none;
+  background: rgba(161, 98, 7, 0.1);
+  color: #9a670d;
+}
+
+.chef-info {
+  text-align: left;
 }
 
 .chef-info h3 {
-  text-align: center;
-  margin: 0 0 15px 0;
-  font-size: 18px;
-  color: #333;
+  margin: 0 0 10px;
+  font-size: 1.18rem;
+  color: #3f1111;
+}
+
+.chef-summary {
+  margin: 0 0 18px;
+  color: #7c5b5b;
+  line-height: 1.7;
+  font-size: 0.92rem;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  color: #666;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: #6c4a4a;
   font-size: 14px;
 }
 
 .info-item .el-icon {
-  margin-right: 8px;
-  color: #409EFF;
+  color: #dc2626;
+}
+
+.price-text {
+  font-weight: 700;
+  color: #9a3412;
 }
 
 .rating {
-  margin-top: 15px;
-  text-align: center;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(220, 38, 38, 0.08);
 }
 
 .review-count {
@@ -371,12 +428,27 @@ onMounted(() => {
 .search-form :deep(.el-form-item__label) {
   padding-bottom: 0;
   font-weight: 600;
-  color: #475467;
+  color: #6b3f3f;
   line-height: 1.4;
   height: auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+.search-form :deep(.el-input__wrapper),
+.search-form :deep(.el-textarea__inner),
+.search-form :deep(.el-select__wrapper),
+.search-form :deep(.el-input-number) {
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.search-form :deep(.el-input__wrapper),
+.search-form :deep(.el-select__wrapper),
+.search-form :deep(.el-textarea__inner) {
+  min-height: 46px;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .search-form :deep(.el-input-number) {
@@ -405,6 +477,19 @@ onMounted(() => {
 
 .filter-actions :deep(.el-button) {
   min-width: 120px;
+  min-height: 46px;
+  border-radius: 14px;
+}
+
+.primary-action {
+  border: none;
+  background: linear-gradient(135deg, #dc2626, #ea580c);
+  box-shadow: 0 16px 30px rgba(220, 38, 38, 0.22);
+}
+
+.secondary-action {
+  border-color: rgba(220, 38, 38, 0.12);
+  color: #7f1d1d;
 }
 
 .rating :deep(.el-rate) {
@@ -470,6 +555,10 @@ onMounted(() => {
   .search-form :deep(.el-form-item__content) {
     margin-left: 0 !important;
     width: 100%;
+  }
+
+  .chef-card-top {
+    align-items: center;
   }
 }
 </style>

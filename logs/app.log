@@ -1,0 +1,88 @@
+2026-04-06 19:08:30.224 INFO  [main] com.txy.chefdemo.MainDemoApplication - Starting MainDemoApplication using Java 11.0.2 on txydeMacBook-Air.local with PID 22361 (/Users/txy/Documents/chefDemo/target/classes started by txy in /Users/txy/Documents/chefDemo)
+2026-04-06 19:08:30.228 INFO  [main] com.txy.chefdemo.MainDemoApplication - No active profile set, falling back to 1 default profile: "default"
+2026-04-06 19:08:31.117 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-04-06 19:08:31.119 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-04-06 19:08:31.140 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 14 ms. Found 0 Redis repository interfaces.
+2026-04-06 19:08:31.799 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-04-06 19:08:31.804 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-06 19:08:31.805 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-06 19:08:31.805 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2026-04-06 19:08:31.889 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-04-06 19:08:31.889 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1607 ms
+2026-04-06 19:08:32.403 INFO  [main] c.t.c.config.MinioBucketInitializer - MinIO bucket policy set to public-read: chef-platform
+2026-04-06 19:08:32.654 INFO  [main] org.redisson.Version - Redisson 3.17.7
+2026-04-06 19:08:32.674 WARN  [main] i.n.r.d.DnsServerAddressStreamProviders - Can not find io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider in the classpath, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS.
+2026-04-06 19:08:32.801 INFO  [redisson-netty-2-6] o.r.c.p.MasterPubSubConnectionPool - 1 connections initialized for localhost/127.0.0.1:6379
+2026-04-06 19:08:32.884 INFO  [redisson-netty-2-20] o.r.c.pool.MasterConnectionPool - 24 connections initialized for localhost/127.0.0.1:6379
+2026-04-06 19:08:34.194 INFO  [main] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-04-06 19:08:34.261 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-06 19:08:34.269 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-04-06 19:08:34.285 INFO  [main] com.txy.chefdemo.MainDemoApplication - Started MainDemoApplication in 4.553 seconds (JVM running for 5.48)
+2026-04-06 19:08:34.522 INFO  [RMI TCP Connection(3)-10.83.36.162] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-06 19:08:34.522 INFO  [RMI TCP Connection(2)-10.83.36.162] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-06 19:08:34.523 INFO  [RMI TCP Connection(2)-10.83.36.162] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-06 19:08:34.525 INFO  [RMI TCP Connection(2)-10.83.36.162] o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-04-06 19:08:34.695 INFO  [RMI TCP Connection(3)-10.83.36.162] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-06 19:08:44.401 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:15 毫秒
+2026-04-06 19:08:50.475 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:114 毫秒
+2026-04-06 19:08:50.685 INFO  [http-nio-8080-exec-8] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:08:50.731 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:15 毫秒
+2026-04-06 19:08:50.776 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:59 毫秒
+2026-04-06 19:08:58.163 INFO  [http-nio-8080-exec-10] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:08:58.174 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:08:58.198 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:13 毫秒
+2026-04-06 19:09:00.005 INFO  [scheduling-1] c.t.c.task.ChefAvailableTimeTask - 开始执行定时任务：更新过期的时间段状态
+2026-04-06 19:09:00.055 INFO  [scheduling-1] c.t.c.task.ChefAvailableTimeTask - 找到 1 个过期时间段，开始更新状态
+2026-04-06 19:09:00.069 INFO  [scheduling-1] c.t.c.task.ChefAvailableTimeTask - 定时任务执行完成，成功更新 1 个时间段状态为已过期
+2026-04-06 19:09:00.103 INFO  [scheduling-1] c.t.c.t.o.i.OrderAutoCompleteAction - [schedule-auto-complete] orderId=3 进入自动完成处理
+2026-04-06 19:09:00.136 INFO  [scheduling-1] c.t.c.t.o.i.OrderAutoCompleteAction - [schedule-auto-complete] orderId=3 自动完成通知已发送
+2026-04-06 19:09:00.152 INFO  [scheduling-1] c.t.chefdemo.task.OrderScheduleTask - [schedule-auto-complete] orderId=3 自动完成成功
+2026-04-06 19:09:02.329 INFO  [http-nio-8080-exec-6] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:20 毫秒
+2026-04-06 19:09:03.315 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:03.347 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:15 毫秒
+2026-04-06 19:09:03.998 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:04.076 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:56 毫秒
+2026-04-06 19:09:04.550 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:04.584 INFO  [http-nio-8080-exec-8] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:24 毫秒
+2026-04-06 19:09:06.302 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:06.325 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:11 毫秒
+2026-04-06 19:09:06.339 INFO  [http-nio-8080-exec-2] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:23 毫秒
+2026-04-06 19:09:08.808 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:27 毫秒
+2026-04-06 19:09:10.995 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:11.047 INFO  [http-nio-8080-exec-6] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:32 毫秒
+2026-04-06 19:09:16.123 INFO  [http-nio-8080-exec-4] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:1 毫秒
+2026-04-06 19:09:16.162 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:11 毫秒
+2026-04-06 19:09:17.301 INFO  [http-nio-8080-exec-8] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:17.322 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:09:18.417 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:09:19.689 INFO  [http-nio-8080-exec-10] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:19.697 INFO  [http-nio-8080-exec-2] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:19.713 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:6 毫秒
+2026-04-06 19:09:35.966 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:0 毫秒
+2026-04-06 19:09:43.071 INFO  [http-nio-8080-exec-6] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:35 毫秒
+2026-04-06 19:09:43.402 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:17 毫秒
+2026-04-06 19:09:43.528 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:52 毫秒
+2026-04-06 19:09:43.539 INFO  [http-nio-8080-exec-8] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:55 毫秒
+2026-04-06 19:09:46.627 INFO  [http-nio-8080-exec-10] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:10 毫秒
+2026-04-06 19:09:49.582 INFO  [http-nio-8080-exec-2] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:5 毫秒
+2026-04-06 19:09:52.597 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:13 毫秒
+2026-04-06 19:09:54.843 INFO  [http-nio-8080-exec-6] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:31 毫秒
+2026-04-06 19:09:55.582 INFO  [http-nio-8080-exec-4] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:09:57.809 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:09:58.067 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:8 毫秒
+2026-04-06 19:09:58.589 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:7 毫秒
+2026-04-06 19:10:00.005 INFO  [scheduling-1] c.t.c.task.ChefAvailableTimeTask - 开始执行定时任务：更新过期的时间段状态
+2026-04-06 19:10:00.021 INFO  [scheduling-1] c.t.c.task.ChefAvailableTimeTask - 没有需要更新的过期时间段
+2026-04-06 19:10:01.267 INFO  [http-nio-8080-exec-2] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:14 毫秒
+2026-04-06 19:10:01.281 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:20 毫秒
+2026-04-06 19:10:01.644 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:11 毫秒
+2026-04-06 19:10:02.878 INFO  [http-nio-8080-exec-6] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:10:04.578 INFO  [http-nio-8080-exec-4] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:4 毫秒
+2026-04-06 19:10:07.594 INFO  [http-nio-8080-exec-7] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:17 毫秒
+2026-04-06 19:10:08.953 INFO  [http-nio-8080-exec-9] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:7 毫秒
+2026-04-06 19:10:08.965 INFO  [http-nio-8080-exec-1] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:17 毫秒
+2026-04-06 19:10:10.583 INFO  [http-nio-8080-exec-8] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:6 毫秒
+2026-04-06 19:10:11.399 INFO  [http-nio-8080-exec-10] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:3 毫秒
+2026-04-06 19:10:13.601 INFO  [http-nio-8080-exec-2] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:3 毫秒
+2026-04-06 19:10:16.591 INFO  [http-nio-8080-exec-3] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:5 毫秒
+2026-04-06 19:10:19.578 INFO  [http-nio-8080-exec-5] c.t.c.aspect.ServiceExpHandlerAspect - 接口总耗时:3 毫秒

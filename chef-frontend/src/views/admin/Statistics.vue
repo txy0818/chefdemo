@@ -96,8 +96,25 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { orderStatistics } from '@/api/admin'
-import * as echarts from 'echarts'
+import { use } from 'echarts/core'
+import { PieChart, LineChart } from 'echarts/charts'
+import {
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import * as echarts from 'echarts/core'
 import { Document, Clock, Check, Close } from '@element-plus/icons-vue'
+
+use([
+  PieChart,
+  LineChart,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  CanvasRenderer
+])
 
 const loading = ref(false)
 const pieChartRef = ref(null)

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.txy.chefdemo.mapper.ReviewMapper">
+
+    <!-- ===================== resultMap ===================== -->
+    <resultMap id="ReviewResultMap" type="com.txy.chefdemo.domain.Review">
+        <id column="id" property="id"/>
+        <result column="reservation_order_id" property="reservationOrderId"/>
+        <result column="user_id" property="userId"/>
+        <result column="chef_id" property="chefId"/>
+        <result column="score" property="score"/>
+        <result column="content" property="content"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_reason" property="auditReason"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- ===================== upsert ===================== -->
+    <insert id="upsert">
+        INSERT INTO review
+        (
+            reservation_order_id, user_id, chef_id,
+            score, content,
+            audit_status, audit_reason, status,
+            create_time, update_time
+        )
+        VALUES
+            (
+                #{review.reservationOrderId}, #{review.userId}, #{review.chefId},
+                #{review.score}, #{review.content},
+                #{review.auditStatus}, #{review.auditReason}, #{review.status},
+                #{review.createTime}, #{review.updateTime}
+            )
+            ON DUPLICATE KEY UPDATE
+                                 score = VALUES(score),
+                                 content = VALUES(content),
+                                 audit_status = VALUES(audit_status),
+                                 audit_reason = VALUES(audit_reason),
+                                 status = VALUES(status),
+                                 update_time = VALUES(update_time)
+    </insert>
+
+    <!-- ===================== 条件查询 ===================== -->
+    <select id="queryByCondition" resultMap="ReviewResultMap">
+        SELECT * FROM review
+        <where>
+
+            status = 1
+
+            <!-- 单个ID -->
+            <if test="searchBo.reviewId != null and searchBo.reviewId > 0">
+                AND id = #{searchBo.reviewId}
+            </if>
+
+            <!-- 批量ID -->
+            <if test="searchBo.reviewIds != null and searchBo.reviewIds.size() > 0">
+                AND id IN
+                <foreach collection="searchBo.reviewIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+
+            <!-- 订单 -->
+            <if test="searchBo.orderId != null and searchBo.orderId > 0">
+                AND reservation_order_id = #{searchBo.orderId}
+            </if>
+
+            <if test="searchBo.orderIds != null and searchBo.orderIds.size() > 0">
+                AND reservation_order_id IN
+                <foreach collection="searchBo.orderIds" item="oid" open="(" close=")" separator=",">
+                    #{oid}
+                </foreach>
+            </if>
+
+            <!-- 用户 -->
+            <if test="searchBo.userId != null and searchBo.userId > 0">
+                AND user_id = #{searchBo.userId}
+            </if>
+
+            <if test="searchBo.userIds != null and searchBo.userIds.size() > 0">
+                AND user_id IN
+                <foreach collection="searchBo.userIds" item="uid" open="(" close=")" separator=",">
+                    #{uid}
+                </foreach>
+            </if>
+
+            <!-- 厨师 -->
+            <if test="searchBo.chefId != null and searchBo.chefId > 0">
+                AND chef_id = #{searchBo.chefId}
+            </if>
+
+            <if test="searchBo.chefIds != null and searchBo.chefIds.size() > 0">
+                AND chef_id IN
+                <foreach collection="searchBo.chefIds" item="cid" open="(" close=")" separator=",">
+                    #{cid}
+                </foreach>
+            </if>
+
+            <!-- 审核状态 -->
+            <if test="searchBo.auditStatus != null and searchBo.auditStatus > 0">
+                AND audit_status = #{searchBo.auditStatus}
+            </if>
+
+            <if test="searchBo.startTime != null and searchBo.startTime > 0">
+                AND update_time &gt;= #{searchBo.startTime}
+            </if>
+
+            <if test="searchBo.endTime != null and searchBo.endTime > 0">
+                AND update_time &lt;= #{searchBo.endTime}
+            </if>
+
+        </where>
+
+        ORDER BY create_time DESC
+
+        <if test="searchBo.size > 0">
+            LIMIT #{searchBo.offset}, #{searchBo.size}
+        </if>
+    </select>
+    <select id="queryCnt" resultType="java.lang.Integer">
+        SELECT count(*) FROM review
+        <where>
+
+            status = 1
+
+            <!-- 单个ID -->
+            <if test="searchBo.reviewId != null and searchBo.reviewId > 0">
+                AND id = #{searchBo.reviewId}
+            </if>
+
+            <!-- 批量ID -->
+            <if test="searchBo.reviewIds != null and searchBo.reviewIds.size() > 0">
+                AND id IN
+                <foreach collection="searchBo.reviewIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+
+            <!-- 订单 -->
+            <if test="searchBo.orderId != null and searchBo.orderId > 0">
+                AND reservation_order_id = #{searchBo.orderId}
+            </if>
+
+            <if test="searchBo.orderIds != null and searchBo.orderIds.size() > 0">
+                AND reservation_order_id IN
+                <foreach collection="searchBo.orderIds" item="oid" open="(" close=")" separator=",">
+                    #{oid}
+                </foreach>
+            </if>
+
+            <!-- 用户 -->
+            <if test="searchBo.userId != null and searchBo.userId > 0">
+                AND user_id = #{searchBo.userId}
+            </if>
+
+            <if test="searchBo.userIds != null and searchBo.userIds.size() > 0">
+                AND user_id IN
+                <foreach collection="searchBo.userIds" item="uid" open="(" close=")" separator=",">
+                    #{uid}
+                </foreach>
+            </if>
+
+            <!-- 厨师 -->
+            <if test="searchBo.chefId != null and searchBo.chefId > 0">
+                AND chef_id = #{searchBo.chefId}
+            </if>
+
+            <if test="searchBo.chefIds != null and searchBo.chefIds.size() > 0">
+                AND chef_id IN
+                <foreach collection="searchBo.chefIds" item="cid" open="(" close=")" separator=",">
+                    #{cid}
+                </foreach>
+            </if>
+
+            <!-- 审核状态 -->
+            <if test="searchBo.auditStatus != null and searchBo.auditStatus > 0">
+                AND audit_status = #{searchBo.auditStatus}
+            </if>
+
+            <if test="searchBo.startTime != null and searchBo.startTime > 0">
+                AND update_time &gt;= #{searchBo.startTime}
+            </if>
+
+            <if test="searchBo.endTime != null and searchBo.endTime > 0">
+                AND update_time &lt;= #{searchBo.endTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,96 +1,132 @@
 <template>
   <div class="order-detail">
-    <el-card v-loading="loading">
-      <template #header>
-        <div class="card-header">
-          <el-button @click="goBack" icon="ArrowLeft">返回</el-button>
-          <span>订单详情</span>
-        </div>
-      </template>
-      
-      <div v-if="order">
-        <!-- 订单状态 -->
-        <el-alert
-          :title="`订单状态：${getStatusText(order.status)}，支付状态：${order.payStatusDesc}`"
-          :type="getStatusAlertType(order.status)"
-          :closable="false"
-          style="margin-bottom: 20px"
-        />
-        
-        <!-- 订单信息 -->
-        <el-descriptions title="订单信息" :column="2" border>
-          <el-descriptions-item label="订单ID">{{ order.id }}</el-descriptions-item>
-          <el-descriptions-item label="订单状态">
-            <el-tag :type="getStatusType(order.status)">
-              {{ getStatusText(order.status) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="厨师">{{ order.chefName }}</el-descriptions-item>
-          <el-descriptions-item label="订单金额">
-            <span style="color: #f56c6c; font-weight: bold">
-              ¥{{ (order.totalAmount / 100).toFixed(2) }}
-            </span>
-          </el-descriptions-item>
-          <el-descriptions-item label="所属时间段" :span="2">
-            {{ formatTimeRange(order.chefAvailableStartTime, order.chefAvailableEndTime) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="开始时间">{{ formatTime(order.startTime) }}</el-descriptions-item>
-          <el-descriptions-item label="结束时间">{{ formatTime(order.endTime) }}</el-descriptions-item>
-          <el-descriptions-item label="用餐人数">{{ order.peopleCount }}人</el-descriptions-item>
-          <el-descriptions-item label="支付状态">
-            {{ order.payStatusDesc || (order.payStatus === 1 ? '未支付' : '已支付') }}
-          </el-descriptions-item>
-          <el-descriptions-item label="联系人">{{ order.contactName }}</el-descriptions-item>
-          <el-descriptions-item label="联系电话">{{ order.contactPhone }}</el-descriptions-item>
-          <el-descriptions-item label="联系地址" :span="2">{{ order.contactAddress }}</el-descriptions-item>
-          <el-descriptions-item label="特殊要求" :span="2">
-            {{ order.specialRequirements || '无' }}
-          </el-descriptions-item>
-          <el-descriptions-item label="取消原因" :span="2" v-if="order.cancelReason && order.cancelReason !== '-'">
-            {{ order.cancelReason }}
-          </el-descriptions-item>
-        </el-descriptions>
-        
-        <!-- 操作按钮 -->
-        <div class="action-bar">
-          <el-button
-            v-if="order.status === 1"
-            type="primary"
-            size="large"
-            @click="handlePay"
-          >
-            立即支付
-          </el-button>
-          
-          <el-button
-            v-if="order.status === 1 || order.status === 2"
-            type="danger"
-            size="large"
-            @click="handleCancel"
-          >
-            取消订单
-          </el-button>
-          
-          <el-button
-            v-if="order.status === 5"
-            type="warning"
-            size="large"
-            @click="goToReview"
-          >
-            评价厨师
-          </el-button>
-          
-          <el-button
-            v-if="order.status === 5"
-            type="danger"
-            size="large"
-            @click="goToReport"
-          >
-            举报厨师
-          </el-button>
-        </div>
+    <section class="section-heading detail-heading">
+      <div>
+        <h2>订单详情</h2>
+        <p>这里会集中展示订单状态、支付进度、联系方式和后续可执行操作。</p>
       </div>
-    </el-card>
+      <el-button class="back-button" @click="goBack">
+        <el-icon><ArrowLeft /></el-icon>
+        返回订单列表
+      </el-button>
+    </section>
+
+    <div v-loading="loading" class="detail-stack" v-if="order">
+      <section class="status-hero glass-panel">
+        <div class="status-main">
+          <span class="status-kicker">订单 #{{ order.id }}</span>
+          <h1>{{ getStatusText(order.status) }}</h1>
+          <p>支付状态：{{ order.payStatusDesc || (order.payStatus === 1 ? '未支付' : '已支付') }}</p>
+        </div>
+        <div class="status-side">
+          <el-tag class="status-tag" :type="getStatusType(order.status)" size="large">
+            {{ getStatusText(order.status) }}
+          </el-tag>
+          <strong>¥{{ (order.totalAmount / 100).toFixed(2) }}</strong>
+        </div>
+      </section>
+
+      <div class="detail-grid">
+        <div class="detail-main">
+          <el-card class="detail-card glass-panel" shadow="never">
+            <template #header>
+              <div class="block-title">
+                <span>订单信息</span>
+              </div>
+            </template>
+
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="订单ID">{{ order.id }}</el-descriptions-item>
+              <el-descriptions-item label="订单状态">
+                <el-tag :type="getStatusType(order.status)">
+                  {{ getStatusText(order.status) }}
+                </el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="厨师">{{ order.chefName }}</el-descriptions-item>
+              <el-descriptions-item label="订单金额">
+                <span class="amount-text">¥{{ (order.totalAmount / 100).toFixed(2) }}</span>
+              </el-descriptions-item>
+              <el-descriptions-item label="所属时间段" :span="2">
+                {{ formatTimeRange(order.chefAvailableStartTime, order.chefAvailableEndTime) }}
+              </el-descriptions-item>
+              <el-descriptions-item label="开始时间">{{ formatTime(order.startTime) }}</el-descriptions-item>
+              <el-descriptions-item label="结束时间">{{ formatTime(order.endTime) }}</el-descriptions-item>
+              <el-descriptions-item label="用餐人数">{{ order.peopleCount }}人</el-descriptions-item>
+              <el-descriptions-item label="支付状态">
+                {{ order.payStatusDesc || (order.payStatus === 1 ? '未支付' : '已支付') }}
+              </el-descriptions-item>
+              <el-descriptions-item label="联系人">{{ order.contactName }}</el-descriptions-item>
+              <el-descriptions-item label="联系电话">{{ order.contactPhone }}</el-descriptions-item>
+              <el-descriptions-item label="联系地址" :span="2">{{ order.contactAddress }}</el-descriptions-item>
+              <el-descriptions-item label="特殊要求" :span="2">
+                {{ order.specialRequirements || '无' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="取消原因" :span="2" v-if="order.cancelReason && order.cancelReason !== '-'">
+                {{ order.cancelReason }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+        </div>
+
+        <aside class="detail-side">
+          <el-card class="detail-card glass-panel" shadow="never">
+            <template #header>
+              <div class="block-title">
+                <span>当前可操作</span>
+              </div>
+            </template>
+
+            <div class="action-stack">
+              <el-button
+                v-if="order.status === 1"
+                class="primary-action"
+                type="primary"
+                size="large"
+                @click="handlePay"
+              >
+                立即支付
+              </el-button>
+
+              <el-button
+                v-if="order.status === 1 || order.status === 2"
+                class="danger-action"
+                type="danger"
+                size="large"
+                @click="handleCancel"
+              >
+                取消订单
+              </el-button>
+
+              <el-button
+                v-if="order.status === 5"
+                class="warm-action"
+                type="warning"
+                size="large"
+                @click="goToReview"
+              >
+                评价厨师
+              </el-button>
+
+              <el-button
+                v-if="order.status === 5"
+                class="danger-action"
+                type="danger"
+                size="large"
+                @click="goToReport"
+              >
+                举报厨师
+              </el-button>
+
+              <el-alert
+                :title="`订单状态：${getStatusText(order.status)}，支付状态：${order.payStatusDesc}`"
+                :type="getStatusAlertType(order.status)"
+                :closable="false"
+              />
+            </div>
+          </el-card>
+        </aside>
+      </div>
+    </div>
     
     <!-- 取消订单对话框 -->
     <el-dialog v-model="cancelVisible" title="取消订单" width="500px">
@@ -143,13 +179,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { orderDetail, payOrder, cancelOrder } from '@/api/user'
 import { getPaymentTypeOptions } from '@/api/constant'
-import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, Wallet } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
-const userStore = useUserStore()
 const loading = ref(false)
 const cancelling = ref(false)
 const paying = ref(false)
@@ -305,22 +339,146 @@ onMounted(() => {
 
 <style scoped>
 .order-detail {
-  max-width: 900px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.card-header {
+.back-button {
   display: flex;
   align-items: center;
-  gap: 20px;
-  font-size: 18px;
-  font-weight: bold;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(220, 38, 38, 0.12);
+  color: #7f1d1d;
 }
 
-.action-bar {
-  margin-top: 30px;
+.detail-stack {
   display: flex;
-  gap: 15px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.status-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 28px;
+  border-radius: 30px;
+}
+
+.status-kicker {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 241, 235, 0.95);
+  color: #a16207;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.status-main h1 {
+  margin: 16px 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 4vw, 3rem);
+  font-weight: 400;
+  color: #3f1111;
+}
+
+.status-main p {
+  margin: 0;
+  color: #8b6b6b;
+}
+
+.status-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status-side strong {
+  font-size: 2rem;
+  color: #b91c1c;
+}
+
+.status-tag {
+  border-radius: 999px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
+  gap: 20px;
+}
+
+.detail-card {
+  border: none;
+  border-radius: 28px;
+}
+
+.block-title span {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #3f1111;
+}
+
+.amount-text {
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.primary-action,
+.danger-action,
+.warm-action {
+  width: 100%;
+  min-height: 46px;
+  margin-left: 0;
+  border-radius: 14px;
+}
+
+.detail-card :deep(.el-descriptions__label) {
+  width: 110px;
+  color: #8b6b6b;
+}
+
+.detail-card :deep(.el-descriptions__body) {
+  background: transparent;
+}
+
+.detail-card :deep(.el-radio) {
+  min-height: 44px;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .status-hero {
+    padding: 22px 18px;
+    border-radius: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-side {
+    width: 100%;
+    align-items: flex-start;
+  }
 }
 </style>
