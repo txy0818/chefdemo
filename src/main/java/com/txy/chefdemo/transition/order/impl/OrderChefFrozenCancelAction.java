@@ -43,9 +43,9 @@ public class OrderChefFrozenCancelAction implements OrderAction {
             support.createBothSideNotification(
                     order,
                     "订单状态更新",
-                    reason + " 当前状态为“已取消”。订单ID：" + order.getId(),
+                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    reason + " 当前状态为“已取消”。订单ID：" + order.getId(),
+                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     context.getSource()
             );
         } else {
@@ -55,9 +55,9 @@ public class OrderChefFrozenCancelAction implements OrderAction {
             support.createBothSideNotification(
                     order,
                     "订单状态更新",
-                    reason + " 当前订单状态为“已取消”。订单ID：" + order.getId(),
+                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    reason + " 当前订单状态为“已取消”。订单ID：" + order.getId(),
+                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     context.getSource()
             );
         }

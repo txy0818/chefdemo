@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.constant.OrderStatus;
 import com.txy.chefdemo.domain.constant.PayStatus;
+import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.transition.order.OrderAction;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.support.OrderTransitionSupport;
@@ -29,7 +30,7 @@ public class OrderChefRejectAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
-        Preconditions.checkArgument(Objects.equals(order.getChefId(), context.getOperatorUserId()), "无权限");
+        Preconditions.checkArgument(Objects.equals(order.getChefId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
         order.setStatus(OrderStatus.REJECTED.getCode());
         order.setPayStatus(PayStatus.REFUNDED.getCode());
         order.setCancelReason(context.getReason());

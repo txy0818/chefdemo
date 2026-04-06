@@ -4,6 +4,7 @@ import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
 import com.txy.chefdemo.domain.constant.OrderStatus;
+import com.txy.chefdemo.domain.constant.PayStatus;
 import com.txy.chefdemo.domain.constant.UserStatus;
 import com.txy.chefdemo.mapper.ReservationOrderMapper;
 import com.txy.chefdemo.mapper.UserMapper;
@@ -38,7 +39,8 @@ public class UserStatusChangeListener {
     @Autowired
     private FrozenChefCleanupService frozenChefCleanupService;
 
-    private static final String FROZEN_STR = "厨师账号被冻结，订单已取消/退款";
+    private static final String FROZEN_STR = "厨师账号被冻结，订单已"
+            + OrderStatus.CANCELLED.getDesc() + "/" + PayStatus.REFUNDED.getDesc();
     private static final String SOURCE = "user-status-listener";
 
     @EventListener

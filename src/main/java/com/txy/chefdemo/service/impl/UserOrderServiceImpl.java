@@ -16,6 +16,7 @@ import com.txy.chefdemo.exp.BusinessException;
 import com.txy.chefdemo.req.CancelOrderReq;
 import com.txy.chefdemo.req.CreateOrderReq;
 import com.txy.chefdemo.req.PayOrderReq;
+import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.service.ChefAvailableTimeService;
 import com.txy.chefdemo.service.ChefProfileService;
 import com.txy.chefdemo.service.OrderFlowService;
@@ -71,7 +72,7 @@ public class UserOrderServiceImpl implements UserOrderService {
             throw new BusinessException("厨师不存在");
         }
         if (!Objects.equals(profile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
-            throw new BusinessException("厨师审核尚未通过");
+            throw new BusinessException(BaseRespConstant.AUDIT_NOT_PASS.getDesc());
         }
 
         long now = System.currentTimeMillis();
@@ -85,7 +86,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         if (!Objects.equals(time.getChefId(), req.getChefUserId())
                 || !Objects.equals(time.getStatus(), AvailableTimeStatus.AVAILABLE.getCode())
                 || time.getEndTime() < now) {
-            throw new BusinessException("时间段不可预约");
+            throw new BusinessException(BaseRespConstant.TIME_NOT_AVAILABLE.getDesc());
         }
         if (req.getStartTime() < time.getStartTime() || req.getEndTime() > time.getEndTime()) {
             throw new BusinessException("预约时间不在时间段内");
@@ -99,7 +100,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         for (ReservationOrder existingOrder : existingOrders) {
             if (!(req.getEndTime() + minGap <= existingOrder.getStartTime()
                     || req.getStartTime() >= existingOrder.getEndTime() + minGap)) {
-                throw new BusinessException("时间段不可预约");
+                throw new BusinessException(BaseRespConstant.TIME_NOT_AVAILABLE.getDesc());
             }
         }
 
@@ -140,7 +141,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
         ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())) {
-            throw new BusinessException("订单状态错误");
+            throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
         orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.PAY,
                 new OrderContext(order.getId(), currentUserId, req.getPayType(), null));
@@ -155,7 +156,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())
                 && !Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
-            throw new BusinessException("订单状态错误");
+            throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
         orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.USER_CANCEL,
                 new OrderContext(order.getId(), currentUserId, null, cancelReason));
@@ -170,7 +171,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         }
         ReservationOrder order = orders.get(0);
         if (!Objects.equals(order.getUserId(), currentUserId)) {
-            throw new BusinessException("无权限");
+            throw new BusinessException(BaseRespConstant.FORBIDDEN.getDesc());
         }
         return order;
     }
