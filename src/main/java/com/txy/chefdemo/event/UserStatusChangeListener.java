@@ -39,7 +39,7 @@ public class UserStatusChangeListener {
     @Autowired
     private FrozenChefCleanupService frozenChefCleanupService;
 
-    private static final String FROZEN_STR = "厨师账号被冻结，订单已"
+    private static final String FROZEN_STR = "厨师账号被冻结，订单"
             + OrderStatus.CANCELLED.getDesc() + "/" + PayStatus.REFUNDED.getDesc();
     private static final String SOURCE = "user-status-listener";
 
