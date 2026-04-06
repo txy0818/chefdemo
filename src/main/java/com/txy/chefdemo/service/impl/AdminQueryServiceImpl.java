@@ -147,12 +147,12 @@ public class AdminQueryServiceImpl implements AdminQueryService {
                 .filter(o -> o.getCreateTime() >= todayStart)
                 .collect(Collectors.toList());
         List<OrderStatisticsDTO.PieItem> pie = Arrays.asList(
-                new OrderStatisticsDTO.PieItem("待支付", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.PENDING_PAYMENT.getCode())).count()),
-                new OrderStatisticsDTO.PieItem("待接单", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.PENDING_ACCEPT.getCode())).count()),
-                new OrderStatisticsDTO.PieItem("已接单", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.ACCEPTED.getCode())).count()),
-                new OrderStatisticsDTO.PieItem("已拒单", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.REJECTED.getCode())).count()),
-                new OrderStatisticsDTO.PieItem("已完成", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.COMPLETED.getCode())).count()),
-                new OrderStatisticsDTO.PieItem("已取消", todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.CANCELLED.getCode())).count())
+                new OrderStatisticsDTO.PieItem(OrderStatus.PENDING_PAYMENT.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.PENDING_PAYMENT.getCode())).count()),
+                new OrderStatisticsDTO.PieItem(OrderStatus.PENDING_ACCEPT.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.PENDING_ACCEPT.getCode())).count()),
+                new OrderStatisticsDTO.PieItem(OrderStatus.ACCEPTED.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.ACCEPTED.getCode())).count()),
+                new OrderStatisticsDTO.PieItem(OrderStatus.REJECTED.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.REJECTED.getCode())).count()),
+                new OrderStatisticsDTO.PieItem(OrderStatus.COMPLETED.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.COMPLETED.getCode())).count()),
+                new OrderStatisticsDTO.PieItem(OrderStatus.CANCELLED.getDesc(), todayOrders.stream().filter(o -> o.getStatus().equals(OrderStatus.CANCELLED.getCode())).count())
         );
 
         Map<String, Long> dateCountMap = new LinkedHashMap<>();
