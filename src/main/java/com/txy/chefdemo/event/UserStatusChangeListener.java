@@ -4,6 +4,7 @@ import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
 import com.txy.chefdemo.domain.constant.OrderStatus;
+import com.txy.chefdemo.domain.constant.PayStatus;
 import com.txy.chefdemo.domain.constant.UserStatus;
 import com.txy.chefdemo.mapper.ReservationOrderMapper;
 import com.txy.chefdemo.mapper.UserMapper;
@@ -38,7 +39,6 @@ public class UserStatusChangeListener {
     @Autowired
     private FrozenChefCleanupService frozenChefCleanupService;
 
-    private static final String FROZEN_STR = "厨师账号被冻结，订单已取消/退款";
     private static final String SOURCE = "user-status-listener";
 
     @EventListener
@@ -55,7 +55,6 @@ public class UserStatusChangeListener {
             log.warn("[{}] userId={} 状态变更事件未找到用户，跳过处理", SOURCE, userId);
             return;
         }
-        String cancelReason = user.getUsername() + " " + FROZEN_STR;
         long now = System.currentTimeMillis();
         log.info("[{}] userId={} 开始处理冻结账号联动逻辑", SOURCE, userId);
 
@@ -73,7 +72,7 @@ public class UserStatusChangeListener {
         if (!CollectionUtils.isEmpty(orders)) {
             for (ReservationOrder order : orders) {
                 try {
-                    OrderContext context = new OrderContext(order.getId(), event.getOperatorId(), null, cancelReason);
+                    OrderContext context = new OrderContext(order.getId(), event.getOperatorId(), null, buildFrozenCancelReason(user, order));
                     context.setSource(SOURCE);
                     orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()),
                             OrderStateEvent.CHEF_FROZEN_CANCEL,
@@ -94,7 +93,7 @@ public class UserStatusChangeListener {
         if (!CollectionUtils.isEmpty(pendingOrders)) {
             for (ReservationOrder order : pendingOrders) {
                 try {
-                    OrderContext context = new OrderContext(order.getId(), event.getOperatorId(), null, cancelReason);
+                    OrderContext context = new OrderContext(order.getId(), event.getOperatorId(), null, buildFrozenCancelReason(user, order));
                     context.setSource(SOURCE);
                     orderFlowService.trigger(OrderStatus.PENDING_PAYMENT,
                             OrderStateEvent.CHEF_FROZEN_CANCEL,
@@ -106,5 +105,12 @@ public class UserStatusChangeListener {
             }
         }
         log.info("[{}] userId={} 冻结账号联动主处理链路完成", SOURCE, userId);
+    }
+
+    private String buildFrozenCancelReason(User user, ReservationOrder order) {
+        String suffix = Objects.equals(order.getPayStatus(), PayStatus.PAID.getCode())
+                ? "订单" + OrderStatus.CANCELLED.getDesc() + "并" + PayStatus.REFUNDED.getDesc()
+                : "订单" + OrderStatus.CANCELLED.getDesc();
+        return user.getUsername() + " 厨师账号被冻结，" + suffix;
     }
 }

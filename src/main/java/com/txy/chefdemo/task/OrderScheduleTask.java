@@ -185,11 +185,9 @@ public class OrderScheduleTask {
         if (openOrders == null || openOrders.isEmpty()) {
             return;
         }
-        String cancelReason = frozenChef.getUsername() + " 厨师账号被冻结，订单已"
-                + OrderStatus.CANCELLED.getDesc() + "/" + PayStatus.REFUNDED.getDesc();
         for (ReservationOrder order : openOrders) {
             try {
-                OrderContext context = new OrderContext(order.getId(), operatorId, null, cancelReason);
+                OrderContext context = new OrderContext(order.getId(), operatorId, null, buildFrozenCancelReason(frozenChef, order));
                 context.setSource("schedule-frozen-compensate");
                 orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()),
                         OrderStateEvent.CHEF_FROZEN_CANCEL,
@@ -199,5 +197,12 @@ public class OrderScheduleTask {
                 log.error("[schedule-frozen-compensate] 冻结厨师订单补偿失败, chefUserId={}, orderId={}", frozenChef.getId(), order.getId(), e);
             }
         }
+    }
+
+    private String buildFrozenCancelReason(User frozenChef, ReservationOrder order) {
+        String suffix = order.getPayStatus() != null && order.getPayStatus() == PayStatus.PAID.getCode()
+                ? "订单" + OrderStatus.CANCELLED.getDesc() + "并" + PayStatus.REFUNDED.getDesc()
+                : "订单" + OrderStatus.CANCELLED.getDesc();
+        return frozenChef.getUsername() + " 厨师账号被冻结，" + suffix;
     }
 }

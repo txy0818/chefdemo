@@ -39,7 +39,7 @@ public class OrderPayAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
-        Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), "无权限");
+        Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
 
         long now = System.currentTimeMillis();
         Integer payType = context.getPayType() == null ? PaymentType.WALLET.getCode() : context.getPayType();
@@ -60,9 +60,9 @@ public class OrderPayAction implements OrderAction {
         support.createBothSideNotification(
                 order,
                 "订单状态更新",
-                "您的订单已支付成功，当前状态为“待接单”。订单ID：" + order.getId(),
+                "您的订单已支付成功，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您有一笔新订单待处理，当前状态为“待接单”。订单ID：" + order.getId(),
+                "您有一笔新订单待处理，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId(),
                 context.getSource()
         );
         return support.updateOrder(order);
