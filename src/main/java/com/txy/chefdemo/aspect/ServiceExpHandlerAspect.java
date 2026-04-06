@@ -78,7 +78,7 @@ public class ServiceExpHandlerAspect {
     private BaseResp buildBaseResp(Throwable throwable) {
         String message = throwable.getMessage();
         if (throwable instanceof BusinessException || throwable instanceof IllegalArgumentException) {
-            if ("无权限".equals(message)) {
+            if (BaseRespConstant.FORBIDDEN.getDesc().equals(message)) {
                 return BaseRespConstant.FORBIDDEN;
             }
             if (BaseRespConstant.AUDIT_NOT_PASS.getDesc().equals(message)) {

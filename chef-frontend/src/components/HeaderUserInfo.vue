@@ -1,18 +1,15 @@
 <template>
-  <div class="header-user-info">
-    <div class="avatar-ring">
-      <el-avatar :size="42" :src="avatarUrl" />
-    </div>
-    <div class="header-user-meta">
-      <span class="header-user-label">当前账户</span>
-      <span class="header-user-name">{{ userName }}</span>
-    </div>
-  </div>
+  <button type="button" class="header-user-info" @click="$emit('click')">
+    <el-avatar :size="40" :src="avatarUrl" />
+    <span class="header-user-name">{{ userName }}</span>
+  </button>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import defaultAvatar from '@/assets/default-avatar.svg'
+
+defineEmits(['click'])
 
 const props = defineProps({
   userName: {
@@ -32,32 +29,25 @@ const avatarUrl = computed(() => props.avatar || defaultAvatar)
 .header-user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
-}
-
-.avatar-ring {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid rgba(64, 158, 255, 0.12);
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(248, 113, 113, 0.85), rgba(161, 98, 7, 0.72));
-  box-shadow: 0 10px 24px rgba(161, 98, 7, 0.18);
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: background-color 220ms ease, border-color 220ms ease, transform 220ms ease;
 }
 
-.header-user-meta {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.header-user-info:hover {
+  background: rgba(64, 158, 255, 0.08);
+  border-color: rgba(64, 158, 255, 0.28);
+  transform: translateY(-1px);
 }
 
-.header-user-label {
-  font-size: 11px;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #a17862;
+.header-user-info:focus-visible {
+  outline: 2px solid #409eff;
+  outline-offset: 2px;
 }
 
 .header-user-name {
@@ -66,7 +56,6 @@ const avatarUrl = computed(() => props.avatar || defaultAvatar)
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
-  font-weight: 700;
-  color: #3f1111;
+  color: #303133;
 }
 </style>

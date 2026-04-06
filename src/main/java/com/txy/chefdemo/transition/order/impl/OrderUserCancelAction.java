@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.constant.OrderStatus;
 import com.txy.chefdemo.domain.constant.PayStatus;
+import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.transition.order.OrderAction;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.support.OrderTransitionSupport;
@@ -29,7 +30,7 @@ public class OrderUserCancelAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
-        Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), "无权限");
+        Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
 
         long now = System.currentTimeMillis();
         order.setCancelReason(context.getReason());
@@ -41,9 +42,9 @@ public class OrderUserCancelAction implements OrderAction {
             support.createBothSideNotification(
                     order,
                     "订单状态更新",
-                    "您的订单已取消，退款已退回钱包，当前订单状态为“已取消”。订单ID：" + order.getId(),
+                    "您的订单已取消，退款已退回钱包，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    "用户已取消订单，系统已完成退款，当前订单状态为“已取消”。订单ID：" + order.getId(),
+                    "用户已取消订单，系统已完成退款，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     context.getSource()
             );
         } else {
@@ -51,9 +52,9 @@ public class OrderUserCancelAction implements OrderAction {
             support.createBothSideNotification(
                     order,
                     "订单状态更新",
-                    "您的订单已取消，当前状态为“已取消”。订单ID：" + order.getId(),
+                    "您的订单已取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    "用户已取消订单，当前状态为“已取消”。订单ID：" + order.getId(),
+                    "用户已取消订单，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     context.getSource()
             );
         }

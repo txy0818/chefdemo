@@ -3,6 +3,7 @@ package com.txy.chefdemo.utils;
 import com.google.common.base.Preconditions;
 import com.txy.chefdemo.constant.AuthConstant;
 import com.txy.chefdemo.domain.constant.UserRole;
+import com.txy.chefdemo.resp.constants.BaseRespConstant;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public final class AuthRequestUtils {
     public static Long requireUser(HttpServletRequest request, UserRole role) {
         Long userId = requireCurrentUserId(request);
         Integer userRole = requireCurrentUserRole(request);
-        Preconditions.checkArgument(role != null && Objects.equals(userRole, role.getCode()), "无权限");
+        Preconditions.checkArgument(role != null && Objects.equals(userRole, role.getCode()), BaseRespConstant.FORBIDDEN.getDesc());
         return userId;
     }
 }
