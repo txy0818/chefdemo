@@ -27,13 +27,13 @@
             <el-icon><Wallet /></el-icon>
             <span>余额</span>
           </el-menu-item>
-          <el-menu-item index="/user/profile">
-            <el-icon><User /></el-icon>
-            <span>个人中心</span>
-          </el-menu-item>
         </el-menu>
         <div class="header-actions">
-          <HeaderUserInfo :user-name="displayUserName" :avatar="displayAvatar" />
+          <HeaderUserInfo
+            :user-name="displayUserName"
+            :avatar="displayAvatar"
+            @click="router.push('/user/profile')"
+          />
           <el-button type="danger" @click="handleLogout">退出</el-button>
         </div>
       </div>
@@ -55,7 +55,7 @@ import { notificationList as fetchNotificationList } from '@/api/user'
 import HeaderUserInfo from '@/components/HeaderUserInfo.vue'
 import { NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
 import { createUserSocket } from '@/utils/ws'
-import { Search, List, Bell, User, Wallet } from '@element-plus/icons-vue'
+import { Search, List, Bell, Wallet } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -238,12 +238,15 @@ onBeforeUnmount(() => {
 .el-menu {
   flex: 1;
   border-bottom: none;
+  min-width: 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
 .el-main {
