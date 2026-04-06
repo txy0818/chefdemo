@@ -1,16 +1,28 @@
 <template>
   <div class="user-list">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">用户治理</span>
+        <h2>用户列表</h2>
+        <p>统一查看账号状态、筛选角色，并处理冻结与恢复操作。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 位</div>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>用户列表</span>
+          <div>
+            <strong>筛选用户</strong>
+            <p>优先关注被冻结用户和近期需要处理的异常账号。</p>
+          </div>
         </div>
       </template>
       
       <!-- 查询条件 -->
       <el-form :inline="true" :model="queryForm" class="query-form">
         <el-form-item label="角色">
-          <el-select v-model="queryForm.role" placeholder="请选择" clearable style="width: 200px">
+          <el-select v-model="queryForm.role" placeholder="请选择角色" clearable style="width: 200px">
             <el-option
               v-for="item in roleOptions"
               :key="item.value"
@@ -21,7 +33,7 @@
         </el-form-item>
         
         <el-form-item label="状态">
-          <el-select v-model="queryForm.status" placeholder="请选择" clearable style="width: 200px">
+          <el-select v-model="queryForm.status" placeholder="请选择状态" clearable style="width: 200px">
             <el-option
               v-for="item in statusOptions"
               :key="item.value"
@@ -32,11 +44,11 @@
         </el-form-item>
         
         <el-form-item label="用户名">
-          <el-input v-model="queryForm.username" placeholder="请输入用户名" clearable />
+          <el-input v-model="queryForm.username" placeholder="请输入用户名关键词" clearable />
         </el-form-item>
         
         <el-form-item label="用户ID">
-          <el-input v-model="queryForm.userId" placeholder="请输入用户ID" clearable />
+          <el-input v-model="queryForm.userId" placeholder="请输入目标用户 ID" clearable />
         </el-form-item>
         
         <el-form-item>
@@ -102,7 +114,7 @@
             :rows="4"
             maxlength="100"
             show-word-limit
-            placeholder="请输入操作原因，最多100字"
+            placeholder="请填写操作原因，便于后续审计和通知用户"
           />
         </el-form-item>
       </el-form>
@@ -259,15 +271,50 @@ onMounted(() => {
 
 <style scoped>
 .user-list {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .query-form {
   margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+}
+
+.query-form :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.user-list :deep(.el-table .cell) {
+  line-height: 1.5;
+}
+
+.user-list :deep(.el-pagination) {
+  margin-top: 24px;
+  justify-content: flex-end;
 }
 </style>

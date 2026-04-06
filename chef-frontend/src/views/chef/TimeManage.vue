@@ -68,14 +68,14 @@
     </el-card>
     
     <!-- 新增时间段对话框 -->
-    <el-dialog v-model="addVisible" title="新增时间段" width="500px">
+    <el-dialog v-model="addVisible" title="新增可预约时间段" width="500px">
       <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="100px">
         <el-form-item label="开始时间" prop="startTime">
           <el-date-picker
             v-model="addForm.startTime"
             type="datetime"
             format="YYYY-MM-DD HH:mm"
-            placeholder="请选择开始时间"
+            placeholder="请选择时间段开始时间"
             style="width: 100%"
             :disabled-date="disabledDate"
           />
@@ -86,7 +86,7 @@
             v-model="addForm.endTime"
             type="datetime"
             format="YYYY-MM-DD HH:mm"
-            placeholder="请选择结束时间"
+            placeholder="请选择时间段结束时间"
             style="width: 100%"
             :disabled-date="disabledDate"
           />

@@ -2,13 +2,23 @@
   <div class="chef-search">
     <section class="section-heading search-heading">
       <div>
+        <span class="hero-kicker">用户端精选</span>
         <h2>挑选今天的私厨人选</h2>
         <p>先按服务场景和预算缩小范围，再从评分与菜系里找到更贴近你口味的一位。</p>
       </div>
-      <div class="metric-pill">当前结果 {{ chefList.length }} 位</div>
+      <div class="search-summary">
+        <div class="metric-pill">当前结果 {{ chefList.length }} 位</div>
+        <span class="summary-note">推荐先看评分，再看擅长菜系与服务区域</span>
+      </div>
     </section>
 
     <el-card class="search-card glass-panel" shadow="never">
+      <div class="form-intro">
+        <div>
+          <h3>筛选条件</h3>
+          <p>先缩小范围，再选择更贴近口味与预算的厨师。</p>
+        </div>
+      </div>
       <el-form
         :model="searchForm"
         class="search-form"
@@ -18,7 +28,7 @@
         <el-form-item label="关键词" class="filter-item filter-keyword">
           <el-input
             v-model="searchForm.keyword"
-            placeholder="搜索厨师昵称或菜系"
+            placeholder="请输入厨师昵称或擅长菜系"
             clearable
             class="full-input"
           />
@@ -27,7 +37,7 @@
         <el-form-item label="服务区域" class="filter-item filter-area">
           <el-input
             v-model="searchForm.serviceArea"
-            placeholder="输入服务区域"
+            placeholder="请输入服务区域，如朝阳区、浦东新区"
             clearable
             class="full-input"
           />
@@ -38,14 +48,14 @@
             <el-input-number
               v-model="searchForm.minPrice"
               :min="0"
-              placeholder="最低"
+              placeholder="最低价格"
               class="price-input"
             />
             <span class="price-separator">-</span>
             <el-input-number
               v-model="searchForm.maxPrice"
               :min="0"
-              placeholder="最高"
+              placeholder="最高价格"
               class="price-input"
             />
             <span class="unit-text">元</span>
@@ -59,7 +69,7 @@
               :min="1"
               :max="5"
               :precision="1"
-              placeholder="最低评分"
+              placeholder="请输入最低评分"
               class="number-input"
             />
             <span class="unit-text">分</span>
@@ -82,7 +92,7 @@
     </el-card>
     
     <div class="chef-list" v-loading="loading">
-      <el-empty v-if="chefList.length === 0 && !loading" description="暂无厨师" />
+      <el-empty v-if="chefList.length === 0 && !loading" description="暂时没有匹配的厨师，换个条件试试" />
       
       <el-row :gutter="20">
         <el-col
@@ -104,7 +114,10 @@
             </div>
             
             <div class="chef-info">
-              <h3>{{ chef.displayName }}</h3>
+              <div class="chef-name-row">
+                <h3>{{ chef.displayName }}</h3>
+                <span class="chef-price-chip">¥{{ (chef.price / 100).toFixed(0) }}/小时</span>
+              </div>
               <p class="chef-summary">适合家庭聚餐、轻宴请和定制家宴场景，支持按区域预约上门。</p>
               
               <div class="info-item">
@@ -119,7 +132,7 @@
               
               <div class="info-item">
                 <el-icon><Money /></el-icon>
-                <span class="price-text">¥{{ (chef.price / 100).toFixed(0) }}/小时</span>
+                <span class="price-text">参考价格 {{ (chef.price / 100).toFixed(0) }} 元/小时</span>
               </div>
               
               <div class="rating">
@@ -233,17 +246,48 @@ onMounted(() => {
 .chef-search {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding-bottom: 12px;
+  gap: 24px;
+  padding-bottom: 18px;
 }
 
 .search-heading {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.search-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.summary-note {
+  color: #8c6a60;
+  font-size: 13px;
 }
 
 .search-card {
   border: none;
   border-radius: var(--radius-card);
+}
+
+.form-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-intro h3 {
+  margin: 0;
+  color: #3f1111;
+  font-size: 1.08rem;
+}
+
+.form-intro p {
+  margin: 8px 0 0;
+  color: #7c5b5b;
 }
 
 .search-form {
@@ -293,6 +337,7 @@ onMounted(() => {
 
 .chef-card {
   margin-bottom: 20px;
+  padding: 6px;
   cursor: pointer;
   border: 1px solid rgba(220, 38, 38, 0.08);
   border-radius: 24px;
@@ -334,10 +379,31 @@ onMounted(() => {
   text-align: left;
 }
 
+.chef-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
 .chef-info h3 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 1.18rem;
   color: #3f1111;
+}
+
+.chef-price-chip {
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 237, 213, 0.92);
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
 }
 
 .chef-summary {
@@ -517,6 +583,17 @@ onMounted(() => {
   .filter-sort,
   .filter-actions {
     grid-column: span 4;
+  }
+}
+
+@media (max-width: 900px) {
+  .search-summary {
+    align-items: flex-start;
+  }
+
+  .chef-name-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

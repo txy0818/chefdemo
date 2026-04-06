@@ -29,7 +29,7 @@
             <el-form-item label="预约时间段" prop="chefAvailableTimeId">
               <el-select
                 v-model="orderForm.chefAvailableTimeId"
-                placeholder="请选择预约时间段"
+                placeholder="请选择可预约的大时间段"
                 style="width: 100%"
                 @change="handleTimeChange"
               >
@@ -49,7 +49,7 @@
                 type="datetime"
                 format="YYYY-MM-DD HH:mm"
                 value-format="x"
-                placeholder="请选择开始时间"
+                placeholder="请在所选时间段内选择开始时间"
                 style="width: 100%"
               />
             </el-form-item>
@@ -60,7 +60,7 @@
                 type="datetime"
                 format="YYYY-MM-DD HH:mm"
                 value-format="x"
-                placeholder="请选择结束时间"
+                placeholder="请在所选时间段内选择结束时间"
                 style="width: 100%"
               />
             </el-form-item>
@@ -90,7 +90,7 @@
                 v-model="orderForm.specialRequirements"
                 type="textarea"
                 :rows="4"
-                placeholder="请输入特殊要求，如忌口、偏好口味、是否需要儿童餐等"
+                placeholder="请填写口味偏好、忌口、儿童餐或其他上门服务要求"
               />
             </el-form-item>
           </div>
@@ -104,7 +104,7 @@
             <el-form-item label="联系人" prop="contactName">
               <el-input
                 v-model="orderForm.contactName"
-                placeholder="请输入2-20位联系人姓名"
+                placeholder="请输入真实联系人姓名，2 到 20 个字"
                 maxlength="20"
                 show-word-limit
               />
@@ -113,7 +113,7 @@
             <el-form-item label="联系电话" prop="contactPhone">
               <el-input
                 v-model="orderForm.contactPhone"
-                placeholder="请输入11位联系电话"
+                placeholder="请输入可联系的 11 位手机号"
                 maxlength="11"
                 clearable
               />
@@ -122,7 +122,7 @@
             <el-form-item label="联系地址" prop="contactAddress">
               <el-input
                 v-model="orderForm.contactAddress"
-                placeholder="请输入5-120位详细地址"
+                placeholder="请输入详细上门地址，建议写到门牌号"
                 maxlength="120"
                 show-word-limit
               />

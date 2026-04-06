@@ -1,16 +1,28 @@
 <template>
   <div class="review-list">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">评论治理</span>
+        <h2>评论管理</h2>
+        <p>统一审核用户评价，快速通过、驳回或删除异常内容。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 条</div>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>评论管理</span>
+          <div>
+            <strong>筛选评论</strong>
+            <p>优先处理待审核内容，必要时直接删除明显异常评论。</p>
+          </div>
         </div>
       </template>
       
       <!-- 查询条件 -->
       <el-form :inline="true" :model="queryForm" class="query-form">
         <el-form-item label="审核状态">
-          <el-select v-model="queryForm.auditStatus" placeholder="请选择" clearable style="width: 200px">
+          <el-select v-model="queryForm.auditStatus" placeholder="请选择审核状态" clearable style="width: 200px">
             <el-option
               v-for="item in auditStatusOptions"
               :key="item.value"
@@ -100,7 +112,7 @@
             :rows="4"
             maxlength="100"
             show-word-limit
-            placeholder="请输入驳回原因，最多100字"
+            placeholder="请填写驳回原因，便于用户理解审核结果"
           />
         </el-form-item>
       </el-form>
@@ -265,15 +277,46 @@ onMounted(() => {
 
 <style scoped>
 .review-list {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .query-form {
   margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+}
+
+.review-list :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.review-list :deep(.el-pagination) {
+  margin-top: 24px;
+  justify-content: flex-end;
 }
 </style>

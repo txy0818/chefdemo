@@ -9,7 +9,7 @@
       </template>
       
       <el-alert
-        title="请如实填写举报信息，我们会认真处理每一条举报"
+        title="请如实填写举报信息，我们会认真核实并处理每一条举报"
         type="warning"
         :closable="false"
         style="margin-bottom: 20px"
@@ -41,7 +41,7 @@
             v-model="reportForm.reason"
             type="textarea"
             :rows="8"
-            placeholder="请详细描述举报原因（至少20个字）"
+            placeholder="请尽量写清楚发生了什么、涉及哪类问题以及你的具体感受"
             maxlength="200"
             show-word-limit
           />

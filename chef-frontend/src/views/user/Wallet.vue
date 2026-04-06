@@ -86,7 +86,7 @@
           </el-table-column>
         </el-table>
 
-        <el-empty v-if="!recordLoading && records.length === 0" description="暂无流水" />
+        <el-empty v-if="!recordLoading && records.length === 0" description="当前还没有余额流水记录" />
 
         <div class="pagination-wrap" v-if="recordTotal > 0">
           <el-pagination

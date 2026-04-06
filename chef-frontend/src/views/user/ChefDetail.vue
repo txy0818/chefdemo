@@ -96,7 +96,7 @@
               </div>
             </template>
             <div class="time-slots">
-              <el-empty v-if="!chef.availableTimes || chef.availableTimes.length === 0" description="暂无可预约时间" />
+              <el-empty v-if="!chef.availableTimes || chef.availableTimes.length === 0" description="当前暂无可预约时间段" />
               <button
                 v-for="time in chef.availableTimes"
                 :key="time.id"
@@ -119,7 +119,7 @@
               </div>
             </template>
             <div class="reviews">
-              <el-empty v-if="!chef.reviews || chef.reviews.length === 0" description="暂无评价" />
+              <el-empty v-if="!chef.reviews || chef.reviews.length === 0" description="暂时还没有评价记录" />
               <el-card
                 v-for="review in chef.reviews"
                 :key="review.id"
@@ -173,7 +173,7 @@
               </div>
               <el-empty
                 v-if="(!chef.healthCertImgs || chef.healthCertImgs.length === 0) && (!chef.chefCertImgs || chef.chefCertImgs.length === 0)"
-                description="暂无资质图片"
+                description="暂未上传资质图片"
               />
             </div>
           </el-card>

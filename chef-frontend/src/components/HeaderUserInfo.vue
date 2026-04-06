@@ -31,22 +31,24 @@ const avatarUrl = computed(() => props.avatar || defaultAvatar)
   align-items: center;
   gap: 10px;
   min-width: 0;
-  padding: 6px 10px 6px 6px;
-  border: 1px solid rgba(64, 158, 255, 0.12);
+  padding: 6px 14px 6px 6px;
+  border: 1px solid rgba(220, 38, 38, 0.10);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 245, 241, 0.88));
+  box-shadow: 0 10px 20px rgba(127, 29, 29, 0.08);
   cursor: pointer;
-  transition: background-color 220ms ease, border-color 220ms ease, transform 220ms ease;
+  transition: background-color 220ms ease, border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
 }
 
 .header-user-info:hover {
-  background: rgba(64, 158, 255, 0.08);
-  border-color: rgba(64, 158, 255, 0.28);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 239, 233, 0.94));
+  border-color: rgba(220, 38, 38, 0.18);
+  box-shadow: 0 16px 28px rgba(127, 29, 29, 0.12);
+  transform: translateY(-2px);
 }
 
 .header-user-info:focus-visible {
-  outline: 2px solid #409eff;
+  outline: 2px solid #dc2626;
   outline-offset: 2px;
 }
 
@@ -56,6 +58,7 @@ const avatarUrl = computed(() => props.avatar || defaultAvatar)
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
-  color: #303133;
+  font-weight: 600;
+  color: #4b2d2d;
 }
 </style>

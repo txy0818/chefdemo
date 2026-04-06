@@ -129,7 +129,7 @@
     </div>
     
     <!-- 取消订单对话框 -->
-    <el-dialog v-model="cancelVisible" title="取消订单" width="500px">
+    <el-dialog v-model="cancelVisible" title="填写取消原因" width="500px">
       <el-form ref="cancelFormRef" :model="cancelForm" :rules="cancelRules" label-width="100px">
         <el-form-item label="取消原因" prop="cancelReason">
           <el-input
@@ -138,7 +138,7 @@
             :rows="4"
             maxlength="100"
             show-word-limit
-            placeholder="请输入取消原因，最多100字"
+            placeholder="请说明取消原因，方便系统记录并通知厨师"
           />
         </el-form-item>
       </el-form>
@@ -152,7 +152,7 @@
     </el-dialog>
     
     <!-- 支付对话框 -->
-    <el-dialog v-model="payVisible" title="选择支付方式" width="400px">
+    <el-dialog v-model="payVisible" title="确认支付方式" width="400px">
       <el-radio-group v-model="payForm.payType" style="display: flex; flex-direction: column; gap: 15px">
         <el-radio
           v-for="item in paymentTypeOptions"

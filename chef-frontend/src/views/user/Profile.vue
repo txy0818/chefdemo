@@ -77,7 +77,7 @@
           <el-form-item label="手机号" prop="phone">
             <el-input
               v-model="profileForm.phone"
-              placeholder="请输入11位手机号"
+              placeholder="请输入本人常用的 11 位手机号"
               maxlength="11"
               clearable
             />
@@ -111,7 +111,7 @@
             <el-input
               v-model="passwordForm.oldPassword"
               type="password"
-              placeholder="请输入原密码"
+              placeholder="请输入当前登录密码"
               show-password
               clearable
             />
@@ -121,7 +121,7 @@
             <el-input
               v-model="passwordForm.newPassword"
               type="password"
-              placeholder="请输入6-20位新密码"
+              placeholder="请输入 6 到 20 位新密码"
               show-password
               clearable
             />
@@ -131,7 +131,7 @@
             <el-input
               v-model="passwordForm.confirmPassword"
               type="password"
-              placeholder="请再次输入新密码"
+              placeholder="请再次输入新密码确认"
               show-password
               clearable
             />

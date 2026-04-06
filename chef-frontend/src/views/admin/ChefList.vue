@@ -1,16 +1,28 @@
 <template>
   <div class="chef-list">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">厨师资料</span>
+        <h2>厨师资料列表</h2>
+        <p>查看审核状态、服务能力和证件资料，快速定位需要重点复核的厨师。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 位</div>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>厨师资料列表</span>
+          <div>
+            <strong>筛选厨师</strong>
+            <p>按审核状态、用户 ID 或用户名快速收窄范围。</p>
+          </div>
         </div>
       </template>
       
       <!-- 查询条件 -->
       <el-form :inline="true" :model="queryForm" class="query-form">
         <el-form-item label="审核状态">
-          <el-select v-model="queryForm.auditStatus" placeholder="请选择" clearable style="width: 200px">
+          <el-select v-model="queryForm.auditStatus" placeholder="请选择审核状态" clearable style="width: 200px">
             <el-option
               v-for="item in auditStatusOptions"
               :key="item.value"
@@ -21,11 +33,11 @@
         </el-form-item>
         
         <el-form-item label="用户名">
-          <el-input v-model="queryForm.username" placeholder="请输入用户名" clearable />
+          <el-input v-model="queryForm.username" placeholder="请输入用户名关键词" clearable />
         </el-form-item>
         
         <el-form-item label="用户ID">
-          <el-input v-model="queryForm.userId" placeholder="请输入用户ID" clearable />
+          <el-input v-model="queryForm.userId" placeholder="请输入目标用户 ID" clearable />
         </el-form-item>
         
         <el-form-item>
@@ -229,22 +241,53 @@ onMounted(() => {
 
 <style scoped>
 .chef-list {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .query-form {
   margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(59, 130, 246, 0.08);
 }
 
 .clickable-image {
   cursor: pointer;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.chef-list :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.chef-list :deep(.el-pagination) {
+  margin-top: 24px;
+  justify-content: flex-end;
 }
 
 .image-preview-wrap {

@@ -32,7 +32,7 @@
             v-model="reviewForm.content"
             type="textarea"
             :rows="6"
-            placeholder="请输入您对厨师服务的评价（至少10个字）"
+            placeholder="请如实填写对厨师服务的评价，建议说明体验亮点或需要改进的地方"
             maxlength="500"
             show-word-limit
           />

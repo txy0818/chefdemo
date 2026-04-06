@@ -16,7 +16,7 @@
       </template>
 
       <div class="notification-list" v-loading="loading">
-        <el-empty v-if="notificationList.length === 0 && !loading" description="暂无通知" />
+        <el-empty v-if="notificationList.length === 0 && !loading" description="当前还没有通知消息" />
 
         <el-card
           v-for="notification in notificationList"

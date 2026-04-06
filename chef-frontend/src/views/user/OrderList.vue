@@ -2,6 +2,7 @@
   <div class="order-list">
     <section class="section-heading order-heading">
       <div>
+        <span class="hero-kicker">进度总览</span>
         <h2>我的订单</h2>
         <p>从待支付到已完成，所有订单都在这里按状态归档，便于你快速追踪进度。</p>
       </div>
@@ -27,7 +28,7 @@
       </el-tabs>
       
       <div class="order-cards" v-loading="loading">
-        <el-empty v-if="orderList.length === 0 && !loading" description="暂无订单" />
+        <el-empty v-if="orderList.length === 0 && !loading" description="当前筛选条件下还没有订单记录" />
         
         <el-card
           v-for="order in orderList"
@@ -41,7 +42,10 @@
               <span class="order-no">订单 #{{ order.id }}</span>
               <span class="order-chef">{{ order.chefName }}</span>
             </div>
-            <el-tag :type="getStatusType(order.status)">{{ getStatusText(order.status) }}</el-tag>
+            <div class="order-badges">
+              <el-tag :type="getStatusType(order.status)">{{ getStatusText(order.status) }}</el-tag>
+              <span class="pay-status">{{ order.payStatusDesc }}</span>
+            </div>
           </div>
           <el-descriptions :column="2" border>
             <el-descriptions-item label="厨师">{{ order.chefName }}</el-descriptions-item>
@@ -174,7 +178,7 @@ onMounted(() => {
 .order-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .order-shell {
@@ -231,6 +235,7 @@ onMounted(() => {
 
 .order-card {
   cursor: pointer;
+  padding: 6px;
   border: 1px solid rgba(220, 38, 38, 0.08);
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 249, 245, 0.96));
@@ -252,6 +257,13 @@ onMounted(() => {
   margin-bottom: 18px;
 }
 
+.order-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .order-header-main {
   display: flex;
   flex-direction: column;
@@ -267,6 +279,18 @@ onMounted(() => {
 .order-chef {
   color: #8b6b6b;
   font-size: 0.92rem;
+}
+
+.pay-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 247, 237, 0.92);
+  color: #9a3412;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .pagination {
@@ -318,6 +342,10 @@ onMounted(() => {
   .order-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .order-badges {
+    width: 100%;
   }
 }
 </style>

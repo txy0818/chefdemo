@@ -1,9 +1,21 @@
 <template>
   <div class="chef-audit">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">审核工作台</span>
+        <h2>厨师审核列表</h2>
+        <p>集中处理待审核厨师资料，重点核验证件、服务能力与报价信息。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 位</div>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>厨师审核列表</span>
+          <div>
+            <strong>待审核资料</strong>
+            <p>查看完整资料后再决定通过或拒绝，拒绝时要给出明确原因。</p>
+          </div>
         </div>
       </template>
       
@@ -258,18 +270,41 @@ onMounted(() => {
 
 <style scoped>
 .chef-audit {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .clickable-image {
   cursor: pointer;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.chef-audit :deep(.el-pagination) {
+  margin-top: 24px;
+  justify-content: flex-end;
 }
 
 .image-preview-wrap {

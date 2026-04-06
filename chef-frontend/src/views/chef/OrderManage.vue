@@ -1,38 +1,62 @@
 <template>
   <div class="order-manage">
-    <el-card>
+    <section class="section-heading order-heading">
+      <div>
+        <span class="hero-kicker">厨师端订单</span>
+        <h2>订单管理</h2>
+        <p>按状态处理预约，重点关注待接单、已接单和即将完成的订单。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 笔</div>
+    </section>
+
+    <el-card class="order-shell glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>订单管理</span>
+          <div>
+            <strong>处理看板</strong>
+            <p>优先处理待接单，已接单订单会在结束时间后开放完成操作。</p>
+          </div>
         </div>
       </template>
       
-      <!-- 状态筛选 -->
+      <div class="status-strip" aria-label="订单状态筛选">
+        <div
+          v-for="item in tabOptions"
+          :key="item.name"
+          class="status-pill"
+          :class="{ 'is-active': activeTab === item.name }"
+          @click="activeTab = item.name; handleTabChange()"
+        >
+          <strong>{{ item.label }}</strong>
+          <span>{{ activeTab === item.name ? `${orderList.length} 条当前结果` : '点击筛选' }}</span>
+        </div>
+      </div>
+
       <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-        <el-tab-pane label="全部" name="0" />
-        <el-tab-pane label="待支付" name="1" />
-        <el-tab-pane label="待接单" name="2" />
-        <el-tab-pane label="已接单" name="3" />
-        <el-tab-pane label="已拒单" name="4" />
-        <el-tab-pane label="已完成" name="5" />
-        <el-tab-pane label="已取消" name="6" />
+        <el-tab-pane v-for="item in tabOptions" :key="item.name" :label="item.label" :name="item.name" />
       </el-tabs>
       
       <!-- 订单列表 -->
       <div class="order-list" v-loading="loading">
-        <el-empty v-if="orderList.length === 0 && !loading" description="暂无订单" />
+        <el-empty v-if="orderList.length === 0 && !loading" description="当前筛选条件下还没有订单记录" />
         
         <el-card
           v-for="order in orderList"
           :key="order.id"
           class="order-card"
-          shadow="hover"
+          shadow="never"
         >
           <div class="order-header">
-            <span class="order-id">订单ID: {{ order.id }}</span>
-            <el-tag :type="getStatusType(order.status)">
-              {{ getStatusText(order.status) }}
-            </el-tag>
+            <div class="order-header-main">
+              <span class="order-id">订单 #{{ order.id }}</span>
+              <span class="order-user">{{ order.userName }}</span>
+            </div>
+            <div class="order-badges">
+              <el-tag :type="getStatusType(order.status)">
+                {{ getStatusText(order.status) }}
+              </el-tag>
+              <span class="pay-status">{{ order.payStatusDesc }}</span>
+            </div>
           </div>
           
           <el-descriptions :column="2" class="order-info">
@@ -95,7 +119,7 @@
     </el-card>
     
     <!-- 拒单对话框 -->
-    <el-dialog v-model="rejectVisible" title="拒单" width="500px">
+    <el-dialog v-model="rejectVisible" title="填写拒单原因" width="500px">
       <el-form ref="rejectFormRef" :model="rejectForm" :rules="rejectRules" label-width="80px">
         <el-form-item label="拒单原因" prop="reason">
           <el-input
@@ -104,7 +128,7 @@
             :rows="4"
             maxlength="100"
             show-word-limit
-            placeholder="请输入拒单原因，最多100字"
+            placeholder="请填写拒单原因，系统会同步通知用户"
           />
         </el-form-item>
       </el-form>
@@ -170,6 +194,15 @@ const queryForm = reactive({
   page: 1,
   size: 10
 })
+const tabOptions = [
+  { label: '全部', name: '0' },
+  { label: '待支付', name: '1' },
+  { label: '待接单', name: '2' },
+  { label: '已接单', name: '3' },
+  { label: '已拒单', name: '4' },
+  { label: '已完成', name: '5' },
+  { label: '已取消', name: '6' }
+]
 
 const rejectForm = reactive({
   orderId: null,
@@ -364,21 +397,84 @@ onMounted(() => {
 
 <style scoped>
 .order-manage {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24422d;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #5c7560;
+  font-size: 13px;
 }
 
 .order-list {
   min-height: 400px;
 }
 
+.order-shell {
+  border: none;
+}
+
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.status-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  min-height: 78px;
+  padding: 14px 16px;
+  border: 1px solid rgba(34, 197, 94, 0.10);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.84);
+  cursor: pointer;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.status-pill strong {
+  color: #24422d;
+}
+
+.status-pill span {
+  font-size: 0.82rem;
+  color: #6d856f;
+}
+
+.status-pill.is-active,
+.status-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 197, 94, 0.18);
+  box-shadow: 0 16px 24px rgba(34, 84, 47, 0.08);
+}
+
+.status-pill.is-active {
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.98), rgba(254, 252, 232, 0.96));
+}
+
 .order-card {
   margin-bottom: 20px;
+  padding: 6px;
+  border: 1px solid rgba(34, 197, 94, 0.10);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 252, 243, 0.96));
+  box-shadow: 0 18px 36px rgba(34, 84, 47, 0.08);
 }
 
 .order-header {
@@ -386,17 +482,47 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(34, 197, 94, 0.08);
 }
 
 .order-id {
-  font-weight: bold;
-  color: #333;
+  font-weight: 800;
+  color: #1f3b27;
+}
+
+.order-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-user {
+  color: #6b7f6e;
+  font-size: 0.92rem;
 }
 
 .order-info {
   margin-bottom: 15px;
+}
+
+.order-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pay-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(254, 252, 232, 0.92);
+  color: #8a6d10;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .order-actions {
@@ -408,5 +534,40 @@ onMounted(() => {
 .pagination {
   margin-top: 24px;
   justify-content: flex-end;
+}
+
+.order-shell :deep(.el-tabs__nav-wrap::after) {
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+.order-shell :deep(.el-tabs__item.is-active) {
+  color: #166534;
+  font-weight: 700;
+}
+
+.order-shell :deep(.el-tabs__active-bar) {
+  background-color: #22c55e;
+}
+
+@media (max-width: 1100px) {
+  .status-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .status-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .order-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .order-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
 }
 </style>

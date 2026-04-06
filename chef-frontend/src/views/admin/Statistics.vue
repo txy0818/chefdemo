@@ -1,19 +1,30 @@
 <template>
   <div class="statistics">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">平台概览</span>
+        <h2>订单数据统计</h2>
+        <p>汇总关键订单指标，快速观察当前平台运行状态和近 7 天趋势变化。</p>
+      </div>
+      <el-button type="primary" @click="loadData" :loading="loading">
+        刷新数据
+      </el-button>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>订单数据统计</span>
-          <el-button type="primary" @click="loadData" :loading="loading">
-            刷新数据
-          </el-button>
+          <div>
+            <strong>关键指标</strong>
+            <p>结合状态分布与近 7 天趋势，辅助后台快速发现异常波动。</p>
+          </div>
         </div>
       </template>
       
       <!-- 统计卡片 -->
       <el-row :gutter="20" class="stats-cards">
         <el-col :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card shadow="hover">
+          <el-card class="metric-card" shadow="never">
             <div class="stat-card">
               <div class="stat-icon" style="background: #409EFF">
                 <el-icon :size="30"><Document /></el-icon>
@@ -27,7 +38,7 @@
         </el-col>
         
         <el-col :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card shadow="hover">
+          <el-card class="metric-card" shadow="never">
             <div class="stat-card">
               <div class="stat-icon" style="background: #E6A23C">
                 <el-icon :size="30"><Clock /></el-icon>
@@ -41,7 +52,7 @@
         </el-col>
         
         <el-col :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card shadow="hover">
+          <el-card class="metric-card" shadow="never">
             <div class="stat-card">
               <div class="stat-icon" style="background: #67C23A">
                 <el-icon :size="30"><Check /></el-icon>
@@ -55,7 +66,7 @@
         </el-col>
         
         <el-col :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card shadow="hover">
+          <el-card class="metric-card" shadow="never">
             <div class="stat-card">
               <div class="stat-icon" style="background: #F56C6C">
                 <el-icon :size="30"><Close /></el-icon>
@@ -72,7 +83,7 @@
       <!-- 图表 -->
       <el-row :gutter="20" style="margin-top: 20px">
         <el-col :xs="24" :lg="12">
-          <el-card>
+          <el-card class="chart-card" shadow="never">
             <template #header>
               <span>今日订单状态分布</span>
             </template>
@@ -81,7 +92,7 @@
         </el-col>
         
         <el-col :xs="24" :lg="12">
-          <el-card>
+          <el-card class="chart-card" shadow="never">
             <template #header>
               <span>近7天订单趋势</span>
             </template>
@@ -94,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, nextTick, onBeforeUnmount } from 'vue'
 import { orderStatistics } from '@/api/admin'
 import { use } from 'echarts/core'
 import { PieChart, LineChart } from 'echarts/charts'
@@ -121,6 +132,10 @@ const pieChartRef = ref(null)
 const lineChartRef = ref(null)
 let pieChart = null
 let lineChart = null
+const handleResize = () => {
+  pieChart?.resize()
+  lineChart?.resize()
+}
 
 const stats = reactive({
   total: 0,
@@ -237,28 +252,46 @@ const renderLineChart = (dates, counts) => {
   lineChart.setOption(option)
 }
 
-// 窗口大小改变时重新渲染图表
-window.addEventListener('resize', () => {
-  pieChart?.resize()
-  lineChart?.resize()
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  loadData()
 })
 
-onMounted(() => {
-  loadData()
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  pieChart?.dispose()
+  lineChart?.dispose()
+  pieChart = null
+  lineChart = null
 })
 </script>
 
 <style scoped>
 .statistics {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .stats-cards {
@@ -270,10 +303,16 @@ onMounted(() => {
   align-items: center;
 }
 
+.metric-card,
+.chart-card {
+  border: 1px solid rgba(59, 130, 246, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
+
 .stat-icon {
   width: 60px;
   height: 60px;
-  border-radius: 8px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,12 +327,18 @@ onMounted(() => {
 .stat-value {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: #24375a;
   margin-bottom: 5px;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #999;
+  color: #7a879d;
+}
+
+@media (max-width: 768px) {
+  .statistics :deep(.el-button) {
+    width: 100%;
+  }
 }
 </style>

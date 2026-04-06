@@ -33,8 +33,12 @@
   --radius-card: 28px;
   --radius-md: 20px;
   --radius-sm: 14px;
+  --radius-xs: 10px;
   --content-width: 1240px;
+  --content-width-wide: 1320px;
   --transition-base: 220ms ease;
+  --topbar-height: 76px;
+  --sidebar-width: 236px;
 }
 
 *,
@@ -87,11 +91,42 @@ img {
   margin: 0 auto;
 }
 
+.page-shell-wide {
+  width: min(100%, var(--content-width-wide));
+  margin: 0 auto;
+}
+
 .glass-panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   box-shadow: var(--color-shadow);
   backdrop-filter: blur(18px);
+}
+
+.page-section {
+  padding: 24px;
+  border-radius: var(--radius-card);
+}
+
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(220, 38, 38, 0.12);
+  color: var(--color-primary-deep);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .section-heading {
@@ -129,6 +164,83 @@ img {
   font-weight: 600;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.dashboard-card {
+  padding: 22px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(220, 38, 38, 0.10);
+  box-shadow: 0 18px 32px rgba(127, 29, 29, 0.08);
+}
+
+.dashboard-card h3,
+.dashboard-card h4 {
+  margin: 0;
+  color: var(--color-title);
+}
+
+.soft-divider {
+  border-top: 1px solid rgba(220, 38, 38, 0.08);
+}
+
+.panel-subtitle {
+  margin: 8px 0 0;
+  color: var(--color-text-soft);
+  line-height: 1.65;
+}
+
+.surface-button {
+  border-radius: 16px;
+}
+
+.el-button {
+  min-height: 42px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.el-button--primary {
+  box-shadow: 0 14px 28px rgba(220, 38, 38, 0.18);
+}
+
+.el-card {
+  border-radius: var(--radius-card);
+}
+
+.el-input__wrapper,
+.el-select__wrapper,
+.el-textarea__inner,
+.el-input-number,
+.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination .number,
+.el-pagination .el-input__wrapper {
+  border-radius: 14px;
+}
+
+.el-table {
+  --el-table-border-color: rgba(220, 38, 38, 0.10);
+  --el-table-header-bg-color: rgba(255, 246, 240, 0.82);
+  --el-table-row-hover-bg-color: rgba(255, 244, 238, 0.9);
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.el-dialog {
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 28px 56px rgba(60, 18, 18, 0.22);
+}
+
+.el-empty {
+  padding: 44px 0;
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity var(--transition-base), transform var(--transition-base);
@@ -154,5 +266,15 @@ img {
   :root {
     --radius-card: 24px;
     --radius-md: 18px;
+    --topbar-height: 68px;
+  }
+
+  .page-section {
+    padding: 18px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

@@ -51,7 +51,7 @@
           <el-form-item label="真实姓名" prop="realName">
             <el-input
               v-model="profileForm.realName"
-              placeholder="请输入2-20位真实姓名"
+              placeholder="请输入真实姓名，2 到 20 个字"
               maxlength="20"
               show-word-limit
             />
@@ -103,7 +103,7 @@
             <el-select
               v-model="profileForm.cuisineType"
               multiple
-              placeholder="请选择擅长菜系"
+              placeholder="请选择擅长菜系，可多选"
               style="width: 100%"
             >
               <el-option
@@ -118,7 +118,7 @@
           <el-form-item label="服务区域" prop="serviceArea">
             <el-input
               v-model="profileForm.serviceArea"
-              placeholder="请输入服务区域，如：北京市朝阳区"
+              placeholder="请输入主要服务区域，如北京市朝阳区"
               maxlength="50"
               show-word-limit
             />
@@ -129,7 +129,7 @@
               v-model="profileForm.serviceDesc"
               type="textarea"
               :rows="5"
-              placeholder="请介绍擅长风格、上门服务经验、可提供的内容"
+              placeholder="请介绍擅长风格、上门经验、可提供的服务内容"
               maxlength="300"
               show-word-limit
             />

@@ -3,10 +3,26 @@
     <div class="auth-hero">
       <div class="hero-eyebrow">PRIVATE CHEF PLATFORM</div>
       <h1>厨师预约系统</h1>
+      <p class="hero-text">从预约、接单到后台治理，把用户端、厨师端和管理端放到一套清晰的工作流里。</p>
+      <div class="hero-points">
+        <div class="hero-point">
+          <strong>用户端</strong>
+          <span>搜索私厨、下单预约、追踪通知</span>
+        </div>
+        <div class="hero-point">
+          <strong>厨师端</strong>
+          <span>管理资料、开放档期、处理订单</span>
+        </div>
+        <div class="hero-point">
+          <strong>管理端</strong>
+          <span>审核、治理与订单数据总览</span>
+        </div>
+      </div>
     </div>
-    <el-card class="login-card">
+    <el-card class="login-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
+          <span class="hero-kicker">欢迎回来</span>
           <h2>欢迎登录</h2>
           <p>请选择身份后进入对应工作台</p>
         </div>
@@ -17,9 +33,10 @@
         :model="loginForm"
         :rules="loginRules"
         label-width="80px"
+        class="auth-form"
       >
         <el-form-item label="角色" prop="role">
-          <el-select v-model="loginForm.role" placeholder="请选择角色" style="width: 100%">
+          <el-select v-model="loginForm.role" placeholder="请选择登录身份" style="width: 100%">
             <el-option
               v-for="item in roleOptions"
               :key="item.value"
@@ -32,7 +49,7 @@
         <el-form-item label="用户名" prop="username">
           <el-input
             v-model="loginForm.username"
-            placeholder="请输入用户名"
+            placeholder="请输入你的用户名"
             clearable
           />
         </el-form-item>
@@ -41,7 +58,7 @@
           <el-input
             v-model="loginForm.password"
             type="password"
-            placeholder="请输入密码"
+            placeholder="请输入登录密码"
             show-password
             clearable
             @keyup.enter="handleLogin"
@@ -51,7 +68,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            style="width: 100%"
+            class="primary-submit"
             :loading="loading"
             @click="handleLogin"
           >
@@ -61,7 +78,7 @@
         
         <el-form-item>
           <el-button
-            style="width: 100%"
+            class="secondary-submit"
             @click="goToRegister"
           >
             还没有账号？去注册
@@ -179,8 +196,9 @@ onMounted(() => {
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at top left, rgba(64, 158, 255, 0.24), transparent 30%),
-    linear-gradient(135deg, #f5f9ff 0%, #eaf1ff 45%, #f8fbff 100%);
+    radial-gradient(circle at top left, rgba(248, 113, 113, 0.22), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.18), transparent 22%),
+    linear-gradient(135deg, #fff8f5 0%, #fffdf9 44%, #fff2ea 100%);
 }
 
 .auth-hero {
@@ -191,32 +209,91 @@ onMounted(() => {
   font-size: 12px;
   letter-spacing: 0.2em;
   font-weight: 700;
-  color: #6ea8ff;
+  color: #b45309;
 }
 
 .auth-hero h1 {
   margin: 12px 0 16px;
-  font-size: 44px;
+  font-family: var(--font-display);
+  font-size: 46px;
   line-height: 1.1;
-  color: #1f2a44;
+  color: #3f1111;
+}
+
+.hero-text {
+  margin: 0 0 24px;
+  color: #795c55;
+  line-height: 1.8;
+}
+
+.hero-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hero-point {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(220, 38, 38, 0.08);
+  box-shadow: 0 16px 30px rgba(127, 29, 29, 0.07);
+}
+
+.hero-point strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #4b2d2d;
+}
+
+.hero-point span {
+  color: #8a6a62;
+  font-size: 14px;
 }
 
 .login-card {
   width: 450px;
-  border-radius: 24px;
-  box-shadow: 0 20px 48px rgba(43, 77, 135, 0.14);
+  border: none;
+  border-radius: 28px;
+  box-shadow: 0 24px 52px rgba(127, 29, 29, 0.12);
 }
 
 .card-header h2 {
-  margin: 0;
+  margin: 10px 0 0;
   text-align: center;
-  color: #1f2a44;
+  color: #3f1111;
 }
 
 .card-header p {
   margin: 8px 0 0;
   text-align: center;
-  color: #8a94a6;
+  color: #8a6a62;
+}
+
+.auth-form :deep(.el-form-item:last-child) {
+  margin-bottom: 0;
+}
+
+.auth-form :deep(.el-input__wrapper),
+.auth-form :deep(.el-select__wrapper) {
+  min-height: 48px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.primary-submit,
+.secondary-submit {
+  width: 100%;
+}
+
+.primary-submit {
+  border: none;
+  background: linear-gradient(135deg, #dc2626, #ea580c);
+}
+
+.secondary-submit {
+  border-color: rgba(220, 38, 38, 0.14);
+  color: #7f1d1d;
 }
 
 @media (max-width: 960px) {

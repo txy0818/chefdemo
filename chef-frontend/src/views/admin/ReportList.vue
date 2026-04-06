@@ -1,16 +1,28 @@
 <template>
   <div class="report-list">
-    <el-card>
+    <section class="section-heading page-heading">
+      <div>
+        <span class="hero-kicker">举报治理</span>
+        <h2>举报管理</h2>
+        <p>查看举报进度与处理结果，优先解决待处理的投诉记录。</p>
+      </div>
+      <div class="metric-pill">共 {{ total }} 条</div>
+    </section>
+
+    <el-card class="panel-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>举报管理</span>
+          <div>
+            <strong>筛选举报</strong>
+            <p>待处理举报需要尽快判断是否属实，并补充清晰说明。</p>
+          </div>
         </div>
       </template>
       
       <!-- 查询条件 -->
       <el-form :inline="true" :model="queryForm" class="query-form">
         <el-form-item label="举报状态">
-          <el-select v-model="queryForm.status" placeholder="请选择" style="width: 200px">
+          <el-select v-model="queryForm.status" placeholder="请选择举报状态" style="width: 200px">
             <el-option
               v-for="item in reportStatusOptions"
               :key="item.value"
@@ -67,7 +79,7 @@
     </el-card>
     
     <!-- 处理对话框 -->
-    <el-dialog v-model="processVisible" title="处理举报" width="600px">
+    <el-dialog v-model="processVisible" title="填写举报处理结果" width="600px">
       <el-form ref="processFormRef" :model="processForm" :rules="processRules" label-width="100px">
         <el-form-item label="举报原因">
           <el-input
@@ -92,7 +104,7 @@
             :rows="4"
             maxlength="200"
             show-word-limit
-            placeholder="请输入处理说明，最多200字"
+            placeholder="请写明核实结果、处理依据和最终结论"
           />
         </el-form-item>
       </el-form>
@@ -216,15 +228,46 @@ onMounted(() => {
 
 <style scoped>
 .report-list {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #24375a;
+  font-size: 1.08rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #66758d;
+  font-size: 13px;
+}
+
+.panel-card {
+  border: none;
 }
 
 .query-form {
   margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+}
+
+.report-list :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.report-list :deep(.el-pagination) {
+  margin-top: 24px;
+  justify-content: flex-end;
 }
 </style>

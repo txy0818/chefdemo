@@ -1,9 +1,13 @@
 <template>
   <el-container class="user-layout">
     <el-header>
-      <div class="header-content">
-        <div class="logo">厨师预约系统</div>
+      <div class="header-content page-shell-wide">
+        <div class="brand-block">
+          <div class="logo">厨师预约系统</div>
+          <p>上门私厨、家宴定制与预约管理</p>
+        </div>
         <el-menu
+          class="top-nav"
           :default-active="activeMenu"
           mode="horizontal"
           router
@@ -34,13 +38,15 @@
             :avatar="displayAvatar"
             @click="router.push('/user/profile')"
           />
-          <el-button type="danger" @click="handleLogout">退出</el-button>
+          <el-button class="logout-button" type="danger" plain @click="handleLogout">退出</el-button>
         </div>
       </div>
     </el-header>
     
     <el-main>
-      <router-view />
+      <div class="page-shell-wide main-shell">
+        <router-view />
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -210,15 +216,21 @@ onBeforeUnmount(() => {
 .user-layout {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(64, 158, 255, 0.08), transparent 28%),
-    linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+    radial-gradient(circle at top left, rgba(248, 113, 113, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 22%),
+    linear-gradient(180deg, #fff9f5 0%, #fffdf9 44%, #fff6ee 100%);
 }
 
 .el-header {
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 10px 24px rgba(44, 76, 120, 0.10);
-  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--topbar-height);
+  background-color: rgba(255, 252, 249, 0.84);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 28px rgba(127, 29, 29, 0.08);
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(220, 38, 38, 0.08);
 }
 
 .header-content {
@@ -226,19 +238,33 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 22px;
+}
+
+.brand-block {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.brand-block p {
+  margin: 4px 0 0;
+  color: #8a5c52;
+  font-size: 12px;
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: #409EFF;
-  margin-right: 40px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #7f1d1d;
 }
 
-.el-menu {
+.top-nav {
   flex: 1;
   border-bottom: none;
   min-width: 0;
+  background: transparent;
 }
 
 .header-actions {
@@ -250,6 +276,77 @@ onBeforeUnmount(() => {
 }
 
 .el-main {
-  padding: 28px 32px 36px;
+  padding: 28px 20px 40px;
+}
+
+.main-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.top-nav :deep(.el-menu-item) {
+  height: calc(var(--topbar-height) - 14px);
+  margin: 7px 2px;
+  border-radius: 16px;
+  color: #6f4a41;
+  transition: background-color 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.top-nav :deep(.el-menu-item:hover) {
+  background: rgba(220, 38, 38, 0.08);
+  color: #7f1d1d;
+}
+
+.top-nav :deep(.el-menu-item.is-active) {
+  color: #7f1d1d;
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.96), rgba(255, 237, 213, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.12);
+}
+
+.top-nav :deep(.el-menu--horizontal > .el-menu-item.is-active) {
+  border-bottom: none;
+}
+
+.logout-button {
+  min-width: 90px;
+}
+
+@media (max-width: 1080px) {
+  .brand-block p {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .el-header {
+    height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .header-content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .top-nav {
+    width: 100%;
+  }
+
+  .header-actions {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .el-main {
+    padding-inline: 14px;
+  }
 }
 </style>

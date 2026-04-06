@@ -1,9 +1,13 @@
 <template>
   <el-container class="chef-layout">
     <el-header>
-      <div class="header-content">
-        <div class="logo">厨师管理系统</div>
+      <div class="header-content page-shell-wide">
+        <div class="brand-block">
+          <div class="logo">厨师工作台</div>
+          <p>管理资料、开放档期并处理预约订单</p>
+        </div>
         <el-menu
+          class="top-nav"
           :default-active="activeMenu"
           mode="horizontal"
           :router="false"
@@ -35,13 +39,15 @@
         </el-menu>
         <div class="header-actions">
           <HeaderUserInfo :user-name="displayUserName" :avatar="displayAvatar" />
-          <el-button type="danger" @click="handleLogout">退出</el-button>
+          <el-button class="logout-button" type="success" plain @click="handleLogout">退出</el-button>
         </div>
       </div>
     </el-header>
     
     <el-main>
-      <router-view />
+      <div class="page-shell-wide main-shell">
+        <router-view />
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -235,15 +241,21 @@ onBeforeUnmount(() => {
 .chef-layout {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(103, 194, 58, 0.08), transparent 28%),
-    linear-gradient(180deg, #f7fbf4 0%, #eef5ec 100%);
+    radial-gradient(circle at top left, rgba(74, 222, 128, 0.16), transparent 24%),
+    radial-gradient(circle at top right, rgba(250, 204, 21, 0.12), transparent 18%),
+    linear-gradient(180deg, #f7fff7 0%, #fbfff6 46%, #f2faea 100%);
 }
 
 .el-header {
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 10px 24px rgba(48, 78, 44, 0.10);
-  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--topbar-height);
+  background-color: rgba(250, 255, 248, 0.84);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 28px rgba(34, 84, 47, 0.09);
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(34, 197, 94, 0.10);
 }
 
 .header-content {
@@ -251,27 +263,115 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 22px;
+}
+
+.brand-block {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.brand-block p {
+  margin: 4px 0 0;
+  color: #50755a;
+  font-size: 12px;
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: #67C23A;
-  margin-right: 40px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #166534;
 }
 
-.el-menu {
+.top-nav {
   flex: 1;
+  min-width: 0;
   border-bottom: none;
+  background: transparent;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
 .el-main {
-  padding: 28px 32px 36px;
+  padding: 28px 20px 40px;
+}
+
+.main-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.top-nav :deep(.el-menu-item) {
+  height: calc(var(--topbar-height) - 14px);
+  margin: 7px 2px;
+  border-radius: 16px;
+  color: #42634b;
+  transition: background-color 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.top-nav :deep(.el-menu-item:hover) {
+  background: rgba(34, 197, 94, 0.09);
+  color: #166534;
+}
+
+.top-nav :deep(.el-menu-item.is-active) {
+  color: #166534;
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.98), rgba(254, 252, 232, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.14);
+}
+
+.top-nav :deep(.el-menu--horizontal > .el-menu-item.is-active) {
+  border-bottom: none;
+}
+
+.logout-button {
+  min-width: 90px;
+}
+
+@media (max-width: 1080px) {
+  .brand-block p {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .el-header {
+    height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .header-content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .top-nav {
+    width: 100%;
+  }
+
+  .header-actions {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .el-main {
+    padding-inline: 14px;
+  }
 }
 </style>
