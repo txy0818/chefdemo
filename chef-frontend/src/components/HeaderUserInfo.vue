@@ -1,6 +1,6 @@
 <template>
   <button type="button" class="header-user-info" @click="$emit('click')">
-    <el-avatar :size="40" :src="avatarUrl" />
+    <el-avatar class="header-avatar" :size="40" :src="avatarUrl" />
     <span class="header-user-name">{{ userName }}</span>
   </button>
 </template>
@@ -60,5 +60,11 @@ const avatarUrl = computed(() => props.avatar || defaultAvatar)
   font-size: 14px;
   font-weight: 600;
   color: #4b2d2d;
+}
+
+.header-user-info :deep(.header-avatar) {
+  background: linear-gradient(135deg, rgba(255, 250, 247, 1), rgba(255, 243, 237, 1));
+  color: #7c5b5b;
+  border: 1px solid rgba(220, 38, 38, 0.08);
 }
 </style>
