@@ -185,7 +185,8 @@ public class OrderScheduleTask {
         if (openOrders == null || openOrders.isEmpty()) {
             return;
         }
-        String cancelReason = frozenChef.getUsername() + " 厨师账号被冻结，订单已取消/退款";
+        String cancelReason = frozenChef.getUsername() + " 厨师账号被冻结，订单已"
+                + OrderStatus.CANCELLED.getDesc() + "/" + PayStatus.REFUNDED.getDesc();
         for (ReservationOrder order : openOrders) {
             try {
                 OrderContext context = new OrderContext(order.getId(), operatorId, null, cancelReason);

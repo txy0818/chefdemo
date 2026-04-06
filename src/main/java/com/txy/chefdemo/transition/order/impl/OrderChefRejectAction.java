@@ -39,9 +39,9 @@ public class OrderChefRejectAction implements OrderAction {
         support.createBothSideNotification(
                 order,
                 "订单状态更新",
-                "厨师已拒绝接单，退款已退回钱包，当前订单状态为“已拒单”。订单ID：" + order.getId(),
+                "厨师已拒绝接单，退款已退回钱包，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您已拒绝该订单，系统已完成退款，当前订单状态为“已拒单”。订单ID：" + order.getId(),
+                "您已拒绝该订单，系统已完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId(),
                 context.getSource()
         );
         return support.updateOrder(order);

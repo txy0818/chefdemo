@@ -171,7 +171,12 @@ public class UserInteractionServiceImpl implements UserInteractionService {
         Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getReason()), "举报理由不能为空");
         String reason = req.getReason().trim();
-        ReservationOrder order = requireOwnedCompletedOrder(currentUserId, req.getOrderId(), "无权限", "仅已完成订单可举报");
+        ReservationOrder order = requireOwnedCompletedOrder(
+                currentUserId,
+                req.getOrderId(),
+                "无权限",
+                "仅" + OrderStatus.COMPLETED.getDesc() + "订单可举报"
+        );
 
         long now = System.currentTimeMillis();
         Report report = new Report();

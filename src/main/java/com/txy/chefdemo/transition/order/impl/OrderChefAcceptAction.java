@@ -32,9 +32,9 @@ public class OrderChefAcceptAction implements OrderAction {
         support.createBothSideNotification(
                 order,
                 "订单状态更新",
-                "您的订单已被厨师接单，当前状态为“已接单”。订单ID：" + order.getId(),
+                "您的订单已被厨师接单，当前状态为“" + OrderStatus.ACCEPTED.getDesc() + "”。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您已接单成功，当前状态为“已接单”。订单ID：" + order.getId(),
+                "您已接单成功，当前状态为“" + OrderStatus.ACCEPTED.getDesc() + "”。订单ID：" + order.getId(),
                 context.getSource()
         );
         return support.updateOrder(order);
