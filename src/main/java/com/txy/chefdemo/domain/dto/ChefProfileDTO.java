@@ -80,6 +80,15 @@ public class ChefProfileDTO {
     /** 审核状态描述。 */
     private String auditStatusDesc;
 
+    /** 变更审核状态编码。 */
+    private Integer pendingAuditStatus;
+
+    /** 变更审核状态描述。 */
+    private String pendingAuditStatusDesc;
+
+    /** 变更审核拒绝原因。 */
+    private String pendingRejectReason;
+
     /** 评分描述。 */
     private String score;
 }

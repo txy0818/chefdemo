@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS review;
 DROP TABLE IF EXISTS wallet_record;
 DROP TABLE IF EXISTS reservation_order;
 DROP TABLE IF EXISTS chef_available_time;
+DROP TABLE IF EXISTS chef_profile_change;
 DROP TABLE IF EXISTS wallet;
 DROP TABLE IF EXISTS chef_profile;
 DROP TABLE IF EXISTS user;
@@ -86,6 +87,36 @@ CREATE TABLE chef_available_time (
 
                                      KEY idx_chef_time (chef_id, start_time, end_time)
 ) COMMENT='厨师可预约时间段表';
+
+-- ============================
+-- 3.1 厨师资料变更表
+-- ============================
+CREATE TABLE chef_profile_change (
+                                     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+                                     user_id BIGINT NOT NULL COMMENT '厨师用户ID',
+                                     avatar VARCHAR(255) COMMENT '头像URL',
+                                     display_name VARCHAR(50) COMMENT '展示昵称',
+                                     real_name VARCHAR(50) COMMENT '真实姓名',
+                                     id_card_imgs JSON COMMENT '身份证图片URL列表',
+                                     health_cert_imgs JSON COMMENT '健康证图片URL列表',
+                                     chef_cert_imgs JSON COMMENT '厨师证图片URL列表',
+                                     cuisine_type VARCHAR(50) COMMENT '擅长菜系(枚举ID集合 1,2,3)',
+                                     service_area VARCHAR(100) COMMENT '服务区域',
+                                     service_desc VARCHAR(500) COMMENT '服务说明/个人简介',
+                                     price INT COMMENT '每小时价格(分)',
+                                     min_people INT COMMENT '最少服务人数',
+                                     max_people INT COMMENT '最多服务人数',
+                                     age INT COMMENT '年龄',
+                                     gender TINYINT COMMENT '性别 1-男 2-女',
+                                     work_years INT COMMENT '从业年限',
+                                     phone VARCHAR(20) COMMENT '手机号',
+                                     audit_status TINYINT NOT NULL COMMENT '审核结果 1-待审核 2-通过 3-拒绝',
+                                     reject_reason VARCHAR(255) COMMENT '审核拒绝原因',
+                                     create_time BIGINT NOT NULL COMMENT '创建时间(毫秒)',
+                                     update_time BIGINT NOT NULL COMMENT '更新时间(毫秒)',
+                                     audit_time BIGINT COMMENT '审核完成时间(毫秒)',
+                                     UNIQUE KEY uk_change_user_id (user_id)
+) COMMENT='厨师资料变更表';
 
 -- ============================
 -- 4. 预约订单表
@@ -241,4 +272,3 @@ CREATE TABLE notification_record (
 INSERT INTO user (username, password, role, avatar, phone, status, last_login_time, create_time, update_time) VALUES ('admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 1, '', '', 1, 1775643273031, 1775643273031, 1775643273031);
 
 INSERT INTO user (username, password, role, avatar, phone, status, last_login_time, create_time, update_time) VALUES ('system', 'bbc5e661e106c6dcd8dc6dd186454c2fcba3c710fb4d8e71a60c93eaf077f073', 1, '', '', 2, 1775643273031, 1775643273031, 1775643273031);
-

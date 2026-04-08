@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--定义全局变量，比如后面可以 ${LOG_HOME} 使用 -->
+    <property name="LOG_HOME" value="logs"/>
+
+    <!-- 控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--占位符	含义
+                 %d	    时间
+             %-5level	日志级别
+              %thread	线程
+           %logger{36}	类名（截断）
+                %msg	日志内容
+                 %n	换行-->
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 普通文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/app.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--一个文件最大 100MB; 超过就新文件-->
+            <maxFileSize>100MB</maxFileSize>
+            <!--保留 30 天-->
+            <maxHistory>30</maxHistory>
+            <!--日志总大小上限 10GB-->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ERROR 单独文件 -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/error.log</file>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 只关心 ERROR -->
+            <level>ERROR</level>
+            <!-- 匹配 → 记录 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配 → 丢弃 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 单独指定业务包 -->
+<!--    <logger name="com.xxx" level="DEBUG"/>-->
+
+    <!-- root -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+</configuration>

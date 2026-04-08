@@ -197,6 +197,8 @@ onMounted(() => {
 .notification-content {
   color: #485643;
   line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .notification-footer {

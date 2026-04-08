@@ -45,6 +45,14 @@ export function auditChef(data) {
   })
 }
 
+export function sendChefMessage(data) {
+  return request({
+    url: '/admin/chef/sendMessage',
+    method: 'post',
+    data
+  })
+}
+
 // tab4: 查询评论列表
 export function reviewList(data) {
   return request({

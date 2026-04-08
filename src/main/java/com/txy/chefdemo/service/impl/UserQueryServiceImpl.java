@@ -10,6 +10,7 @@ import com.txy.chefdemo.domain.bo.ChefAvailableTimeSearchBo;
 import com.txy.chefdemo.domain.bo.ChefProfileSearchBo;
 import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
 import com.txy.chefdemo.domain.bo.ReviewSearchBo;
+import com.txy.chefdemo.domain.constant.AuditStatus;
 import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
 import com.txy.chefdemo.domain.constant.CuisineType;
 import com.txy.chefdemo.domain.constant.Gender;
@@ -79,7 +80,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     public ChefDetailDTO chefDetail(ChefDetailReq req) {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && req.getChefUserId() != 0L, "厨师不能为空");
         ChefProfile profile = chefProfileService.queryByUserId(req.getChefUserId());
-        if (ObjectUtils.isEmpty(profile)) {
+        if (ObjectUtils.isEmpty(profile) || !Objects.equals(profile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
             throw new BusinessException("厨师不存在");
         }
 
@@ -211,6 +212,7 @@ public class UserQueryServiceImpl implements UserQueryService {
         if (req.getMaxScore() != 0.0d) {
             searchBo.setMaxScore(Math.round(req.getMaxScore() * 100));
         }
+        searchBo.setAuditStatus(AuditStatus.APPROVED.getCode());
         return searchBo;
     }
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.txy.chefdemo.mapper.ChefProfileChangeMapper">
+
+    <resultMap id="ChefProfileChangeResultMap" type="com.txy.chefdemo.domain.ChefProfileChange">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="avatar" property="avatar"/>
+        <result column="display_name" property="displayName"/>
+        <result column="real_name" property="realName"/>
+        <result column="id_card_imgs" property="idCardImgs"/>
+        <result column="health_cert_imgs" property="healthCertImgs"/>
+        <result column="chef_cert_imgs" property="chefCertImgs"/>
+        <result column="cuisine_type" property="cuisineType"/>
+        <result column="service_area" property="serviceArea"/>
+        <result column="service_desc" property="serviceDesc"/>
+        <result column="price" property="price"/>
+        <result column="min_people" property="minPeople"/>
+        <result column="max_people" property="maxPeople"/>
+        <result column="age" property="age"/>
+        <result column="gender" property="gender"/>
+        <result column="work_years" property="workYears"/>
+        <result column="phone" property="phone"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="audit_time" property="auditTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="change.id">
+        INSERT INTO chef_profile_change
+        (
+            user_id, avatar, display_name, real_name,
+            id_card_imgs, health_cert_imgs, chef_cert_imgs,
+            cuisine_type, service_area, service_desc,
+            price, min_people, max_people,
+            age, gender, work_years,
+            phone, audit_status, reject_reason,
+            create_time, update_time, audit_time
+        ) VALUES (
+            #{change.userId}, #{change.avatar}, #{change.displayName}, #{change.realName},
+            #{change.idCardImgs}, #{change.healthCertImgs}, #{change.chefCertImgs},
+            #{change.cuisineType}, #{change.serviceArea}, #{change.serviceDesc},
+            #{change.price}, #{change.minPeople}, #{change.maxPeople},
+            #{change.age}, #{change.gender}, #{change.workYears},
+            #{change.phone}, #{change.auditStatus}, #{change.rejectReason},
+            #{change.createTime}, #{change.updateTime}, #{change.auditTime}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE chef_profile_change
+        SET
+            user_id = #{change.userId},
+            avatar = #{change.avatar},
+            display_name = #{change.displayName},
+            real_name = #{change.realName},
+            id_card_imgs = #{change.idCardImgs},
+            health_cert_imgs = #{change.healthCertImgs},
+            chef_cert_imgs = #{change.chefCertImgs},
+            cuisine_type = #{change.cuisineType},
+            service_area = #{change.serviceArea},
+            service_desc = #{change.serviceDesc},
+            price = #{change.price},
+            min_people = #{change.minPeople},
+            max_people = #{change.maxPeople},
+            age = #{change.age},
+            gender = #{change.gender},
+            work_years = #{change.workYears},
+            phone = #{change.phone},
+            audit_status = #{change.auditStatus},
+            reject_reason = #{change.rejectReason},
+            update_time = #{change.updateTime},
+            audit_time = #{change.auditTime}
+        WHERE id = #{change.id}
+    </update>
+
+    <select id="queryByUserId" resultMap="ChefProfileChangeResultMap">
+        SELECT * FROM chef_profile_change WHERE user_id = #{userId}
+    </select>
+</mapper>

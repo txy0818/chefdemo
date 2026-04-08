@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.txy.chefdemo.constant.AuthConstant;
 import com.txy.chefdemo.domain.ChefAuditRecord;
 import com.txy.chefdemo.domain.ChefProfile;
+import com.txy.chefdemo.domain.ChefProfileChange;
 import com.txy.chefdemo.domain.NotificationRecord;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.UserStatusRecord;
@@ -14,10 +15,12 @@ import com.txy.chefdemo.domain.constant.UserStatus;
 import com.txy.chefdemo.domain.constant.WebSocketMessageType;
 import com.txy.chefdemo.event.UserStatusChangeEvent;
 import com.txy.chefdemo.req.AuditChefReq;
+import com.txy.chefdemo.req.SendChefMessageReq;
 import com.txy.chefdemo.req.UpdateUserStatusReq;
 import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.service.AdminOperationService;
 import com.txy.chefdemo.service.ChefAuditRecordService;
+import com.txy.chefdemo.service.ChefProfileChangeService;
 import com.txy.chefdemo.service.ChefProfileService;
 import com.txy.chefdemo.service.NotificationRecordService;
 import com.txy.chefdemo.service.NotificationService;
@@ -43,6 +46,8 @@ public class AdminOperationServiceImpl implements AdminOperationService {
     private UserService userService;
     @Autowired
     private ChefProfileService chefProfileService;
+    @Autowired
+    private ChefProfileChangeService chefProfileChangeService;
     @Autowired
     private ChefAuditRecordService chefAuditRecordService;
     @Autowired
@@ -100,6 +105,10 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(profile), "厨师资料不存在");
         ChefAuditRecord record = chefAuditRecordService.queryPendingRecordByChefUserId(req.getChefUserId());
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(record), "厨师资料待审核记录不存在");
+        ChefProfileChange change = chefProfileChangeService.queryByUserId(req.getChefUserId());
+        boolean auditChange = Objects.equals(profile.getAuditStatus(), AuditStatus.APPROVED.getCode())
+                && ObjectUtils.isNotEmpty(change)
+                && Objects.equals(change.getAuditStatus(), AuditStatus.PENDING.getCode());
 
         record.setAuditStatus(req.getAuditStatus());
         long now = System.currentTimeMillis();
@@ -108,25 +117,61 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         record.setRejectReason(req.getAuditStatus() == AuditStatus.REJECTED.getCode() ? reason : "");
         chefAuditRecordService.updateById(List.of(record));
 
+        if (auditChange) {
+            change.setAuditStatus(req.getAuditStatus());
+            change.setRejectReason(req.getAuditStatus() == AuditStatus.REJECTED.getCode() ? reason : "");
+            change.setAuditTime(now);
+            change.setUpdateTime(now);
+            chefProfileChangeService.updateById(change);
+            if (Objects.equals(req.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
+                applyChangeToProfile(profile, change, now);
+                chefProfileService.updateById(profile);
+            }
+            notifyChefAuditResult(req.getChefUserId(), req.getAuditStatus(), reason, now, true);
+            return;
+        }
+
         profile.setAuditStatus(req.getAuditStatus());
         profile.setUpdateTime(now);
         chefProfileService.updateById(profile);
-        notifyChefAuditResult(req.getChefUserId(), req.getAuditStatus(), reason, now);
+        notifyChefAuditResult(req.getChefUserId(), req.getAuditStatus(), reason, now, false);
     }
 
-    private void notifyChefAuditResult(Long chefUserId, Integer auditStatus, String reason, long now) {
+    @Override
+    @Transactional
+    public void sendChefMessage(Long currentAdminId, SendChefMessageReq req) {
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getChefUserId()), "厨师不能为空");
+        Preconditions.checkArgument(StringUtils.isNotBlank(req.getTitle()), "标题不能为空");
+        Preconditions.checkArgument(StringUtils.isNotBlank(req.getContent()), "内容不能为空");
+        User user = userService.queryById(req.getChefUserId());
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user) && Objects.equals(user.getRole(), UserRole.CHEF.getCode()), "厨师不存在");
+        long now = System.currentTimeMillis();
+        NotificationRecord record = buildNotificationRecord(
+                req.getChefUserId(),
+                req.getTitle().trim(),
+                req.getContent().trim(),
+                now
+        );
+        notificationRecordService.insert(record);
+        notificationService.notifyUser(record, WebSocketMessageType.NOTIFICATION);
+        log.info("adminId={} 向 chefUserId={} 发送通知成功", currentAdminId, req.getChefUserId());
+    }
+
+    private void notifyChefAuditResult(Long chefUserId, Integer auditStatus, String reason, long now, boolean changeAudit) {
         AuditStatus status = AuditStatus.getByCode(auditStatus);
         if (ObjectUtils.isEmpty(status)) {
             return;
         }
-        String title = "厨师资料审核通知";
+        String title = changeAudit ? "厨师资料变更审核通知" : "厨师资料审核通知";
         String content;
         if (status == AuditStatus.APPROVED) {
-            content = "您的厨师资料已审核通过，现在可以使用时间管理和订单管理功能。";
+            content = changeAudit
+                    ? "您的厨师资料变更已审核通过，新的资料内容已生效。"
+                    : "您的厨师资料已审核通过，现在可以使用时间管理和订单管理功能。";
         } else if (status == AuditStatus.REJECTED) {
             content = StringUtils.isNotBlank(reason)
-                    ? "您的厨师资料审核未通过，原因：" + reason
-                    : "您的厨师资料审核未通过，请完善资料后重新提交。";
+                    ? (changeAudit ? "您的厨师资料变更审核未通过，原因：" + reason : "您的厨师资料审核未通过，原因：" + reason)
+                    : (changeAudit ? "您的厨师资料变更审核未通过，请修改后重新提交。" : "您的厨师资料审核未通过，请完善资料后重新提交。");
         } else {
             content = "您的厨师资料审核状态已更新。";
         }
@@ -170,5 +215,26 @@ public class AdminOperationServiceImpl implements AdminOperationService {
                 now,
                 now
         );
+    }
+
+    private void applyChangeToProfile(ChefProfile profile, ChefProfileChange change, long now) {
+        profile.setAvatar(change.getAvatar());
+        profile.setDisplayName(change.getDisplayName());
+        profile.setPhone(change.getPhone());
+        profile.setRealName(change.getRealName());
+        profile.setIdCardImgs(change.getIdCardImgs());
+        profile.setHealthCertImgs(change.getHealthCertImgs());
+        profile.setChefCertImgs(change.getChefCertImgs());
+        profile.setCuisineType(change.getCuisineType());
+        profile.setServiceArea(change.getServiceArea());
+        profile.setServiceDesc(change.getServiceDesc());
+        profile.setPrice(change.getPrice());
+        profile.setMinPeople(change.getMinPeople());
+        profile.setMaxPeople(change.getMaxPeople());
+        profile.setAge(change.getAge());
+        profile.setGender(change.getGender());
+        profile.setWorkYears(change.getWorkYears());
+        profile.setAuditStatus(AuditStatus.APPROVED.getCode());
+        profile.setUpdateTime(now);
     }
 }

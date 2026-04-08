@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.txy.chefdemo.domain.ChefAuditRecord;
 import com.txy.chefdemo.domain.ChefAvailableTime;
 import com.txy.chefdemo.domain.ChefProfile;
+import com.txy.chefdemo.domain.ChefProfileChange;
 import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.bo.ChefAvailableTimeSearchBo;
@@ -31,6 +32,7 @@ import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.service.ChefAuditRecordService;
 import com.txy.chefdemo.service.ChefAvailableTimeService;
 import com.txy.chefdemo.service.ChefOperationService;
+import com.txy.chefdemo.service.ChefProfileChangeService;
 import com.txy.chefdemo.service.ChefProfileService;
 import com.txy.chefdemo.service.OrderFlowService;
 import com.txy.chefdemo.service.ReservationOrderService;
@@ -56,7 +58,7 @@ import java.util.stream.Collectors;
 @Service
 public class ChefOperationServiceImpl implements ChefOperationService {
 
-    private static final long MIN_TIME_RANGE_MILLIS = 5 * 60 * 1000L;
+    private static final long MIN_TIME_RANGE_MILLIS = 10 * 60 * 1000L;
 
     private static final Long DEFAULT_SCORE = 500L;
     private static final String SRC = "chef";
@@ -72,16 +74,22 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     private OrderFlowService orderFlowService;
     @Autowired
     private ChefAuditRecordService chefAuditRecordService;
+    @Autowired
+    private ChefProfileChangeService chefProfileChangeService;
 
     @Override
     public ChefProfileDTO getProfile(Long currentChefId) {
+        User user = userService.queryById(currentChefId);
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
         ChefProfileSearchBo searchBo = new ChefProfileSearchBo();
         searchBo.setUserId(currentChefId);
         List<ChefProfile> chefProfiles = chefProfileService.queryChefListByCondition(searchBo);
         if (CollectionUtils.isEmpty(chefProfiles)) {
-            throw new BusinessException("未找到该厨师信息");
+            return buildEmptyChefProfileDTO(user);
         }
-        return buildChefProfileDTO(chefProfiles.get(0));
+        ChefProfile profile = chefProfiles.get(0);
+        ChefProfileChange change = chefProfileChangeService.queryByUserId(currentChefId);
+        return buildChefProfileDTO(profile, change);
     }
 
     @Override
@@ -94,31 +102,39 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         ChefProfile profile = chefProfileService.queryByUserId(currentChefId);
         ChefAuditRecord pendingRecord = chefAuditRecordService.queryPendingRecordByChefUserId(currentChefId);
         Preconditions.checkArgument(ObjectUtils.isEmpty(pendingRecord), "已有待审核记录，请等待管理员审核");
+        ChefProfileChange change = chefProfileChangeService.queryByUserId(currentChefId);
         if (ObjectUtils.isEmpty(profile)) {
             profile = new ChefProfile();
             profile.setUserId(currentChefId);
             profile.setCreateTime(now);
             profile.setScore(DEFAULT_SCORE);
+        } else if (Objects.equals(profile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
+            if (isSameProfile(req, profile)) {
+                throw new BusinessException("请勿重复提交");
+            }
+            if (ObjectUtils.isEmpty(change)) {
+                change = new ChefProfileChange();
+                change.setUserId(currentChefId);
+            }
+            change.setCreateTime(now);
+            fillChangeByReq(change, user, req, now);
+            change.setAuditStatus(AuditStatus.PENDING.getCode());
+            if (ObjectUtils.isEmpty(change.getId())) {
+                chefProfileChangeService.insert(change);
+            } else {
+                chefProfileChangeService.updateById(change);
+            }
+            ChefAuditRecord auditRecord = new ChefAuditRecord();
+            auditRecord.setChefUserId(currentChefId);
+            auditRecord.setAuditStatus(AuditStatus.PENDING.getCode());
+            auditRecord.setCreateTime(now);
+            chefAuditRecordService.insert(auditRecord);
+            return;
         } else if (isSameProfile(req, profile)) {
             throw new BusinessException("请勿重复提交");
         }
 
-        profile.setAvatar(user.getAvatar());
-        profile.setDisplayName(user.getUsername());
-        profile.setPhone(user.getPhone());
-        profile.setRealName(req.getRealName());
-        profile.setIdCardImgs(ObjectMapperUtils.toJSON(req.getIdCardImgs()));
-        profile.setHealthCertImgs(ObjectMapperUtils.toJSON(req.getHealthCertImgs()));
-        profile.setChefCertImgs(ObjectMapperUtils.toJSON(req.getChefCertImgs()));
-        profile.setCuisineType(ObjectMapperUtils.toJSON(req.getCuisineType()));
-        profile.setServiceArea(req.getServiceArea());
-        profile.setServiceDesc(req.getServiceDesc());
-        profile.setPrice(new BigDecimal(req.getPrice()).multiply(new BigDecimal("100")).longValue());
-        profile.setMinPeople(req.getMinPeople());
-        profile.setMaxPeople(req.getMaxPeople());
-        profile.setAge(req.getAge());
-        profile.setGender(req.getGender());
-        profile.setWorkYears(req.getWorkYears());
+        fillProfileByReq(profile, user, req, now);
         profile.setUpdateTime(now);
         profile.setAuditStatus(AuditStatus.PENDING.getCode());
         if (ObjectUtils.isEmpty(profile.getId())) {
@@ -140,7 +156,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime())
                 && ObjectUtils.isNotEmpty(req.getEndTime())
                 && req.getStartTime() < req.getEndTime(), "时间段非法");
-        Preconditions.checkArgument(req.getEndTime() - req.getStartTime() > MIN_TIME_RANGE_MILLIS, "时间间隔必须大于5分钟");
+        Preconditions.checkArgument(req.getEndTime() - req.getStartTime() > MIN_TIME_RANGE_MILLIS, "时间间隔必须大于10分钟");
         assertChefAuditApproved(currentChefId);
 
         ChefAvailableTimeSearchBo searchBo = new ChefAvailableTimeSearchBo();
@@ -277,30 +293,50 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.CHEF_REJECT, orderContext);
     }
 
-    private ChefProfileDTO buildChefProfileDTO(ChefProfile chefProfile) {
+    private ChefProfileDTO buildChefProfileDTO(ChefProfile chefProfile, ChefProfileChange change) {
         ChefProfileDTO chefProfileDTO = new ChefProfileDTO();
         long score = ObjectUtils.defaultIfNull(chefProfile.getScore(), DEFAULT_SCORE);
+        boolean useChange = ObjectUtils.isNotEmpty(change)
+                && (Objects.equals(change.getAuditStatus(), AuditStatus.PENDING.getCode())
+                || Objects.equals(change.getAuditStatus(), AuditStatus.REJECTED.getCode()));
+        String realName = useChange ? change.getRealName() : chefProfile.getRealName();
+        String idCardImgs = useChange ? change.getIdCardImgs() : chefProfile.getIdCardImgs();
+        String healthCertImgs = useChange ? change.getHealthCertImgs() : chefProfile.getHealthCertImgs();
+        String chefCertImgs = useChange ? change.getChefCertImgs() : chefProfile.getChefCertImgs();
+        String cuisineType = useChange ? change.getCuisineType() : chefProfile.getCuisineType();
+        String serviceArea = useChange ? change.getServiceArea() : chefProfile.getServiceArea();
+        String serviceDesc = useChange ? change.getServiceDesc() : chefProfile.getServiceDesc();
+        Long price = useChange ? change.getPrice() : chefProfile.getPrice();
+        Integer minPeople = useChange ? change.getMinPeople() : chefProfile.getMinPeople();
+        Integer maxPeople = useChange ? change.getMaxPeople() : chefProfile.getMaxPeople();
+        Integer age = useChange ? change.getAge() : chefProfile.getAge();
+        Integer gender = useChange ? change.getGender() : chefProfile.getGender();
+        Integer workYears = useChange ? change.getWorkYears() : chefProfile.getWorkYears();
         chefProfileDTO.setUserId(DefaultValueUtil.defaultLong(chefProfile.getUserId()));
         chefProfileDTO.setAvatar(StringUtils.isNotBlank(chefProfile.getAvatar()) ? chefProfile.getAvatar() : "-");
         chefProfileDTO.setDisplayName(DefaultValueUtil.defaultString(chefProfile.getDisplayName()));
-        chefProfileDTO.setRealName(DefaultValueUtil.defaultString(chefProfile.getRealName()));
-        chefProfileDTO.setIdCardImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getIdCardImgs(), String.class)));
-        chefProfileDTO.setHealthCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getHealthCertImgs(), String.class)));
-        chefProfileDTO.setChefCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getChefCertImgs(), String.class)));
-        chefProfileDTO.setCuisineType(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class)));
-        chefProfileDTO.setCuisineTypeDesc(DefaultValueUtil.defaultList(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class))));
-        chefProfileDTO.setServiceArea(DefaultValueUtil.defaultString(chefProfile.getServiceArea()));
-        chefProfileDTO.setServiceDesc(DefaultValueUtil.defaultString(chefProfile.getServiceDesc()));
-        chefProfileDTO.setPrice(DefaultValueUtil.defaultLong(chefProfile.getPrice()));
-        chefProfileDTO.setPriceDesc(DefaultValueUtil.formatYuan(chefProfile.getPrice()));
-        chefProfileDTO.setMinPeople(DefaultValueUtil.defaultInteger(chefProfile.getMinPeople()));
-        chefProfileDTO.setMaxPeople(DefaultValueUtil.defaultInteger(chefProfile.getMaxPeople()));
-        chefProfileDTO.setAge(DefaultValueUtil.defaultInteger(chefProfile.getAge()));
-        chefProfileDTO.setGender(DefaultValueUtil.defaultInteger(chefProfile.getGender()));
-        chefProfileDTO.setGenderDesc(ObjectUtils.isNotEmpty(Gender.getByCode(chefProfile.getGender())) ? Gender.getByCode(chefProfile.getGender()).getDesc() : "-");
-        chefProfileDTO.setWorkYears(DefaultValueUtil.defaultInteger(chefProfile.getWorkYears()));
+        chefProfileDTO.setRealName(DefaultValueUtil.defaultString(realName));
+        chefProfileDTO.setIdCardImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(idCardImgs, String.class)));
+        chefProfileDTO.setHealthCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(healthCertImgs, String.class)));
+        chefProfileDTO.setChefCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefCertImgs, String.class)));
+        chefProfileDTO.setCuisineType(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(cuisineType, Integer.class)));
+        chefProfileDTO.setCuisineTypeDesc(DefaultValueUtil.defaultList(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(cuisineType, Integer.class))));
+        chefProfileDTO.setServiceArea(DefaultValueUtil.defaultString(serviceArea));
+        chefProfileDTO.setServiceDesc(DefaultValueUtil.defaultString(serviceDesc));
+        chefProfileDTO.setPrice(DefaultValueUtil.defaultLong(price));
+        chefProfileDTO.setPriceDesc(DefaultValueUtil.formatYuan(price));
+        chefProfileDTO.setMinPeople(DefaultValueUtil.defaultInteger(minPeople));
+        chefProfileDTO.setMaxPeople(DefaultValueUtil.defaultInteger(maxPeople));
+        chefProfileDTO.setAge(DefaultValueUtil.defaultInteger(age));
+        chefProfileDTO.setGender(DefaultValueUtil.defaultInteger(gender));
+        chefProfileDTO.setGenderDesc(ObjectUtils.isNotEmpty(Gender.getByCode(gender)) ? Gender.getByCode(gender).getDesc() : "-");
+        chefProfileDTO.setWorkYears(DefaultValueUtil.defaultInteger(workYears));
         chefProfileDTO.setAuditStatus(DefaultValueUtil.defaultInteger(chefProfile.getAuditStatus()));
         chefProfileDTO.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
+        chefProfileDTO.setPendingAuditStatus(useChange ? DefaultValueUtil.defaultInteger(change.getAuditStatus()) : 0);
+        chefProfileDTO.setPendingAuditStatusDesc(useChange && ObjectUtils.isNotEmpty(AuditStatus.getByCode(change.getAuditStatus()))
+                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "");
+        chefProfileDTO.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "");
         chefProfileDTO.setPhone(StringUtils.isNotBlank(chefProfile.getPhone()) ? chefProfile.getPhone() : "-");
         chefProfileDTO.setScore(DefaultValueUtil.defaultString(
                 BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
@@ -308,13 +344,30 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         return chefProfileDTO;
     }
 
+    private ChefProfileDTO buildEmptyChefProfileDTO(User user) {
+        ChefProfileDTO dto = new ChefProfileDTO();
+        dto.setUserId(DefaultValueUtil.defaultLong(user.getId()));
+        dto.setAvatar(StringUtils.defaultIfBlank(user.getAvatar(), "-"));
+        dto.setDisplayName(DefaultValueUtil.defaultString(user.getUsername()));
+        dto.setPhone(StringUtils.defaultIfBlank(user.getPhone(), "-"));
+        dto.setAuditStatus(0);
+        dto.setAuditStatusDesc("");
+        dto.setPendingAuditStatus(0);
+        dto.setPendingAuditStatusDesc("");
+        dto.setPendingRejectReason("");
+        dto.setScore(DefaultValueUtil.defaultString(
+                BigDecimal.valueOf(DEFAULT_SCORE).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
+        ));
+        return dto;
+    }
+
     private boolean isSameProfile(SaveChefProfileReq req, ChefProfile profile) {
         Long reqPriceCent = new BigDecimal(req.getPrice()).multiply(new BigDecimal("100")).longValue();
         return req.getRealName().equals(profile.getRealName())
-                && ObjectMapperUtils.toJSON(req.getIdCardImgs()).equals(profile.getIdCardImgs())
-                && ObjectMapperUtils.toJSON(req.getHealthCertImgs()).equals(profile.getHealthCertImgs())
-                && ObjectMapperUtils.toJSON(req.getChefCertImgs()).equals(profile.getChefCertImgs())
-                && ObjectMapperUtils.toJSON(req.getCuisineType()).equals(profile.getCuisineType())
+                && Objects.equals(req.getIdCardImgs(), ObjectMapperUtils.fromJSONToList(profile.getIdCardImgs(), String.class))
+                && Objects.equals(req.getHealthCertImgs(), ObjectMapperUtils.fromJSONToList(profile.getHealthCertImgs(), String.class))
+                && Objects.equals(req.getChefCertImgs(), ObjectMapperUtils.fromJSONToList(profile.getChefCertImgs(), String.class))
+                && Objects.equals(req.getCuisineType(), ObjectMapperUtils.fromJSONToList(profile.getCuisineType(), Integer.class))
                 && req.getServiceArea().equals(profile.getServiceArea())
                 && req.getServiceDesc().equals(profile.getServiceDesc())
                 && reqPriceCent.equals(profile.getPrice())
@@ -323,6 +376,46 @@ public class ChefOperationServiceImpl implements ChefOperationService {
                 && req.getAge().equals(profile.getAge())
                 && req.getGender().equals(profile.getGender())
                 && req.getWorkYears().equals(profile.getWorkYears());
+    }
+
+    private void fillProfileByReq(ChefProfile profile, User user, SaveChefProfileReq req, long now) {
+        profile.setAvatar(user.getAvatar());
+        profile.setDisplayName(user.getUsername());
+        profile.setPhone(user.getPhone());
+        profile.setRealName(req.getRealName());
+        profile.setIdCardImgs(ObjectMapperUtils.toJSON(req.getIdCardImgs()));
+        profile.setHealthCertImgs(ObjectMapperUtils.toJSON(req.getHealthCertImgs()));
+        profile.setChefCertImgs(ObjectMapperUtils.toJSON(req.getChefCertImgs()));
+        profile.setCuisineType(ObjectMapperUtils.toJSON(req.getCuisineType()));
+        profile.setServiceArea(req.getServiceArea());
+        profile.setServiceDesc(req.getServiceDesc());
+        profile.setPrice(new BigDecimal(req.getPrice()).multiply(new BigDecimal("100")).longValue());
+        profile.setMinPeople(req.getMinPeople());
+        profile.setMaxPeople(req.getMaxPeople());
+        profile.setAge(req.getAge());
+        profile.setGender(req.getGender());
+        profile.setWorkYears(req.getWorkYears());
+        profile.setUpdateTime(now);
+    }
+
+    private void fillChangeByReq(ChefProfileChange change, User user, SaveChefProfileReq req, long now) {
+        change.setAvatar(user.getAvatar());
+        change.setDisplayName(user.getUsername());
+        change.setPhone(user.getPhone());
+        change.setRealName(req.getRealName());
+        change.setIdCardImgs(ObjectMapperUtils.toJSON(req.getIdCardImgs()));
+        change.setHealthCertImgs(ObjectMapperUtils.toJSON(req.getHealthCertImgs()));
+        change.setChefCertImgs(ObjectMapperUtils.toJSON(req.getChefCertImgs()));
+        change.setCuisineType(ObjectMapperUtils.toJSON(req.getCuisineType()));
+        change.setServiceArea(req.getServiceArea());
+        change.setServiceDesc(req.getServiceDesc());
+        change.setPrice(new BigDecimal(req.getPrice()).multiply(new BigDecimal("100")).longValue());
+        change.setMinPeople(req.getMinPeople());
+        change.setMaxPeople(req.getMaxPeople());
+        change.setAge(req.getAge());
+        change.setGender(req.getGender());
+        change.setWorkYears(req.getWorkYears());
+        change.setUpdateTime(now);
     }
 
     private ChefAvailableTimeSearchBo buildTimeSearch(ListAvailableTimesReq req, Long currentChefId) {

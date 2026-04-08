@@ -66,11 +66,14 @@
           </template>
         </el-table-column>
         <el-table-column prop="auditStatusDesc" label="审核状态" width="100" />
-        <el-table-column label="操作" fixed="right" width="180" align="center" header-align="center">
+        <el-table-column label="操作" fixed="right" width="232" align="center" header-align="center">
           <template #default="{ row }">
             <div class="action-stack">
               <el-button type="primary" size="small" @click="handleViewDetail(row)">
                 查看详情
+              </el-button>
+              <el-button type="warning" size="small" @click="handleSendMessage(row)">
+                发消息
               </el-button>
             </div>
           </template>
@@ -159,12 +162,35 @@
         <img v-if="previewImageUrl" :src="previewImageUrl" alt="证件预览" class="preview-image" />
       </div>
     </el-dialog>
+
+    <el-dialog v-model="messageVisible" title="发送厨师提醒" width="560px">
+      <el-form ref="messageFormRef" :model="messageForm" :rules="messageRules" label-width="80px">
+        <el-form-item label="标题" prop="title">
+          <el-input v-model="messageForm.title" maxlength="40" show-word-limit />
+        </el-form-item>
+        <el-form-item label="内容" prop="content">
+          <el-input
+            v-model="messageForm.content"
+            type="textarea"
+            :rows="5"
+            maxlength="300"
+            show-word-limit
+            placeholder="例如：您的健康证将在近期过期，请尽快更新资料，否则系统将冻结账号。"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="messageVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmSendMessage" :loading="sendingMessage">发送</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { queryChefList } from '@/api/admin'
+import { ElMessage } from 'element-plus'
+import { queryChefList, sendChefMessage } from '@/api/admin'
 import { getAuditStatusOptions } from '@/api/constant'
 
 const loading = ref(false)
@@ -175,6 +201,9 @@ const currentChef = ref(null)
 const auditStatusOptions = ref([])
 const imagePreviewVisible = ref(false)
 const previewImageUrl = ref('')
+const messageVisible = ref(false)
+const sendingMessage = ref(false)
+const messageFormRef = ref(null)
 
 const queryForm = reactive({
   auditStatus: null,
@@ -183,6 +212,17 @@ const queryForm = reactive({
   page: 1,
   size: 10
 })
+
+const messageForm = reactive({
+  chefUserId: null,
+  title: '证件更新提醒',
+  content: '您的证件即将过期，请尽快更新厨师资料，否则系统可能直接冻结账号。'
+})
+
+const messageRules = {
+  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
+}
 
 const buildQueryParams = () => {
   const params = {
@@ -225,6 +265,33 @@ const handleReset = () => {
 const handleViewDetail = (row) => {
   currentChef.value = row
   detailVisible.value = true
+}
+
+const handleSendMessage = row => {
+  messageForm.chefUserId = row.userId
+  messageForm.title = '证件更新提醒'
+  messageForm.content = '您的证件即将过期，请尽快更新厨师资料，否则系统可能直接冻结账号。'
+  messageVisible.value = true
+}
+
+const confirmSendMessage = async () => {
+  if (!messageFormRef.value) return
+  const valid = await messageFormRef.value.validate().catch(() => false)
+  if (!valid) return
+  sendingMessage.value = true
+  try {
+    await sendChefMessage({
+      chefUserId: messageForm.chefUserId,
+      title: messageForm.title.trim(),
+      content: messageForm.content.trim()
+    })
+    ElMessage.success('发送成功')
+    messageVisible.value = false
+  } catch (error) {
+    console.error('发送提醒失败:', error)
+  } finally {
+    sendingMessage.value = false
+  }
 }
 
 const openImagePreview = (img) => {

@@ -3,6 +3,7 @@ package com.txy.chefdemo.service.impl;
 import com.google.common.collect.Lists;
 import com.txy.chefdemo.domain.ChefAuditRecord;
 import com.txy.chefdemo.domain.ChefProfile;
+import com.txy.chefdemo.domain.ChefProfileChange;
 import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.bo.ChefProfileSearchBo;
@@ -29,6 +30,7 @@ import com.txy.chefdemo.resp.QueryUserOrderResp;
 import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.service.AdminQueryService;
 import com.txy.chefdemo.service.ChefAuditRecordService;
+import com.txy.chefdemo.service.ChefProfileChangeService;
 import com.txy.chefdemo.service.ChefProfileService;
 import com.txy.chefdemo.service.ReservationOrderService;
 import com.txy.chefdemo.service.UserService;
@@ -67,6 +69,8 @@ public class AdminQueryServiceImpl implements AdminQueryService {
     private ReservationOrderService reservationOrderService;
     @Autowired
     private ChefAuditRecordService chefAuditRecordService;
+    @Autowired
+    private ChefProfileChangeService chefProfileChangeService;
 
     @Override
     public QueryChefResp queryChefList(QueryChefReq req) {
@@ -112,7 +116,7 @@ public class AdminQueryServiceImpl implements AdminQueryService {
         searchBo.setUserIdList(normalUserList.stream().map(User::getId).collect(Collectors.toList()));
         List<ChefProfile> chefProfileList = chefProfileService.queryChefListByCondition(searchBo);
         int cnt = chefProfileService.queryChefListCnt(searchBo);
-        return new QueryAuditChefResp(BaseRespConstant.SUC, buildChefList(chefProfileList), cnt);
+        return new QueryAuditChefResp(BaseRespConstant.SUC, buildAuditChefList(chefProfileList), cnt);
     }
 
     @Override
@@ -266,10 +270,76 @@ public class AdminQueryServiceImpl implements AdminQueryService {
             chefProfileDTO.setWorkYears(DefaultValueUtil.defaultInteger(chefProfile.getWorkYears()));
             chefProfileDTO.setAuditStatus(DefaultValueUtil.defaultInteger(chefProfile.getAuditStatus()));
             chefProfileDTO.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
+            chefProfileDTO.setPendingAuditStatus(0);
+            chefProfileDTO.setPendingAuditStatusDesc("");
+            chefProfileDTO.setPendingRejectReason("");
             chefProfileDTO.setPhone(StringUtils.isNotBlank(chefProfile.getPhone()) ? chefProfile.getPhone() : "-");
             chefProfileDTO.setScore(DefaultValueUtil.defaultString(BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()));
             return chefProfileDTO;
         }).collect(Collectors.toList());
+    }
+
+    private List<ChefProfileDTO> buildAuditChefList(List<ChefProfile> chefProfileList) {
+        return chefProfileList.stream().map(chefProfile -> {
+            ChefProfileChange change = chefProfileChangeService.queryByUserId(chefProfile.getUserId());
+            return buildChefProfileDTO(
+                    ObjectUtils.isNotEmpty(change) && Objects.equals(change.getAuditStatus(), AuditStatus.PENDING.getCode()) ? change : null,
+                    chefProfile
+            );
+        }).collect(Collectors.toList());
+    }
+
+    private ChefProfileDTO buildChefProfileDTO(ChefProfileChange change, ChefProfile profile) {
+        ChefProfileDTO dto = new ChefProfileDTO();
+        long score = ObjectUtils.defaultIfNull(profile.getScore(), DEFAULT_SCORE);
+        boolean useChange = ObjectUtils.isNotEmpty(change);
+        String avatar = useChange ? change.getAvatar() : profile.getAvatar();
+        String displayName = useChange ? change.getDisplayName() : profile.getDisplayName();
+        String realName = useChange ? change.getRealName() : profile.getRealName();
+        String idCardImgs = useChange ? change.getIdCardImgs() : profile.getIdCardImgs();
+        String healthCertImgs = useChange ? change.getHealthCertImgs() : profile.getHealthCertImgs();
+        String chefCertImgs = useChange ? change.getChefCertImgs() : profile.getChefCertImgs();
+        String cuisineType = useChange ? change.getCuisineType() : profile.getCuisineType();
+        String serviceArea = useChange ? change.getServiceArea() : profile.getServiceArea();
+        String serviceDesc = useChange ? change.getServiceDesc() : profile.getServiceDesc();
+        Long price = useChange ? change.getPrice() : profile.getPrice();
+        Integer minPeople = useChange ? change.getMinPeople() : profile.getMinPeople();
+        Integer maxPeople = useChange ? change.getMaxPeople() : profile.getMaxPeople();
+        Integer age = useChange ? change.getAge() : profile.getAge();
+        Integer gender = useChange ? change.getGender() : profile.getGender();
+        Integer workYears = useChange ? change.getWorkYears() : profile.getWorkYears();
+        String phone = useChange ? change.getPhone() : profile.getPhone();
+        Integer auditStatus = useChange ? change.getAuditStatus() : profile.getAuditStatus();
+        dto.setUserId(DefaultValueUtil.defaultLong(profile.getUserId()));
+        dto.setAvatar(StringUtils.isNotBlank(avatar) ? avatar : "-");
+        dto.setDisplayName(DefaultValueUtil.defaultString(displayName));
+        dto.setRealName(DefaultValueUtil.defaultString(realName));
+        dto.setIdCardImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(idCardImgs, String.class)));
+        dto.setHealthCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(healthCertImgs, String.class)));
+        dto.setChefCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefCertImgs, String.class)));
+        dto.setCuisineType(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(cuisineType, Integer.class)));
+        dto.setCuisineTypeDesc(DefaultValueUtil.defaultList(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(cuisineType, Integer.class))));
+        dto.setServiceArea(DefaultValueUtil.defaultString(serviceArea));
+        dto.setServiceDesc(DefaultValueUtil.defaultString(serviceDesc));
+        dto.setPrice(DefaultValueUtil.defaultLong(price));
+        dto.setPriceDesc(DefaultValueUtil.formatYuan(price));
+        dto.setMinPeople(DefaultValueUtil.defaultInteger(minPeople));
+        dto.setMaxPeople(DefaultValueUtil.defaultInteger(maxPeople));
+        dto.setAge(DefaultValueUtil.defaultInteger(age));
+        dto.setGender(DefaultValueUtil.defaultInteger(gender));
+        dto.setGenderDesc(ObjectUtils.isNotEmpty(Gender.getByCode(gender)) ? Gender.getByCode(gender).getDesc() : "-");
+        dto.setWorkYears(DefaultValueUtil.defaultInteger(workYears));
+        dto.setAuditStatus(DefaultValueUtil.defaultInteger(auditStatus));
+        dto.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(auditStatus)) ? AuditStatus.getByCode(auditStatus).getDesc() : "-");
+        dto.setPendingAuditStatus(useChange ? DefaultValueUtil.defaultInteger(change.getAuditStatus()) : 0);
+        dto.setPendingAuditStatusDesc(useChange && ObjectUtils.isNotEmpty(AuditStatus.getByCode(change.getAuditStatus()))
+                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "");
+        dto.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "");
+        dto.setPhone(StringUtils.isNotBlank(phone) ? phone : "-");
+        dto.setScore(DefaultValueUtil.defaultString(
+                BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
+        ));
+        return dto;
     }
 
     private List<UserDTO> buildUserList(List<User> userList) {

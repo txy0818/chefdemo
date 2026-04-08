@@ -9,6 +9,13 @@
             <el-tag v-if="profile.auditStatusDesc" :type="getAuditStatusType(profile.auditStatus)" effect="light">
               {{ profile.auditStatusDesc }}
             </el-tag>
+            <el-tag
+              v-if="profile.pendingAuditStatusDesc"
+              :type="getAuditStatusType(profile.pendingAuditStatus)"
+              effect="plain"
+            >
+              变更{{ profile.pendingAuditStatusDesc }}
+            </el-tag>
             <span v-if="profileForm.serviceArea">{{ profileForm.serviceArea }}</span>
           </div>
         </div>
@@ -28,6 +35,22 @@
         </div>
       </div>
     </div>
+
+    <el-alert
+      v-if="profile.pendingAuditStatus === 1"
+      class="status-alert"
+      type="warning"
+      :closable="false"
+      title="资料变更审核中，当前对外展示和接单能力仍沿用已通过的正式资料。"
+    />
+
+    <el-alert
+      v-if="profile.pendingAuditStatus === 3"
+      class="status-alert"
+      type="error"
+      :closable="false"
+      :title="profile.pendingRejectReason ? `资料变更审核未通过：${profile.pendingRejectReason}` : '资料变更审核未通过，请根据原因修改后重新提交。'"
+    />
 
     <div class="profile-grid">
       <el-card class="profile-panel" shadow="hover">
@@ -182,7 +205,7 @@
           </el-form-item>
 
           <el-form-item class="submit-row">
-            <el-button type="primary" @click="handleSave" :loading="saving">
+            <el-button type="primary" @click="handleSave" :loading="saving" :disabled="profile.pendingAuditStatus === 1">
               保存资料
             </el-button>
             <el-button @click="handleReset">重置</el-button>
@@ -513,6 +536,10 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+}
+
+.status-alert {
+  border-radius: 18px;
 }
 
 .certificates-panel {

@@ -13,6 +13,7 @@ import com.txy.chefdemo.req.QueryReportReq;
 import com.txy.chefdemo.req.QueryReviewReq;
 import com.txy.chefdemo.req.QueryUserListReq;
 import com.txy.chefdemo.req.QueryUserOrderReq;
+import com.txy.chefdemo.req.SendChefMessageReq;
 import com.txy.chefdemo.req.UpdateUserStatusReq;
 import com.txy.chefdemo.resp.DataResp;
 import com.txy.chefdemo.resp.QueryAuditChefResp;
@@ -97,10 +98,26 @@ public class AdminController {
     }
 
     /**
+     * 管理员发送厨师通知：
+     * 1. 校验厨师用户存在；
+     * 2. 保存一条站内通知；
+     * 3. 通过 WebSocket 推送给厨师。
+     */
+    @Transactional
+    @LogExecution(returnType = SimpleResp.class)
+    @PostMapping("/chef/sendMessage")
+    public SimpleResp sendChefMessage(@RequestBody SendChefMessageReq req, HttpServletRequest request) {
+        Long currentAdminId = AuthRequestUtils.requireUser(request, UserRole.ADMIN);
+        adminOperationService.sendChefMessage(currentAdminId, req);
+        return new SimpleResp(BaseRespConstant.SUC);
+    }
+
+    /**
      * 查询待审核厨师列表：
      * 1. 查询厨师最新待审核记录；
-     * 2. 只返回账号状态正常的厨师资料；
-     * 3. 分页返回前端展示。
+     * 2. 首次提交资料时返回正式资料；
+     * 3. 已审核通过后再次修改资料时返回变更资料；
+     * 4. 只返回账号状态正常的厨师资料并分页展示。
      */
     @Transactional
     @LogExecution(returnType = QueryAuditChefResp.class)
@@ -113,9 +130,10 @@ public class AdminController {
     /**
      * 审核厨师资料：
      * 1. 校验厨师资料和待审核记录存在；
-     * 2. 更新审核记录和厨师资料审核状态；
-     * 3. 若驳回则记录驳回原因；
-     * 4. 审核结果通过通知发送给厨师。
+     * 2. 首次审核时直接更新正式资料审核状态；
+     * 3. 变更审核通过时再把变更资料覆盖到正式资料；
+     * 4. 若驳回则记录驳回原因并保留原正式资料；
+     * 5. 审核结果通过通知发送给厨师。
      */
     @Transactional
     @LogExecution(returnType = SimpleResp.class)

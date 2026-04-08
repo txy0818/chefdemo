@@ -2,6 +2,7 @@ package com.txy.chefdemo.service;
 
 import com.txy.chefdemo.domain.ChefAuditRecord;
 import com.txy.chefdemo.domain.ChefProfile;
+import com.txy.chefdemo.domain.ChefProfileChange;
 import com.txy.chefdemo.domain.Report;
 import com.txy.chefdemo.domain.Review;
 import com.txy.chefdemo.domain.User;
@@ -31,6 +32,8 @@ public class FrozenChefCleanupService {
     @Autowired
     private ChefProfileService chefProfileService;
     @Autowired
+    private ChefProfileChangeService chefProfileChangeService;
+    @Autowired
     private ReviewService reviewService;
     @Autowired
     private ReportService reportService;
@@ -55,13 +58,22 @@ public class FrozenChefCleanupService {
         if (ObjectUtils.isEmpty(pendingRecord)) {
             return;
         }
+        ChefProfile profile = chefProfileService.queryByUserId(chefUserId);
+        ChefProfileChange change = chefProfileChangeService.queryByUserId(chefUserId);
         pendingRecord.setAuditStatus(AuditStatus.REJECTED.getCode());
         pendingRecord.setRejectReason(FROZEN_REJECT_REASON);
         pendingRecord.setAuditTime(now);
         pendingRecord.setOperatorId(ObjectUtils.defaultIfNull(operatorId, 0L));
         chefAuditRecordService.updateById(List.of(pendingRecord));
 
-        ChefProfile profile = chefProfileService.queryByUserId(chefUserId);
+        if (ObjectUtils.isNotEmpty(change)) {
+            change.setAuditStatus(AuditStatus.REJECTED.getCode());
+            change.setRejectReason(FROZEN_REJECT_REASON);
+            change.setAuditTime(now);
+            change.setUpdateTime(now);
+            chefProfileChangeService.updateById(change);
+        }
+
         if (ObjectUtils.isNotEmpty(profile)) {
             profile.setAuditStatus(AuditStatus.REJECTED.getCode());
             profile.setUpdateTime(now);
