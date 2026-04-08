@@ -31,12 +31,15 @@ public class OrderChefRejectAction implements OrderAction {
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
         Preconditions.checkArgument(Objects.equals(order.getChefId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
+        boolean paid = Objects.equals(order.getPayStatus(), PayStatus.PAID.getCode());
         order.setStatus(OrderStatus.REJECTED.getCode());
-        order.setPayStatus(PayStatus.REFUNDED.getCode());
         order.setCancelReason(context.getReason());
         order.setCancelTime(System.currentTimeMillis());
         support.releaseTime(order.getChefAvailableTimeId());
-        support.refundIfPaid(order);
+        if (paid) {
+            support.refundIfPaid(order);
+            order.setPayStatus(PayStatus.REFUNDED.getCode());
+        }
         support.createBothSideNotification(
                 order,
                 "订单状态更新",
