@@ -1,10 +1,12 @@
 package com.txy.chefdemo.service.impl;
 
 import com.google.common.base.Preconditions;
+import com.txy.chefdemo.domain.NotificationRecord;
 import com.txy.chefdemo.domain.Report;
 import com.txy.chefdemo.domain.Review;
 import com.txy.chefdemo.domain.bo.ReportSearchBo;
 import com.txy.chefdemo.domain.bo.ReviewSearchBo;
+import com.txy.chefdemo.domain.constant.NotificationReadStatus;
 import com.txy.chefdemo.domain.constant.AuditStatus;
 import com.txy.chefdemo.domain.constant.ReportStatus;
 import com.txy.chefdemo.domain.constant.ReviewStatus;
@@ -19,6 +21,8 @@ import com.txy.chefdemo.resp.QueryReportResp;
 import com.txy.chefdemo.resp.QueryReviewResp;
 import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.service.AdminReviewReportService;
+import com.txy.chefdemo.service.NotificationRecordService;
+import com.txy.chefdemo.service.NotificationService;
 import com.txy.chefdemo.service.ReportService;
 import com.txy.chefdemo.service.ReviewService;
 import com.txy.chefdemo.service.UserService;
@@ -47,6 +51,10 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
     private ReportService reportService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private NotificationRecordService notificationRecordService;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public QueryReviewResp reviewList(QueryReviewReq req) {
@@ -121,6 +129,26 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
         report.setProcessedBy(currentAdminId);
         report.setUpdateTime(System.currentTimeMillis());
         reportService.updateById(report);
+        notifyReportResult(report, processResult);
+    }
+
+    private void notifyReportResult(Report report, String processResult) {
+        if (ObjectUtils.isEmpty(report) || ObjectUtils.isEmpty(report.getReporterId())) {
+            return;
+        }
+        ReportStatus reportStatus = ReportStatus.getByCode(report.getStatus());
+        String statusDesc = ObjectUtils.isNotEmpty(reportStatus) ? reportStatus.getDesc() : "已处理";
+        long now = System.currentTimeMillis();
+        NotificationRecord notificationRecord = new NotificationRecord();
+        notificationRecord.setUserId(report.getReporterId());
+        notificationRecord.setTitle("举报处理结果");
+        notificationRecord.setContent("您提交的订单举报已处理，处理结果为“" + statusDesc + "”。订单ID："
+                + report.getReservationOrderId() + "。处理说明：" + processResult);
+        notificationRecord.setReadStatus(NotificationReadStatus.UNREAD.getCode());
+        notificationRecord.setCreateTime(now);
+        notificationRecord.setUpdateTime(now);
+        notificationRecordService.insert(notificationRecord);
+        notificationService.notifyUser(notificationRecord);
     }
 
     private ReviewSearchBo buildReviewSearch(QueryReviewReq req) {
