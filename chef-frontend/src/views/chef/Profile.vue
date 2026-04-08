@@ -5,7 +5,7 @@
         <div class="hero-copy">
           <div class="hero-eyebrow">CHEF PROFILE</div>
           <h2>{{ profileForm.realName || userStore.userInfo.username || '厨师个人资料' }}</h2>
-          <div class="hero-meta">
+        <div class="hero-meta">
             <el-tag v-if="profile.auditStatusDesc" :type="getAuditStatusType(profile.auditStatus)" effect="light">
               {{ profile.auditStatusDesc }}
             </el-tag>
@@ -17,6 +17,16 @@
               变更{{ profile.pendingAuditStatusDesc }}
             </el-tag>
             <span v-if="profileForm.serviceArea">{{ profileForm.serviceArea }}</span>
+          </div>
+          <div class="hero-actions">
+            <el-button
+              v-if="profile.auditStatus === 2"
+              class="hero-action-btn"
+              plain
+              @click="showOfficialProfileDialog"
+            >
+              查看正式资料
+            </el-button>
           </div>
         </div>
       </div>
@@ -213,13 +223,75 @@
         </el-form>
       </el-card>
     </div>
+
+    <el-dialog v-model="officialProfileVisible" title="当前正式生效资料" width="820px">
+      <el-descriptions v-if="officialProfile" :column="2" border>
+        <el-descriptions-item label="昵称">{{ officialProfile.displayName }}</el-descriptions-item>
+        <el-descriptions-item label="真实姓名">{{ officialProfile.realName }}</el-descriptions-item>
+        <el-descriptions-item label="手机号">{{ officialProfile.phone }}</el-descriptions-item>
+        <el-descriptions-item label="审核状态">{{ officialProfile.auditStatusDesc }}</el-descriptions-item>
+        <el-descriptions-item label="年龄">{{ officialProfile.age }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ officialProfile.genderDesc }}</el-descriptions-item>
+        <el-descriptions-item label="从业年限">{{ officialProfile.workYears }} 年</el-descriptions-item>
+        <el-descriptions-item label="价格">{{ officialProfile.priceDesc }} 元/小时</el-descriptions-item>
+        <el-descriptions-item label="服务人数" :span="2">{{ officialProfile.minPeople }} - {{ officialProfile.maxPeople }} 人</el-descriptions-item>
+        <el-descriptions-item label="擅长菜系" :span="2">
+          <el-tag
+            v-for="(item, index) in officialProfile.cuisineTypeDesc"
+            :key="index"
+            style="margin-right: 6px; margin-bottom: 6px"
+          >
+            {{ item }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="服务区域" :span="2">
+          <div class="multiline-text">{{ officialProfile.serviceArea }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item label="服务描述" :span="2">
+          <div class="multiline-text">{{ officialProfile.serviceDesc }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item label="身份证照片" :span="2">
+          <div class="cert-preview-list">
+            <el-image
+              v-for="(img, index) in officialProfile.idCardImgs"
+              :key="`id-${index}`"
+              :src="img"
+              fit="cover"
+              class="cert-preview-image"
+            />
+          </div>
+        </el-descriptions-item>
+        <el-descriptions-item label="健康证照片" :span="2">
+          <div class="cert-preview-list">
+            <el-image
+              v-for="(img, index) in officialProfile.healthCertImgs"
+              :key="`health-${index}`"
+              :src="img"
+              fit="cover"
+              class="cert-preview-image"
+            />
+          </div>
+        </el-descriptions-item>
+        <el-descriptions-item label="厨师证照片" :span="2">
+          <div class="cert-preview-list">
+            <el-image
+              v-for="(img, index) in officialProfile.chefCertImgs"
+              :key="`chef-${index}`"
+              :src="img"
+              fit="cover"
+              class="cert-preview-image"
+            />
+          </div>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getProfile, saveProfile } from '@/api/chef'
+import { getOfficialProfile, getProfile, saveProfile } from '@/api/chef'
 import { getCuisineTypeOptions, getGenderOptions } from '@/api/constant'
 import { useUserStore } from '@/stores/user'
 import ImageUpload from '@/components/ImageUpload.vue'
@@ -229,6 +301,8 @@ const profileFormRef = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const profile = ref({})
+const officialProfile = ref(null)
+const officialProfileVisible = ref(false)
 const cuisineOptions = ref([])
 const genderOptions = ref([])
 
@@ -443,6 +517,16 @@ const handleReset = () => {
   loadProfile()
 }
 
+const showOfficialProfileDialog = async () => {
+  try {
+    const res = await getOfficialProfile()
+    officialProfile.value = res.data || null
+    officialProfileVisible.value = true
+  } catch (error) {
+    console.error('加载正式资料失败:', error)
+  }
+}
+
 onMounted(() => {
   Promise.all([getCuisineTypeOptions(), getGenderOptions()])
     .then(([cuisineRes, genderRes]) => {
@@ -501,6 +585,17 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   color: #68756c;
+  flex-wrap: wrap;
+}
+
+.hero-actions {
+  margin-top: 16px;
+}
+
+.hero-action-btn {
+  min-height: 36px;
+  border-radius: 12px;
+  font-weight: 600;
 }
 
 .hero-stats {
@@ -540,6 +635,24 @@ onMounted(() => {
 
 .status-alert {
   border-radius: 18px;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cert-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cert-preview-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .certificates-panel {

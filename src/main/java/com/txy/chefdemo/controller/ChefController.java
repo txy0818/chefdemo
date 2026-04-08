@@ -43,6 +43,19 @@ public class ChefController {
     }
 
     /**
+     * 查询当前正式生效的厨师资料：
+     * 1. 按用户 ID 查询正式资料；
+     * 2. 不叠加待审核变更内容；
+     * 3. 返回当前对外生效的资料详情。
+     */
+    @LogExecution(returnType = DataResp.class)
+    @PostMapping("/profile/official/get")
+    public DataResp<ChefProfileDTO> getOfficialProfile(HttpServletRequest request) {
+        Long currentChefId = AuthRequestUtils.requireUser(request, UserRole.CHEF);
+        return new DataResp<>(BaseRespConstant.SUC, chefOperationService.getOfficialProfile(currentChefId));
+    }
+
+    /**
      * 保存厨师资料：
      * 1. 校验用户存在；
      * 2. 首次保存时新增厨师资料，二次保存时更新资料；

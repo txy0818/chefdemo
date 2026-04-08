@@ -73,6 +73,7 @@ const socketRef = ref(null)
 const forceLogoutRef = ref(false)
 const unreadCount = ref(0)
 const pollingTimerRef = ref(null)
+const auditRefreshTimerRef = ref(null)
 const knownUnreadIds = new Set()
 const handleUnreadChange = event => {
   const delta = Number(event?.detail?.delta || 0)
@@ -115,9 +116,12 @@ const loadChefAuditStatus = async () => {
   if (!userStore.userInfo.userId) return
   try {
     const res = await getChefProfile({})
-    isAuditApproved.value = await isChefAuditApproved(res.data?.auditStatus)
+    const approved = await isChefAuditApproved(res.data?.auditStatus)
+    isAuditApproved.value = approved
+    return approved
   } catch (error) {
     isAuditApproved.value = false
+    return false
   }
 }
 
@@ -170,7 +174,15 @@ const connectSocket = () => {
         knownUnreadIds.add(payload.data.id)
       }
       if (payload.type === 'CHEF_AUDIT_RESULT') {
-        await loadChefAuditStatus()
+        const approved = await loadChefAuditStatus()
+        if (approved) {
+          if (auditRefreshTimerRef.value) {
+            clearTimeout(auditRefreshTimerRef.value)
+          }
+          auditRefreshTimerRef.value = window.setTimeout(() => {
+            window.location.reload()
+          }, 300)
+        }
       }
       showRealtimeNotification(payload)
     }
@@ -234,6 +246,10 @@ watch(
 onBeforeUnmount(() => {
   window.removeEventListener(NOTIFICATION_UNREAD_CHANGE_EVENT, handleUnreadChange)
   stopNotificationPolling()
+  if (auditRefreshTimerRef.value) {
+    clearTimeout(auditRefreshTimerRef.value)
+    auditRefreshTimerRef.value = null
+  }
   closeSocket()
 })
 </script>

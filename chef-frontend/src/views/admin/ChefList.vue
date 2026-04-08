@@ -69,10 +69,10 @@
         <el-table-column label="操作" fixed="right" width="232" align="center" header-align="center">
           <template #default="{ row }">
             <div class="action-stack">
-              <el-button type="primary" size="small" @click="handleViewDetail(row)">
+              <el-button class="action-btn" type="primary" size="small" @click="handleViewDetail(row)">
                 查看详情
               </el-button>
-              <el-button type="warning" size="small" @click="handleSendMessage(row)">
+              <el-button class="action-btn" type="warning" size="small" @click="handleSendMessage(row)">
                 发消息
               </el-button>
             </div>
@@ -387,16 +387,25 @@ onMounted(() => {
 
 .action-stack {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   width: 100%;
 }
 
-.action-stack :deep(.el-button) {
-  min-width: 118px;
+.action-btn {
+  min-width: 132px;
   min-height: 32px;
+  margin-left: 0;
   border-radius: 10px;
   font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
 }
 
 .multiline-text {

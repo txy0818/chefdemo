@@ -16,6 +16,8 @@ public interface ChefOperationService {
 
     ChefProfileDTO getProfile(Long currentChefId);
 
+    ChefProfileDTO getOfficialProfile(Long currentChefId);
+
     void saveProfile(Long currentChefId, SaveChefProfileReq req);
 
     void addAvailableTime(Long currentChefId, AddAvailableTimeReq req);

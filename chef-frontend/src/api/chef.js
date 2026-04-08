@@ -8,6 +8,13 @@ export function getProfile() {
   })
 }
 
+export function getOfficialProfile() {
+  return request({
+    url: '/chef/profile/official/get',
+    method: 'post'
+  })
+}
+
 // page1: 保存厨师资料
 export function saveProfile(data) {
   return request({

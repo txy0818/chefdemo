@@ -93,6 +93,17 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     }
 
     @Override
+    public ChefProfileDTO getOfficialProfile(Long currentChefId) {
+        User user = userService.queryById(currentChefId);
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
+        ChefProfile profile = chefProfileService.queryByUserId(currentChefId);
+        if (ObjectUtils.isEmpty(profile)) {
+            return buildEmptyChefProfileDTO(user);
+        }
+        return buildChefProfileDTO(profile, null);
+    }
+
+    @Override
     @Transactional
     public void saveProfile(Long currentChefId, SaveChefProfileReq req) {
         long now = System.currentTimeMillis();
@@ -335,8 +346,8 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         chefProfileDTO.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
         chefProfileDTO.setPendingAuditStatus(useChange ? DefaultValueUtil.defaultInteger(change.getAuditStatus()) : 0);
         chefProfileDTO.setPendingAuditStatusDesc(useChange && ObjectUtils.isNotEmpty(AuditStatus.getByCode(change.getAuditStatus()))
-                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "");
-        chefProfileDTO.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "");
+                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "-");
+        chefProfileDTO.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "-");
         chefProfileDTO.setPhone(StringUtils.isNotBlank(chefProfile.getPhone()) ? chefProfile.getPhone() : "-");
         chefProfileDTO.setScore(DefaultValueUtil.defaultString(
                 BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
