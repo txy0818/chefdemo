@@ -177,12 +177,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { orderList as fetchOrderList, acceptOrder, rejectOrder, completeOrder, getProfile as getChefProfile } from '@/api/chef'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getOrderStatusTabOptions, isChefAuditApproved } from '@/api/constant'
+import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -355,6 +356,18 @@ const handleViewDetail = (order) => {
   detailVisible.value = true
 }
 
+const handleRealtimeRefresh = async () => {
+  const passed = await ensureAuditApproved()
+  if (!passed) {
+    orderList.value = []
+    total.value = 0
+    detailVisible.value = false
+    currentOrder.value = null
+    return
+  }
+  await loadData()
+}
+
 onMounted(() => {
   getOrderStatusTabOptions()
     .then(options => {
@@ -371,6 +384,11 @@ onMounted(() => {
       loadData()
     }
   })
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

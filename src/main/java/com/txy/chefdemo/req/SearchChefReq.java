@@ -4,11 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchChefReq {
     private String keyword = "";
+    private List<Integer> cuisineTypeList = new ArrayList<>();
     private String serviceArea = "";
     private Long minPrice = 0L;
     private Long maxPrice = 0L;

@@ -24,6 +24,9 @@ public class OrderTimeoutCancelAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
+        if (!OrderStatus.PENDING_PAYMENT.getCode().equals(order.getStatus())) {
+            return order;
+        }
         order.setStatus(OrderStatus.CANCELLED.getCode());
         order.setCancelReason("订单5分钟内未支付，系统自动取消");
         order.setCancelTime(System.currentTimeMillis());

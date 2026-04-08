@@ -59,7 +59,7 @@ import { useUserStore } from '@/stores/user'
 import { logout, queryInfo } from '@/api/auth'
 import { notificationList as fetchNotificationList } from '@/api/user'
 import HeaderUserInfo from '@/components/HeaderUserInfo.vue'
-import { NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
+import { emitRealtimeDataRefresh, NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
 import { createUserSocket } from '@/utils/ws'
 import { Search, List, Bell, Wallet } from '@element-plus/icons-vue'
 
@@ -147,6 +147,7 @@ const connectSocket = () => {
       if (payload.data?.id) {
         knownUnreadIds.add(payload.data.id)
       }
+      emitRealtimeDataRefresh(payload)
       showRealtimeNotification(payload)
     }
   })

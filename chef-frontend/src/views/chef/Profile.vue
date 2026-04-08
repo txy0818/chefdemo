@@ -4,19 +4,21 @@
       <div class="hero-main">
         <div class="hero-copy">
           <div class="hero-eyebrow">CHEF PROFILE</div>
-          <h2>{{ profileForm.realName || userStore.userInfo.username || '厨师个人资料' }}</h2>
-        <div class="hero-meta">
-            <el-tag v-if="profile.auditStatusDesc" :type="getAuditStatusType(profile.auditStatus)" effect="light">
+          <h2>{{ heroTitle }}</h2>
+          <p class="hero-description">{{ heroDescription }}</p>
+          <div class="hero-meta">
+            <el-tag v-if="profile.auditStatusDesc && profile.auditStatusDesc !== '-'" :type="getAuditStatusType(profile.auditStatus)" effect="light">
               {{ profile.auditStatusDesc }}
             </el-tag>
             <el-tag
-              v-if="profile.pendingAuditStatusDesc"
+              v-if="profile.pendingAuditStatusDesc && profile.pendingAuditStatusDesc !== '-'"
               :type="getAuditStatusType(profile.pendingAuditStatus)"
               effect="plain"
             >
               变更{{ profile.pendingAuditStatusDesc }}
             </el-tag>
-            <span v-if="profileForm.serviceArea">{{ profileForm.serviceArea }}</span>
+            <span v-if="showServiceArea">{{ profileForm.serviceArea }}</span>
+            <span v-else class="hero-meta-placeholder">资料提交后，这里会展示你当前对外可见的服务区域</span>
           </div>
           <div class="hero-actions">
             <el-button
@@ -33,15 +35,15 @@
       <div class="hero-stats">
         <div class="stat-card">
           <span class="stat-label">价格</span>
-          <span class="stat-value">{{ Number(profileForm.price || 0) }} 元/小时</span>
+          <span class="stat-value">{{ priceDisplay }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">服务人数</span>
-          <span class="stat-value">{{ profileForm.minPeople }} - {{ profileForm.maxPeople }} 人</span>
+          <span class="stat-value">{{ peopleRangeDisplay }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">从业年限</span>
-          <span class="stat-value">{{ profileForm.workYears }} 年</span>
+          <span class="stat-value">{{ workYearsDisplay }}</span>
         </div>
       </div>
     </div>
@@ -289,7 +291,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { computed, ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getOfficialProfile, getProfile, saveProfile } from '@/api/chef'
 import { getCuisineTypeOptions, getGenderOptions } from '@/api/constant'
@@ -305,21 +307,24 @@ const officialProfile = ref(null)
 const officialProfileVisible = ref(false)
 const cuisineOptions = ref([])
 const genderOptions = ref([])
-
-const profileForm = reactive({
+const PROFILE_FORM_DEFAULTS = {
   realName: '',
   age: 25,
   gender: 1,
-  workYears: 0,
+  workYears: 1,
   cuisineType: [],
   serviceArea: '',
   serviceDesc: '',
   price: 100,
   minPeople: 1,
-  maxPeople: 10,
+  maxPeople: 5,
   idCardImgs: [],
   healthCertImgs: [],
   chefCertImgs: []
+}
+
+const profileForm = reactive({
+  ...PROFILE_FORM_DEFAULTS
 })
 
 const profileRules = {
@@ -466,21 +471,99 @@ const getAuditStatusType = (status) => {
   return map[status] || 'info'
 }
 
+const isProfileInitialized = computed(() => {
+  return Boolean(
+    (profileForm.realName && profileForm.realName !== '-') ||
+    (Array.isArray(profileForm.idCardImgs) && profileForm.idCardImgs.length > 0) ||
+    (Array.isArray(profileForm.healthCertImgs) && profileForm.healthCertImgs.length > 0) ||
+    (Array.isArray(profileForm.chefCertImgs) && profileForm.chefCertImgs.length > 0) ||
+    (profileForm.serviceArea && profileForm.serviceArea !== '-') ||
+    (profileForm.serviceDesc && profileForm.serviceDesc !== '-')
+  )
+})
+
+const heroTitle = computed(() => {
+  if (isProfileInitialized.value) {
+    return profileForm.realName && profileForm.realName !== '-'
+      ? profileForm.realName
+      : (userStore.userInfo.username || '厨师个人资料')
+  }
+  return '还没有设置个人资料'
+})
+
+const heroDescription = computed(() => {
+  if (isProfileInitialized.value) {
+    return '完善实名认证、服务信息和证件资料后，管理员审核通过即可对外展示并正常接单。'
+  }
+  return '先补全基础资料、服务信息和证件资料，再提交审核。审核通过后才能对外展示并使用完整工作台能力。'
+})
+
+const showServiceArea = computed(() => {
+  return Boolean(profileForm.serviceArea && profileForm.serviceArea !== '-')
+})
+
+const priceDisplay = computed(() => {
+  if (!isProfileInitialized.value || !profileForm.price || Number(profileForm.price) <= 0) {
+    return '待设置'
+  }
+  return `${Number(profileForm.price)} 元/小时`
+})
+
+const peopleRangeDisplay = computed(() => {
+  if (!isProfileInitialized.value || !profileForm.minPeople || !profileForm.maxPeople) {
+    return '待设置'
+  }
+  return `${profileForm.minPeople} - ${profileForm.maxPeople} 人`
+})
+
+const workYearsDisplay = computed(() => {
+  if (!isProfileInitialized.value || !profileForm.workYears) {
+    return '待设置'
+  }
+  return `${profileForm.workYears} 年`
+})
+
+const normalizeTextField = value => {
+  if (!value || value === '-') {
+    return ''
+  }
+  return value
+}
+
+const normalizePositiveInteger = (value, fallbackValue) => {
+  if (value == null || Number(value) <= 0) {
+    return fallbackValue
+  }
+  return Number(value)
+}
+
+const applyProfileForm = data => {
+  Object.assign(profileForm, {
+    realName: normalizeTextField(data?.realName),
+    age: normalizePositiveInteger(data?.age, PROFILE_FORM_DEFAULTS.age),
+    gender: normalizePositiveInteger(data?.gender, PROFILE_FORM_DEFAULTS.gender),
+    workYears: normalizePositiveInteger(data?.workYears, PROFILE_FORM_DEFAULTS.workYears),
+    cuisineType: Array.isArray(data?.cuisineType) ? data.cuisineType.map(item => String(item)) : [],
+    serviceArea: normalizeTextField(data?.serviceArea),
+    serviceDesc: normalizeTextField(data?.serviceDesc),
+    price: data?.price && Number(data.price) > 0 ? Number(data.price) / 100 : PROFILE_FORM_DEFAULTS.price,
+    minPeople: normalizePositiveInteger(data?.minPeople, PROFILE_FORM_DEFAULTS.minPeople),
+    maxPeople: normalizePositiveInteger(data?.maxPeople, PROFILE_FORM_DEFAULTS.maxPeople),
+    idCardImgs: Array.isArray(data?.idCardImgs) ? data.idCardImgs : [],
+    healthCertImgs: Array.isArray(data?.healthCertImgs) ? data.healthCertImgs : [],
+    chefCertImgs: Array.isArray(data?.chefCertImgs) ? data.chefCertImgs : []
+  })
+}
+
 const loadProfile = async () => {
   loading.value = true
   try {
     const res = await getProfile()
     if (res.data) {
       profile.value = res.data
-      Object.assign(profileForm, {
-        ...res.data,
-        cuisineType: Array.isArray(res.data.cuisineType) ? res.data.cuisineType.map(item => String(item)) : [],
-        idCardImgs: Array.isArray(res.data.idCardImgs) ? res.data.idCardImgs : [],
-        healthCertImgs: Array.isArray(res.data.healthCertImgs) ? res.data.healthCertImgs : [],
-        chefCertImgs: Array.isArray(res.data.chefCertImgs) ? res.data.chefCertImgs : [],
-        gender: res.data.gender || 1,
-        price: res.data.price ? res.data.price / 100 : 100
-      })
+      applyProfileForm(res.data)
+    } else {
+      Object.assign(profileForm, PROFILE_FORM_DEFAULTS)
     }
   } catch (error) {
     console.error('加载资料失败:', error)
@@ -573,6 +656,14 @@ onMounted(() => {
   color: #1b2a1f;
 }
 
+.hero-description {
+  margin: 0;
+  max-width: 620px;
+  color: #5e6f62;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
 .hero-eyebrow {
   font-size: 12px;
   letter-spacing: 0.18em;
@@ -586,6 +677,11 @@ onMounted(() => {
   gap: 12px;
   color: #68756c;
   flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.hero-meta-placeholder {
+  color: #8a988d;
 }
 
 .hero-actions {
@@ -625,6 +721,7 @@ onMounted(() => {
   font-size: 20px;
   font-weight: 700;
   color: #233528;
+  min-height: 28px;
 }
 
 .profile-grid {

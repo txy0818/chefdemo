@@ -68,8 +68,8 @@
         <el-table :data="records" border style="width: 100%">
           <el-table-column label="金额(元)" width="140">
             <template #default="{ row }">
-              <span :class="row.type === 1 ? 'income' : 'expense'">
-                {{ row.type === 1 || row.type === 3 ? '+' : '-' }}¥{{ row.amountDesc }}
+              <span :class="isIncomeRecord(row.type) ? 'income' : 'expense'">
+                {{ isIncomeRecord(row.type) ? '+' : '-' }}¥{{ row.amountDesc }}
               </span>
             </template>
           </el-table-column>
@@ -105,10 +105,11 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getWalletBalance, getWalletRecords, rechargeWallet } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const userStore = useUserStore()
 const loading = ref(false)
@@ -173,6 +174,8 @@ const handleRechargeAmountChange = (value) => {
   }
 }
 
+const isIncomeRecord = (type) => type === 1 || type === 3
+
 const handleRecharge = async () => {
   if (rechargeAmount.value == null || Number.isNaN(Number(rechargeAmount.value))) {
     ElMessage.warning('请输入正确的充值金额，单位为元')
@@ -202,9 +205,21 @@ const handleRecharge = async () => {
   }
 }
 
+const handleRealtimeRefresh = async () => {
+  await Promise.all([
+    loadWalletBalance(),
+    loadWalletRecords()
+  ])
+}
+
 onMounted(() => {
   loadWalletBalance()
   loadWalletRecords()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

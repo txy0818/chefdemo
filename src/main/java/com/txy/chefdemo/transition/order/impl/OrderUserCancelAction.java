@@ -31,6 +31,10 @@ public class OrderUserCancelAction implements OrderAction {
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
         Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
+        if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())
+                && !Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
+            return order;
+        }
 
         long now = System.currentTimeMillis();
         order.setCancelReason(context.getReason());

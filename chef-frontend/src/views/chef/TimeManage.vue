@@ -105,13 +105,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { listAvailableTimes, addAvailableTime, deleteAvailableTime } from '@/api/chef'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getProfile as getChefProfile } from '@/api/chef'
 import { getAvailableTimeStatusLabelMap, isChefAuditApproved } from '@/api/constant'
+import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -244,6 +245,16 @@ const handleDelete = (row) => {
   })
 }
 
+const handleRealtimeRefresh = async () => {
+  const passed = await ensureAuditApproved()
+  if (!passed) {
+    tableData.value = []
+    total.value = 0
+    return
+  }
+  await loadData()
+}
+
 onMounted(() => {
   getAvailableTimeStatusLabelMap()
     .then(map => {
@@ -257,6 +268,11 @@ onMounted(() => {
       loadData()
     }
   })
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

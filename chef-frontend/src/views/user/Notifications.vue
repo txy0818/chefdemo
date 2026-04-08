@@ -61,11 +61,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeUnmount, onMounted } from 'vue'
 import { notificationList as fetchNotificationList, readNotification } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { Bell, BellFilled } from '@element-plus/icons-vue'
-import { emitNotificationUnreadChange } from '@/utils/notification'
+import { emitNotificationUnreadChange, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 import { formatDateTime } from '@/utils/datetime'
 
 const loading = ref(false)
@@ -113,8 +113,17 @@ const handleRead = async notification => {
   }
 }
 
+const handleRealtimeRefresh = async () => {
+  await loadData()
+}
+
 onMounted(() => {
   loadData()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

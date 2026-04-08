@@ -61,7 +61,7 @@ import { logout, queryInfo } from '@/api/auth'
 import { getProfile as getChefProfile, notificationList as fetchNotificationList } from '@/api/chef'
 import { isChefAuditApproved } from '@/api/constant'
 import HeaderUserInfo from '@/components/HeaderUserInfo.vue'
-import { NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
+import { emitRealtimeDataRefresh, NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
 import { createUserSocket } from '@/utils/ws'
 import { User, Tickets, Clock, List, Bell } from '@element-plus/icons-vue'
 
@@ -73,7 +73,6 @@ const socketRef = ref(null)
 const forceLogoutRef = ref(false)
 const unreadCount = ref(0)
 const pollingTimerRef = ref(null)
-const auditRefreshTimerRef = ref(null)
 const knownUnreadIds = new Set()
 const handleUnreadChange = event => {
   const delta = Number(event?.detail?.delta || 0)
@@ -174,16 +173,9 @@ const connectSocket = () => {
         knownUnreadIds.add(payload.data.id)
       }
       if (payload.type === 'CHEF_AUDIT_RESULT') {
-        const approved = await loadChefAuditStatus()
-        if (approved) {
-          if (auditRefreshTimerRef.value) {
-            clearTimeout(auditRefreshTimerRef.value)
-          }
-          auditRefreshTimerRef.value = window.setTimeout(() => {
-            window.location.reload()
-          }, 300)
-        }
+        await loadChefAuditStatus()
       }
+      emitRealtimeDataRefresh(payload)
       showRealtimeNotification(payload)
     }
   })
@@ -246,10 +238,6 @@ watch(
 onBeforeUnmount(() => {
   window.removeEventListener(NOTIFICATION_UNREAD_CHANGE_EVENT, handleUnreadChange)
   stopNotificationPolling()
-  if (auditRefreshTimerRef.value) {
-    clearTimeout(auditRefreshTimerRef.value)
-    auditRefreshTimerRef.value = null
-  }
   closeSocket()
 })
 </script>

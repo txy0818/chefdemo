@@ -163,7 +163,9 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
 
     private ReportSearchBo buildReportSearch(QueryReportReq req) {
         ReportSearchBo reportSearchBo = new ReportSearchBo();
-        reportSearchBo.setStatus(req.getStatus());
+        if (req.getStatus() != 0) {
+            reportSearchBo.setStatus(req.getStatus());
+        }
         if (req.getSize() != 0L && req.getPage() != 0L) {
             reportSearchBo.setOffset((req.getPage() - 1) * req.getSize());
             reportSearchBo.setSize(req.getSize());

@@ -177,10 +177,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { orderDetail, payOrder, cancelOrder } from '@/api/user'
 import { getPaymentTypeOptions, getPayStatusLabelMap } from '@/api/constant'
+import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, Wallet } from '@element-plus/icons-vue'
 
@@ -270,6 +271,11 @@ const loadPayStatusOptions = async () => {
   }
 }
 
+const handleRealtimeRefresh = async () => {
+  if (!route.params.id) return
+  await loadData()
+}
+
 const handlePay = () => {
   payForm.orderId = order.value.id
   payForm.payType = 1
@@ -332,6 +338,11 @@ onMounted(() => {
   loadData()
   loadPaymentTypeOptions()
   loadPayStatusOptions()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

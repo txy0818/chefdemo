@@ -28,10 +28,29 @@
         <el-form-item label="关键词" class="filter-item filter-keyword">
           <el-input
             v-model="searchForm.keyword"
-            placeholder="请输入厨师昵称或擅长菜系"
+            placeholder="请输入厨师昵称"
             clearable
             class="full-input"
           />
+        </el-form-item>
+
+        <el-form-item label="擅长菜系" class="filter-item filter-cuisine">
+          <el-select
+            v-model="searchForm.cuisineTypeList"
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            clearable
+            placeholder="请选择擅长菜系"
+            class="full-input"
+          >
+            <el-option
+              v-for="item in cuisineTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="服务区域" class="filter-item filter-area">
@@ -157,13 +176,16 @@ import { useRouter } from 'vue-router'
 import { searchChef } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { Location, Food, Money } from '@element-plus/icons-vue'
+import { getCuisineTypeOptions } from '@/api/constant'
 
 const router = useRouter()
 const loading = ref(false)
 const chefList = ref([])
+const cuisineTypeOptions = ref([])
 
 const searchForm = reactive({
   keyword: '',
+  cuisineTypeList: [],
   serviceArea: '',
   minPrice: null,
   maxPrice: null,
@@ -179,6 +201,9 @@ const buildSearchParams = () => {
   }
   if (searchForm.keyword.trim()) {
     params.keyword = searchForm.keyword.trim()
+  }
+  if (Array.isArray(searchForm.cuisineTypeList) && searchForm.cuisineTypeList.length > 0) {
+    params.cuisineTypeList = searchForm.cuisineTypeList
   }
   if (searchForm.serviceArea.trim()) {
     params.serviceArea = searchForm.serviceArea.trim()
@@ -225,6 +250,7 @@ const handleSearch = async () => {
 
 const handleReset = () => {
   searchForm.keyword = ''
+  searchForm.cuisineTypeList = []
   searchForm.serviceArea = ''
   searchForm.minPrice = null
   searchForm.maxPrice = null
@@ -238,6 +264,13 @@ const goToDetail = (chefId) => {
 }
 
 onMounted(() => {
+  getCuisineTypeOptions()
+    .then(res => {
+      cuisineTypeOptions.value = Array.isArray(res.data) ? res.data : []
+    })
+    .catch(error => {
+      console.error('加载菜系枚举失败:', error)
+    })
   handleSearch()
 })
 </script>
@@ -308,6 +341,10 @@ onMounted(() => {
 }
 
 .filter-area {
+  grid-column: 1 / span 6;
+}
+
+.filter-cuisine {
   grid-column: 7 / span 6;
 }
 

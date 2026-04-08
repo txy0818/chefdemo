@@ -184,6 +184,9 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     private ChefProfileSearchBo buildChefSearchReq(SearchChefReq req) {
         ChefProfileSearchBo searchBo = new ChefProfileSearchBo();
+        if (!CollectionUtils.isEmpty(req.getCuisineTypeList())) {
+            searchBo.setCuisineTypeList(req.getCuisineTypeList());
+        }
         if (StringUtils.isNotBlank(req.getServiceArea())) {
             searchBo.setServiceArea(req.getServiceArea());
         }

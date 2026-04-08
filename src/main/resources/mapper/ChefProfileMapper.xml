@@ -189,6 +189,13 @@
             <if test="searchBo.userName != null and searchBo.userName != ''">
                 AND display_name LIKE CONCAT('%', #{searchBo.userName}, '%')
             </if>
+            <if test="searchBo.cuisineTypeList != null and searchBo.cuisineTypeList.size() > 0">
+                AND (
+                <foreach collection="searchBo.cuisineTypeList" item="cuisineType" separator=" OR ">
+                    JSON_CONTAINS(cuisine_type, CONCAT('[', #{cuisineType}, ']'))
+                </foreach>
+                )
+            </if>
             <if test="searchBo.auditStatus != null and searchBo.auditStatus > 0">
                 AND audit_status = #{searchBo.auditStatus}
             </if>
@@ -244,6 +251,13 @@
             </if>
             <if test="searchBo.userName != null and searchBo.userName != ''">
                 AND display_name LIKE CONCAT('%', #{searchBo.userName}, '%')
+            </if>
+            <if test="searchBo.cuisineTypeList != null and searchBo.cuisineTypeList.size() > 0">
+                AND (
+                <foreach collection="searchBo.cuisineTypeList" item="cuisineType" separator=" OR ">
+                    JSON_CONTAINS(cuisine_type, CONCAT('[', #{cuisineType}, ']'))
+                </foreach>
+                )
             </if>
             <if test="searchBo.auditStatus != null and searchBo.auditStatus > 0">
                 AND audit_status = #{searchBo.auditStatus}

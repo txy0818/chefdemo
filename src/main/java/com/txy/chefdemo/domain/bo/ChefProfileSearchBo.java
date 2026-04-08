@@ -17,6 +17,7 @@ public class ChefProfileSearchBo {
     private Long userId;
     private List<Long> userIdList;
     private String userName;
+    private List<Integer> cuisineTypeList;
     private Integer auditStatus;
     private Long time;
     private String serviceArea;
