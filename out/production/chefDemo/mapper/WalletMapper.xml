@@ -13,6 +13,22 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <insert id="insert" parameterType="com.txy.chefdemo.domain.Wallet" useGeneratedKeys="true" keyProperty="wallet.id">
+        INSERT INTO wallet
+            (user_id, balance, create_time, update_time)
+        VALUES
+            (#{wallet.userId}, #{wallet.balance}, #{wallet.createTime}, #{wallet.updateTime})
+    </insert>
+
+    <update id="updateById">
+        UPDATE wallet
+        SET
+            user_id = #{wallet.userId},
+            balance = #{wallet.balance},
+            update_time = #{wallet.updateTime}
+        WHERE id = #{wallet.id}
+    </update>
+
     <insert id="upsert" parameterType="com.txy.chefdemo.domain.Wallet">
         INSERT INTO wallet
             (user_id, balance, create_time, update_time)

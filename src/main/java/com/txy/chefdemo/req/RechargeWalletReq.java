@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RechargeWalletReq {
-    /** 充值金额(分) */
+    /** 充值金额，单位为分。 */
     private Long amount;
 }

@@ -12,17 +12,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportDTO {
-    /** 关联订单ID */
+    /** 关联订单 ID。 */
     private Long reservationOrderId;
-    /** 举报人ID */
+
+    /** 举报人用户名。 */
     private String reporterName;
-    /** 被举报用户ID */
+
+    /** 被举报用户名。 */
     private String targetUserName;
-    /** 举报原因 */
+
+    /** 举报原因。 */
     private String reason;
-    /** 处理结果 */
+
+    /** 处理结果。 */
     private String processResult;
-    /** 处理状态 */
-    private String statusDesc;
+
+    /** 处理状态编码。 */
     private Integer status;
+
+    /** 处理状态描述。 */
+    private String statusDesc;
 }

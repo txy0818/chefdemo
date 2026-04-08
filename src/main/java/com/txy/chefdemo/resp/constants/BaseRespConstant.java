@@ -1,6 +1,5 @@
 package com.txy.chefdemo.resp.constants;
 
-
 import com.txy.chefdemo.resp.BaseResp;
 
 /**
@@ -18,10 +17,10 @@ public class BaseRespConstant {
     public static final BaseResp REVIEW_EXIST = new BaseResp(8, "订单已经评价过");
     public static final BaseResp AUDIT_NOT_PASS = new BaseResp(9, "厨师审核尚未通过");
 
-    // 一般失败
+    /** 一般失败。 */
     public static final BaseResp FAIL = new BaseResp(10, "失败");
 
-    // 无权限
+    /** 无权限。 */
     public static final BaseResp FORBIDDEN = new BaseResp(11, "无权限");
 
     public static BaseResp failUnknown(String s) {

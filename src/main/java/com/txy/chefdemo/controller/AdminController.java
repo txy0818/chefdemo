@@ -49,9 +49,11 @@ public class AdminController {
     @Autowired
     private AdminQueryService adminQueryService;
 
-    // userId 本项目用的token中解析的userId 通过拦截器存放到HttpServletRequest的attribute中
-    // ks内部直接前端传递userId
     /**
+     * 说明：
+     * 1. 当前登录管理员的 userId 由 token 解析后放在 request attribute 中；
+     * 2. 请求体里的 userId 仍然是前端传入的查询条件，用于筛选目标用户/厨师。
+     *
      * 查询厨师资料列表：
      * 1. 根据审核状态、用户 ID、用户名和分页参数构建条件；
      * 2. 查询厨师资料列表；

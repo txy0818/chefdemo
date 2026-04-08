@@ -12,8 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterReq {
+    /** 用户名。 */
     private String username;
+
+    /** 手机号。 */
     private String phone;
+
+    /** 明文密码。 */
     private String password;
-    private Integer userRole; // 1-管理员, 2-厨师, 3-普通用户
+
+    /** 用户角色编码。 */
+    private Integer userRole;
 }

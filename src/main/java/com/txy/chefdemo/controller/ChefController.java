@@ -23,13 +23,13 @@ public class ChefController {
     @Autowired
     private ChefOperationService chefOperationService;
 
-    // 厨师模块页面：
-    // page1: 个人资料管理页（查看/编辑厨师资料、上传证件、提交审核）
-    // page2: 预约时间段管理页（新增/删除可预约时间段、查看时间段列表）
-    // page3: 订单管理页（查看订单列表、接单/拒单/完成订单）
-    // page4: 个人中心页（查看/编辑个人资料、修改密码）写到 AuthController 中了
-
     /**
+     * 厨师端页面范围：
+     * 1. 个人资料管理页：查看/编辑厨师资料、上传证件、提交审核；
+     * 2. 预约时间段管理页：新增/删除可预约时间段、查看时间段列表；
+     * 3. 订单管理页：查看订单列表、接单/拒单/完成订单；
+     * 4. 个人中心页：查看/编辑个人资料、修改密码，统一放在 ProfileController。
+     *
      * 查询厨师资料：
      * 1. 按用户 ID 查询厨师资料；
      * 2. 若不存在则直接报错；
@@ -139,8 +139,6 @@ public class ChefController {
         chefOperationService.acceptOrder(currentChefId, req);
         return new SimpleResp(BaseRespConstant.SUC);
     }
-
-
     /**
      * 厨师完成订单：
      * 1. 校验订单属于当前厨师；

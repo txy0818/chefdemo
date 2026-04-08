@@ -8,10 +8,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserWalletDTO {
+    /** 钱包 ID。 */
     private Long walletId;
+
+    /** 用户 ID。 */
     private Long userId;
-    /** 当前余额(分) */
+
+    /** 当前余额，单位为分。 */
     private Long balance;
-    // 元
+
+    /** 当前余额描述，金额以元为单位。 */
     private String balanceDesc;
 }

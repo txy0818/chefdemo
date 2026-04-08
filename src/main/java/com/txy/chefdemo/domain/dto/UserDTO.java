@@ -12,21 +12,33 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    /** 用户ID */
+    /** 用户 ID。 */
     private Long id;
-    /** 用户名 */
+
+    /** 用户名。 */
     private String username;
-    /** 角色 */
+
+    /** 用户角色编码。 */
     private Integer role;
+
+    /** 用户角色描述。 */
     private String roleDesc;
-    /** 头像URL */
+
+    /** 头像 URL。 */
     private String avatar;
-    /** 手机号 */
+
+    /** 手机号。 */
     private String phone;
+
+    /** 用户状态编码。 */
     private Integer status;
-    /** 状态 */
+
+    /** 用户状态描述。 */
     private String statusDesc;
+
+    /** 最后登录时间，毫秒时间戳。 */
     private Long lastLoginTime;
-    /** 最后登录时间 xxxx-xx-xx xx:xx:xx */
+
+    /** 最后登录时间描述，格式为 yyyy-MM-dd HH:mm:ss。 */
     private String lastLoginTimeDesc;
 }

@@ -30,6 +30,55 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="chefProfile.id">
+        INSERT INTO chef_profile
+        (
+            user_id, avatar, display_name, real_name,
+            id_card_imgs, health_cert_imgs, chef_cert_imgs,
+            cuisine_type, service_area, service_desc,
+            price, min_people, max_people,
+            age, gender, work_years,
+            audit_status, phone, score,
+            create_time, update_time
+        )
+        VALUES
+            (
+                #{chefProfile.userId}, #{chefProfile.avatar}, #{chefProfile.displayName}, #{chefProfile.realName},
+                #{chefProfile.idCardImgs}, #{chefProfile.healthCertImgs}, #{chefProfile.chefCertImgs},
+                #{chefProfile.cuisineType}, #{chefProfile.serviceArea}, #{chefProfile.serviceDesc},
+                #{chefProfile.price}, #{chefProfile.minPeople}, #{chefProfile.maxPeople},
+                #{chefProfile.age}, #{chefProfile.gender}, #{chefProfile.workYears},
+                #{chefProfile.auditStatus}, #{chefProfile.phone}, #{chefProfile.score},
+                #{chefProfile.createTime}, #{chefProfile.updateTime}
+            )
+    </insert>
+
+    <update id="updateById">
+        UPDATE chef_profile
+        SET
+            user_id = #{chefProfile.userId},
+            avatar = #{chefProfile.avatar},
+            display_name = #{chefProfile.displayName},
+            real_name = #{chefProfile.realName},
+            id_card_imgs = #{chefProfile.idCardImgs},
+            health_cert_imgs = #{chefProfile.healthCertImgs},
+            chef_cert_imgs = #{chefProfile.chefCertImgs},
+            cuisine_type = #{chefProfile.cuisineType},
+            service_area = #{chefProfile.serviceArea},
+            service_desc = #{chefProfile.serviceDesc},
+            price = #{chefProfile.price},
+            min_people = #{chefProfile.minPeople},
+            max_people = #{chefProfile.maxPeople},
+            age = #{chefProfile.age},
+            gender = #{chefProfile.gender},
+            work_years = #{chefProfile.workYears},
+            audit_status = #{chefProfile.auditStatus},
+            phone = #{chefProfile.phone},
+            score = #{chefProfile.score},
+            update_time = #{chefProfile.updateTime}
+        WHERE id = #{chefProfile.id}
+    </update>
+
     <!-- 单个 upsert -->
     <insert id="upsert">
         INSERT INTO chef_profile

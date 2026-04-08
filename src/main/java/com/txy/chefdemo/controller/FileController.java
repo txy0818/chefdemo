@@ -71,16 +71,17 @@ public class FileController {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req), "参数错误");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getFileName()), "文件名不能为空");
 
-        // 而是登录鉴权通过后，拦截器放进 request 里的当前登录用户 id。
+        // 当前登录用户 ID 由鉴权通过后写入 request attribute。
         Long userId = AuthRequestUtils.requireCurrentUserId(request);
 
-        // folder 只允许保留安全字符，避免传入 ../../ 之类的非法路径。
+        // folder 只允许保留安全字符，避免传入 ../../ 等非法路径。
         String folder = sanitizeFolder(req.getFolder());
-        // 生成 MinIO 中真正存储的对象路径，例如 avatars/3/20260404/uuid.jpeg
+
+        // 生成 MinIO 中真正存储的对象路径，例如 avatars/3/20260404/uuid.jpeg。
         String objectKey = buildObjectKey(folder, userId, req.getFileName());
         int expiry = ObjectUtils.defaultIfNull(minioProperties.getUploadExpirySeconds(), 900);
 
-        // 生成一个临时有效的 PUT 地址，前端拿这个地址直接上传二进制文件。
+        // 生成临时有效的 PUT 地址，前端用这个地址直接上传二进制文件。
         String uploadUrl = minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(Method.PUT)
@@ -90,7 +91,7 @@ public class FileController {
                         .build()
         );
 
-        // fileUrl 是上传成功后，前端/数据库里真正保存和展示的文件访问地址。
+        // fileUrl 是上传成功后前端和数据库里真正保存的访问地址。
         String fileUrl = buildFileUrl(objectKey);
         return new DataResp<>(BaseRespConstant.SUC,
                 new PresignedUploadDTO(objectKey, uploadUrl, fileUrl, expiry));

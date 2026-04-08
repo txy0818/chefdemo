@@ -119,8 +119,7 @@ onMounted(() => {
 
 <style scoped>
 .notifications-page {
-  max-width: 980px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .notifications-card {
