@@ -31,6 +31,8 @@ import java.util.List;
 @Component
 public class OrderScheduleTask {
 
+    private static final long AUTO_REJECT_TIMEOUT_MILLIS = 5 * 60 * 1000L;
+
     @Autowired
     private ReservationOrderService reservationOrderService;
     @Autowired
@@ -97,6 +99,42 @@ public class OrderScheduleTask {
                 log.info("[schedule-auto-complete] orderId={} 自动完成成功", order.getId());
             } catch (Exception e) {
                 log.error("[schedule-auto-complete] 自动完成超时订单失败, orderId={}", order.getId(), e);
+            }
+        }
+    }
+
+    /**
+     * 1. 每分钟扫描所有待接单订单。
+     * 2. 若支付成功后超过5分钟仍未接单，或距离预约开始时间只剩5分钟仍未接单，则系统自动拒单。
+     * 3. 自动拒单后复用现有拒单流转，释放时间段并自动退款。
+     */
+    @Scheduled(cron = "0 */1 * * * ?")
+    public void autoRejectTimeoutPendingAcceptOrders() {
+        ReservationOrderSearchBo searchBo = new ReservationOrderSearchBo();
+        searchBo.setStatus(OrderStatus.PENDING_ACCEPT.getCode());
+        List<ReservationOrder> reservationOrders = reservationOrderService.queryByCondition(searchBo);
+        if (CollectionUtils.isEmpty(reservationOrders)) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Long systemOperatorId = frozenChefCleanupService.getSystemOperatorId(now);
+        for (ReservationOrder order : reservationOrders) {
+            long payTime = ObjectUtils.defaultIfNull(order.getPayTime(), 0L);
+            long startTime = ObjectUtils.defaultIfNull(order.getStartTime(), 0L);
+            boolean exceedAcceptWindow = payTime > 0 && payTime + AUTO_REJECT_TIMEOUT_MILLIS <= now;
+            boolean closeToStartTime = startTime > 0 && startTime - now <= AUTO_REJECT_TIMEOUT_MILLIS;
+            if (!exceedAcceptWindow && !closeToStartTime) {
+                continue;
+            }
+            try {
+                OrderContext context = new OrderContext(order.getId(), systemOperatorId, null, "厨师未在规定时间内接单，系统自动拒单");
+                context.setSource("schedule-auto-reject");
+                orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()),
+                        OrderStateEvent.CHEF_REJECT,
+                        context);
+                log.info("[schedule-auto-reject] orderId={} 自动拒单成功", order.getId());
+            } catch (Exception e) {
+                log.error("[schedule-auto-reject] 自动拒单失败, orderId={}", order.getId(), e);
             }
         }
     }

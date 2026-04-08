@@ -16,6 +16,8 @@ import java.util.Objects;
 @Component
 public class OrderChefRejectAction implements OrderAction {
 
+    private static final String AUTO_REJECT_SOURCE = "schedule-auto-reject";
+
     @Autowired
     private OrderTransitionSupport support;
 
@@ -30,7 +32,8 @@ public class OrderChefRejectAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
-        Preconditions.checkArgument(Objects.equals(order.getChefId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
+        boolean autoReject = Objects.equals(AUTO_REJECT_SOURCE, context.getSource());
+        Preconditions.checkArgument(autoReject || Objects.equals(order.getChefId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
         boolean paid = Objects.equals(order.getPayStatus(), PayStatus.PAID.getCode());
         order.setStatus(OrderStatus.REJECTED.getCode());
         order.setCancelReason(context.getReason());
@@ -41,6 +44,20 @@ public class OrderChefRejectAction implements OrderAction {
             order.setPayStatus(PayStatus.REFUNDED.getCode());
         }
         ReservationOrder updatedOrder = support.updateOrder(order);
+        if (autoReject) {
+            support.createBothSideNotification(
+                    updatedOrder,
+                    "订单状态更新",
+                    paid
+                            ? "厨师未在规定时间内接单，系统已自动拒单，退款已退回钱包，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId()
+                            : "厨师未在规定时间内接单，系统已自动拒单，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
+                    "订单状态更新",
+                    paid
+                            ? "您未在规定时间内接单，系统已自动拒单并完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId()
+                            : "您未在规定时间内接单，系统已自动拒单，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId()
+            );
+            return updatedOrder;
+        }
         support.createBothSideNotification(
                 updatedOrder,
                 "订单状态更新",
