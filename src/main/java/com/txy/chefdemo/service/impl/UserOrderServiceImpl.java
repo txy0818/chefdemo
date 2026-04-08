@@ -69,6 +69,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime()) && ObjectUtils.isNotEmpty(req.getEndTime()), "预约时间不能为空");
         Preconditions.checkArgument(req.getStartTime() < req.getEndTime(), "开始时间必须早于结束时间");
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getPeopleCount()) && req.getPeopleCount() > 0, "人数非法");
+        Preconditions.checkArgument(req.getStartTime() < System.currentTimeMillis(), "时间段已过期");
         RLock lock = redissonClient.getLock(CREATE_ORDER_LOCK_PREFIX + req.getChefAvailableTimeId());
         boolean locked = false;
         try {

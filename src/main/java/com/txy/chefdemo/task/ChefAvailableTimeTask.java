@@ -39,7 +39,7 @@ public class ChefAvailableTimeTask {
             // 查询所有未过期且结束时间小于当前时间的时间段
             ChefAvailableTimeSearchBo searchBo = new ChefAvailableTimeSearchBo();
             searchBo.setStatusList(AvailableTimeStatus.getNormalCodes());
-            searchBo.setEndTime(now);
+            searchBo.setStartTime(now);
             List<ChefAvailableTime> expiredTimeSlots = chefAvailableTimeMapper.queryByCondition(searchBo);
             
             if (CollectionUtils.isEmpty(expiredTimeSlots)) {

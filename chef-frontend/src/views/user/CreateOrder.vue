@@ -75,8 +75,8 @@
               <div class="people-count-wrap">
                 <el-input-number
                   v-model="orderForm.peopleCount"
-                  :min="chefInfo?.minPeople || 1"
-                  :max="chefInfo?.maxPeople || 20"
+                  :precision="0"
+                  :step="1"
                 />
                 <span class="unit-text">人</span>
                 <span class="range-tip" v-if="chefInfo">
@@ -272,6 +272,10 @@ const orderRules = {
         const max = chefInfo.value?.maxPeople || 20
         if (value == null || Number.isNaN(Number(value))) {
           callback(new Error('请输入正确的用餐人数，单位为人'))
+          return
+        }
+        if (!Number.isInteger(Number(value)) || Number(value) <= 0) {
+          callback(new Error('用餐人数需为正整数'))
           return
         }
         if (Number(value) < min || Number(value) > max) {
