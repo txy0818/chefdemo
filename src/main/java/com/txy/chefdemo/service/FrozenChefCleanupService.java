@@ -55,16 +55,15 @@ public class FrozenChefCleanupService {
 
     private void rejectPendingChefProfile(Long chefUserId, Long operatorId, long now) {
         ChefAuditRecord pendingRecord = chefAuditRecordService.queryPendingRecordByChefUserId(chefUserId);
-        if (ObjectUtils.isEmpty(pendingRecord)) {
-            return;
-        }
         ChefProfile profile = chefProfileService.queryByUserId(chefUserId);
         ChefProfileChange change = chefProfileChangeService.queryByUserId(chefUserId);
-        pendingRecord.setAuditStatus(AuditStatus.REJECTED.getCode());
-        pendingRecord.setRejectReason(FROZEN_REJECT_REASON);
-        pendingRecord.setAuditTime(now);
-        pendingRecord.setOperatorId(ObjectUtils.defaultIfNull(operatorId, 0L));
-        chefAuditRecordService.updateById(List.of(pendingRecord));
+        if (ObjectUtils.isNotEmpty(pendingRecord)) {
+            pendingRecord.setAuditStatus(AuditStatus.REJECTED.getCode());
+            pendingRecord.setRejectReason(FROZEN_REJECT_REASON);
+            pendingRecord.setAuditTime(now);
+            pendingRecord.setOperatorId(ObjectUtils.defaultIfNull(operatorId, 0L));
+            chefAuditRecordService.updateById(List.of(pendingRecord));
+        }
 
         if (ObjectUtils.isNotEmpty(change)) {
             change.setAuditStatus(AuditStatus.REJECTED.getCode());
