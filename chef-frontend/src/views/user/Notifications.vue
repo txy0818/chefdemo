@@ -11,28 +11,28 @@
           />
         </div>
       </template>
-      
+
       <div class="notification-list" v-loading="loading">
         <el-empty v-if="notificationList.length === 0 && !loading" description="当前还没有通知消息" />
-        
+
         <el-card
           v-for="notification in notificationList"
           :key="notification.id"
           class="notification-card"
-          :class="{ 'unread': notification.readStatus === 1 }"
+          :class="{ unread: notification.readStatus === 1 }"
           shadow="hover"
           @click="handleRead(notification)"
         >
           <div class="notification-header">
             <el-icon v-if="notification.readStatus === 1" color="#409EFF"><Bell /></el-icon>
             <el-icon v-else color="#ccc"><BellFilled /></el-icon>
-            <span class="notification-time">{{ formatTime(notification.createTime) }}</span>
+            <span class="notification-time">{{ formatDateTime(notification.createTime) }}</span>
           </div>
-          
+
           <div class="notification-content">
             {{ notification.content }}
           </div>
-          
+
           <el-tag
             v-if="notification.readStatus === 1"
             type="primary"
@@ -65,6 +65,7 @@ import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { Bell, BellFilled } from '@element-plus/icons-vue'
 import { emitNotificationUnreadChange } from '@/utils/notification'
+import { formatDateTime } from '@/utils/datetime'
 
 const userStore = useUserStore()
 const loading = ref(false)
@@ -75,39 +76,6 @@ const queryForm = ref({
   page: 1,
   size: 10
 })
-
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diff = now - date
-  
-  // 1分钟内
-  if (diff < 60000) {
-    return '刚刚'
-  }
-  // 1小时内
-  if (diff < 3600000) {
-    return `${Math.floor(diff / 60000)}分钟前`
-  }
-  // 今天
-  if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-  }
-  // 昨天
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (date.toDateString() === yesterday.toDateString()) {
-    return '昨天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-  }
-  // 其他
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const loadData = async () => {
   loading.value = true
@@ -128,7 +96,7 @@ const loadData = async () => {
 
 const handleRead = async (notification) => {
   if (notification.readStatus === 2) return
-  
+
   try {
     await readNotification({
       notificationId: notification.id

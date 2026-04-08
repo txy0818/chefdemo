@@ -53,7 +53,7 @@
             </div>
             <div class="order-badges">
               <el-tag :type="getStatusType(order.status)">
-                {{ getStatusText(order.status) }}
+                {{ order.statusDesc }}
               </el-tag>
               <span class="pay-status">{{ order.payStatusDesc }}</span>
             </div>
@@ -63,12 +63,12 @@
             <el-descriptions-item label="用户">{{ order.userName }}</el-descriptions-item>
             <el-descriptions-item label="联系电话">{{ order.contactPhone }}</el-descriptions-item>
             <el-descriptions-item label="所属时间段" :span="2">
-              {{ formatTimeRange(order.chefAvailableStartTime, order.chefAvailableEndTime) }}
+              {{ order.chefAvailableTimeDesc }}
             </el-descriptions-item>
-            <el-descriptions-item label="开始时间">{{ formatTime(order.startTime) }}</el-descriptions-item>
-            <el-descriptions-item label="结束时间">{{ formatTime(order.endTime) }}</el-descriptions-item>
+            <el-descriptions-item label="开始时间">{{ order.startTimeDesc }}</el-descriptions-item>
+            <el-descriptions-item label="结束时间">{{ order.endTimeDesc }}</el-descriptions-item>
             <el-descriptions-item label="用餐人数">{{ order.peopleCount }}人</el-descriptions-item>
-            <el-descriptions-item label="订单金额">¥{{ (order.totalAmount / 100).toFixed(2) }}</el-descriptions-item>
+            <el-descriptions-item label="订单金额">{{ order.totalAmountDesc }}</el-descriptions-item>
             <el-descriptions-item label="支付状态">{{ order.payStatusDesc }}</el-descriptions-item>
             <el-descriptions-item label="联系地址" :span="2">{{ order.contactAddress }}</el-descriptions-item>
             <el-descriptions-item label="特殊要求" :span="2">
@@ -147,19 +147,19 @@
         <el-descriptions-item label="订单ID">{{ currentOrder.id }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="getStatusType(currentOrder.status)">
-            {{ getStatusText(currentOrder.status) }}
+            {{ currentOrder.statusDesc }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="用户">{{ currentOrder.userName }}</el-descriptions-item>
         <el-descriptions-item label="联系人">{{ currentOrder.contactName }}</el-descriptions-item>
         <el-descriptions-item label="联系电话">{{ currentOrder.contactPhone }}</el-descriptions-item>
         <el-descriptions-item label="所属时间段" :span="2">
-          {{ formatTimeRange(currentOrder.chefAvailableStartTime, currentOrder.chefAvailableEndTime) }}
+          {{ currentOrder.chefAvailableTimeDesc }}
         </el-descriptions-item>
         <el-descriptions-item label="用餐人数">{{ currentOrder.peopleCount }}人</el-descriptions-item>
-        <el-descriptions-item label="开始时间">{{ formatTime(currentOrder.startTime) }}</el-descriptions-item>
-        <el-descriptions-item label="结束时间">{{ formatTime(currentOrder.endTime) }}</el-descriptions-item>
-        <el-descriptions-item label="订单金额">¥{{ (currentOrder.totalAmount / 100).toFixed(2) }}</el-descriptions-item>
+        <el-descriptions-item label="开始时间">{{ currentOrder.startTimeDesc }}</el-descriptions-item>
+        <el-descriptions-item label="结束时间">{{ currentOrder.endTimeDesc }}</el-descriptions-item>
+        <el-descriptions-item label="订单金额">{{ currentOrder.totalAmountDesc }}</el-descriptions-item>
         <el-descriptions-item label="支付状态">
           {{ currentOrder.payStatusDesc }}
         </el-descriptions-item>
@@ -178,6 +178,7 @@ import { orderList as fetchOrderList, acceptOrder, rejectOrder, completeOrder, g
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { getOrderStatusTabOptions, isChefAuditApproved } from '@/api/constant'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -194,15 +195,7 @@ const queryForm = reactive({
   page: 1,
   size: 10
 })
-const tabOptions = [
-  { label: '全部', name: '0' },
-  { label: '待支付', name: '1' },
-  { label: '待接单', name: '2' },
-  { label: '已接单', name: '3' },
-  { label: '已拒单', name: '4' },
-  { label: '已完成', name: '5' },
-  { label: '已取消', name: '6' }
-]
+const tabOptions = ref([{ label: '全部', name: '0' }])
 
 const rejectForm = reactive({
   orderId: null,
@@ -229,23 +222,6 @@ const rejectRules = {
   ]
 }
 
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const formatTimeRange = (startTime, endTime) => {
-  if (!startTime || !endTime) return '-'
-  return `${formatTime(startTime)} - ${formatTime(endTime)}`
-}
-
 const canCompleteOrder = (order) => {
   if (!order?.endTime) return false
   return Date.now() >= Number(order.endTime)
@@ -263,21 +239,10 @@ const getStatusType = (status) => {
   return map[status] || 'info'
 }
 
-const getStatusText = (status) => {
-  const map = {
-    1: '待支付',
-    2: '待接单',
-    3: '已接单',
-    4: '已拒单',
-    5: '已完成',
-    6: '已取消'
-  }
-  return map[status] || '未知'
-}
-
 const ensureAuditApproved = async () => {
   const res = await getChefProfile({})
-  if (res.data?.auditStatus !== '通过') {
+  const approved = await isChefAuditApproved(res.data?.auditStatus)
+  if (!approved) {
     ElMessage.warning('厨师审核尚未通过，请先完善资料并等待审核')
     router.replace('/chef/profile')
     return false
@@ -387,6 +352,16 @@ const handleViewDetail = (order) => {
 }
 
 onMounted(() => {
+  getOrderStatusTabOptions()
+    .then(options => {
+      tabOptions.value = options.map(item => ({
+        label: item.label,
+        name: String(item.value)
+      }))
+    })
+    .catch(error => {
+      console.error('加载订单状态枚举失败:', error)
+    })
   ensureAuditApproved().then((passed) => {
     if (passed) {
       loadData()

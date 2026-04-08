@@ -52,9 +52,9 @@
         <el-table-column prop="displayName" label="昵称" width="120" />
         <el-table-column prop="realName" label="真实姓名" width="120" />
         <el-table-column prop="phone" label="手机号" width="120" />
-        <el-table-column prop="cuisineType" label="擅长菜系" width="150">
+        <el-table-column prop="cuisineTypeDesc" label="擅长菜系" width="150">
           <template #default="{ row }">
-            <el-tag v-for="(item, index) in row.cuisineType" :key="index" size="small" style="margin-right: 5px">
+            <el-tag v-for="(item, index) in row.cuisineTypeDesc" :key="index" size="small" style="margin-right: 5px">
               {{ item }}
             </el-tag>
           </template>
@@ -62,10 +62,10 @@
         <el-table-column prop="serviceArea" label="服务区域" width="120" />
         <el-table-column prop="price" label="价格(元/小时)" width="120">
           <template #default="{ row }">
-            {{ (row.price / 100).toFixed(2) }}
+            {{ row.priceDesc }}
           </template>
         </el-table-column>
-        <el-table-column prop="auditStatus" label="审核状态" width="100" />
+        <el-table-column prop="auditStatusDesc" label="审核状态" width="100" />
         <el-table-column label="操作" fixed="right" width="150">
           <template #default="{ row }">
             <el-button type="primary" size="small" @click="handleViewDetail(row)">
@@ -94,17 +94,17 @@
         <el-descriptions-item label="真实姓名">{{ currentChef.realName }}</el-descriptions-item>
         <el-descriptions-item label="手机号">{{ currentChef.phone }}</el-descriptions-item>
         <el-descriptions-item label="年龄">{{ currentChef.age }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ currentChef.gender }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ currentChef.genderDesc }}</el-descriptions-item>
         <el-descriptions-item label="从业年限">{{ currentChef.workYears }}年</el-descriptions-item>
-        <el-descriptions-item label="审核状态">{{ currentChef.auditStatus }}</el-descriptions-item>
+        <el-descriptions-item label="审核状态">{{ currentChef.auditStatusDesc }}</el-descriptions-item>
         <el-descriptions-item label="擅长菜系" :span="2">
-          <el-tag v-for="(item, index) in currentChef.cuisineType" :key="index" style="margin-right: 5px">
+          <el-tag v-for="(item, index) in currentChef.cuisineTypeDesc" :key="index" style="margin-right: 5px">
             {{ item }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="服务区域" :span="2">{{ currentChef.serviceArea }}</el-descriptions-item>
         <el-descriptions-item label="服务描述" :span="2">{{ currentChef.serviceDesc }}</el-descriptions-item>
-        <el-descriptions-item label="价格">{{ (currentChef.price / 100).toFixed(2) }}元/小时</el-descriptions-item>
+        <el-descriptions-item label="价格">{{ currentChef.priceDesc }}元/小时</el-descriptions-item>
         <el-descriptions-item label="服务人数">{{ currentChef.minPeople }}-{{ currentChef.maxPeople }}人</el-descriptions-item>
         <el-descriptions-item label="身份证照片" :span="2">
           <el-image

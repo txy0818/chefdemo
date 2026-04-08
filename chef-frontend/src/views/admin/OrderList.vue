@@ -45,17 +45,17 @@
         <el-table-column prop="chefName" label="厨师" width="120" />
         <el-table-column label="开始时间" width="180">
           <template #default="{ row }">
-            {{ formatTime(row.startTime) }}
+            {{ row.startTimeDesc }}
           </template>
         </el-table-column>
         <el-table-column label="结束时间" width="180">
           <template #default="{ row }">
-            {{ formatTime(row.endTime) }}
+            {{ row.endTimeDesc }}
           </template>
         </el-table-column>
         <el-table-column label="金额(元)" width="100">
           <template #default="{ row }">
-            {{ (row.totalAmount / 100).toFixed(2) }}
+            {{ row.totalAmountDesc }}
           </template>
         </el-table-column>
         <el-table-column prop="peopleCount" label="人数(人)" width="90" />
@@ -63,7 +63,7 @@
         <el-table-column prop="contactPhone" label="联系电话" width="120" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.statusDesc)">
+            <el-tag :type="getStatusType(row.status)">
               {{ row.statusDesc }}
             </el-tag>
           </template>
@@ -93,15 +93,15 @@
       <el-descriptions :column="2" border v-if="currentOrder">
         <el-descriptions-item label="订单ID">{{ currentOrder.id }}</el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag :type="getStatusType(currentOrder.statusDesc)">
+          <el-tag :type="getStatusType(currentOrder.status)">
             {{ currentOrder.statusDesc }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="用户">{{ currentOrder.userName }}</el-descriptions-item>
         <el-descriptions-item label="厨师">{{ currentOrder.chefName }}</el-descriptions-item>
-        <el-descriptions-item label="开始时间">{{ formatTime(currentOrder.startTime) }}</el-descriptions-item>
-        <el-descriptions-item label="结束时间">{{ formatTime(currentOrder.endTime) }}</el-descriptions-item>
-        <el-descriptions-item label="订单金额">{{ (currentOrder.totalAmount / 100).toFixed(2) }}元</el-descriptions-item>
+        <el-descriptions-item label="开始时间">{{ currentOrder.startTimeDesc }}</el-descriptions-item>
+        <el-descriptions-item label="结束时间">{{ currentOrder.endTimeDesc }}</el-descriptions-item>
+        <el-descriptions-item label="订单金额">{{ currentOrder.totalAmountDesc }}</el-descriptions-item>
         <el-descriptions-item label="用餐人数">{{ currentOrder.peopleCount }}人</el-descriptions-item>
         <el-descriptions-item label="联系人">{{ currentOrder.contactName }}</el-descriptions-item>
         <el-descriptions-item label="联系电话">{{ currentOrder.contactPhone }}</el-descriptions-item>
@@ -143,19 +143,14 @@ const buildQueryParams = () => {
 
 const getStatusType = (status) => {
   const map = {
-    '待支付': 'warning',
-    '待接单': 'info',
-    '已接单': 'primary',
-    '已拒单': 'danger',
-    '已完成': 'success',
-    '已取消': 'info'
+    1: 'warning',
+    2: 'info',
+    3: 'primary',
+    4: 'danger',
+    5: 'success',
+    6: 'info'
   }
   return map[status] || 'info'
-}
-
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  return new Date(timestamp).toLocaleString('zh-CN')
 }
 
 const handleQuery = async () => {

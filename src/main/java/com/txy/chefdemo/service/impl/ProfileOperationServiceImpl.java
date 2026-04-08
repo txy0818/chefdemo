@@ -86,11 +86,14 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(DefaultValueUtil.defaultLong(user.getId()));
         userDTO.setUsername(DefaultValueUtil.defaultString(user.getUsername()));
-        userDTO.setRole(ObjectUtils.isNotEmpty(UserRole.getByCode(user.getRole())) ? UserRole.getByCode(user.getRole()).getDesc() : "-");
+        userDTO.setRole(DefaultValueUtil.defaultInteger(user.getRole()));
+        userDTO.setRoleDesc(ObjectUtils.isNotEmpty(UserRole.getByCode(user.getRole())) ? UserRole.getByCode(user.getRole()).getDesc() : "-");
         userDTO.setAvatar(DefaultValueUtil.defaultString(user.getAvatar()));
         userDTO.setPhone(StringUtils.isNotBlank(user.getPhone()) ? user.getPhone() : "-");
-        userDTO.setStatus(ObjectUtils.isNotEmpty(UserStatus.getByCode(user.getStatus())) ? UserStatus.getByCode(user.getStatus()).getDesc() : "-");
-        userDTO.setLastLoginTime(DefaultValueUtil.defaultString(DateUtils.format(user.getLastLoginTime(), DateUtils.DATE_TIME_FORMAT)));
+        userDTO.setStatus(DefaultValueUtil.defaultInteger(user.getStatus()));
+        userDTO.setStatusDesc(ObjectUtils.isNotEmpty(UserStatus.getByCode(user.getStatus())) ? UserStatus.getByCode(user.getStatus()).getDesc() : "-");
+        userDTO.setLastLoginTime(DefaultValueUtil.defaultLong(user.getLastLoginTime()));
+        userDTO.setLastLoginTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(user.getLastLoginTime(), DateUtils.DATE_TIME_FORMAT)));
         return userDTO;
     }
 }

@@ -2,7 +2,6 @@ package com.txy.chefdemo.task;
 
 import com.txy.chefdemo.domain.ChefAvailableTime;
 import com.txy.chefdemo.domain.bo.ChefAvailableTimeSearchBo;
-import com.txy.chefdemo.domain.bo.ChefProfileSearchBo;
 import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
 import com.txy.chefdemo.mapper.ChefAvailableTimeMapper;
 import lombok.extern.slf4j.Slf4j;

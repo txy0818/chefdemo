@@ -22,6 +22,7 @@ import com.txy.chefdemo.service.AdminReviewReportService;
 import com.txy.chefdemo.service.ReportService;
 import com.txy.chefdemo.service.ReviewService;
 import com.txy.chefdemo.service.UserService;
+import com.txy.chefdemo.utils.DateUtils;
 import com.txy.chefdemo.utils.DefaultValueUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -141,6 +142,7 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
     private List<ReviewDTO> buildReviewList(List<Review> reviews) {
         return reviews.stream().map(review -> {
             ReviewDTO reviewDTO = new ReviewDTO();
+            reviewDTO.setId(DefaultValueUtil.defaultLong(review.getId()));
             reviewDTO.setReservationOrderId(DefaultValueUtil.defaultLong(review.getReservationOrderId()));
             reviewDTO.setUserName(DefaultValueUtil.defaultString(userService.queryById(review.getUserId()).getUsername()));
             reviewDTO.setChefName(DefaultValueUtil.defaultString(userService.queryById(review.getChefId()).getUsername()));
@@ -150,8 +152,11 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
                             .toString())
             );
             reviewDTO.setContent(DefaultValueUtil.defaultString(review.getContent()));
-            reviewDTO.setAuditStatus(DefaultValueUtil.defaultString(AuditStatus.getByCode(review.getAuditStatus()).getDesc()));
+            reviewDTO.setAuditStatus(DefaultValueUtil.defaultInteger(review.getAuditStatus()));
+            reviewDTO.setAuditStatusDesc(DefaultValueUtil.defaultString(AuditStatus.getByCode(review.getAuditStatus()).getDesc()));
             reviewDTO.setAuditReason(StringUtils.isNotBlank(review.getAuditReason()) ? review.getAuditReason() : "-");
+            reviewDTO.setCreateTime(DefaultValueUtil.defaultLong(review.getCreateTime()));
+            reviewDTO.setCreateTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(review.getCreateTime(), DateUtils.DATE_TIME_FORMAT)));
             return reviewDTO;
         }).collect(Collectors.toList());
     }
@@ -177,7 +182,8 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
             reportDTO.setTargetUserName(DefaultValueUtil.defaultString(userService.queryById(report.getTargetUserId()).getUsername()));
             reportDTO.setReason(DefaultValueUtil.defaultString(report.getReason()));
             reportDTO.setProcessResult(StringUtils.isNotBlank(report.getProcessResult()) ? report.getProcessResult() : "-");
-            reportDTO.setStatus(DefaultValueUtil.defaultString(ReportStatus.getByCode(report.getStatus()).getDesc()));
+            reportDTO.setStatus(DefaultValueUtil.defaultInteger(report.getStatus()));
+            reportDTO.setStatusDesc(DefaultValueUtil.defaultString(ReportStatus.getByCode(report.getStatus()).getDesc()));
             return reportDTO;
         }).collect(Collectors.toList());
     }

@@ -20,12 +20,12 @@
         <el-table-column prop="id" label="ID" width="100" align="center" header-align="center" />
         <el-table-column label="开始时间" min-width="220" align="center" header-align="center">
           <template #default="{ row }">
-            {{ formatTime(row.startTime) }}
+            {{ row.startTimeDesc }}
           </template>
         </el-table-column>
         <el-table-column label="结束时间" min-width="220" align="center" header-align="center">
           <template #default="{ row }">
-            {{ formatTime(row.endTime) }}
+            {{ row.endTimeDesc }}
           </template>
         </el-table-column>
         <el-table-column label="时长" min-width="140" align="center" header-align="center">
@@ -36,7 +36,7 @@
         <el-table-column prop="status" label="状态" min-width="140" align="center" header-align="center">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.status)">
-              {{ getStatusText(row.status) }}
+              {{ getStatusText(row.status, row.statusDesc) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -111,6 +111,7 @@ import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getProfile as getChefProfile } from '@/api/chef'
+import { getAvailableTimeStatusLabelMap, isChefAuditApproved } from '@/api/constant'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -120,6 +121,7 @@ const tableData = ref([])
 const total = ref(0)
 const addVisible = ref(false)
 const addFormRef = ref(null)
+const availableTimeStatusLabelMap = ref({})
 const queryForm = reactive({
   page: 1,
   size: 10
@@ -133,18 +135,6 @@ const addForm = reactive({
 const addRules = {
   startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
   endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }]
-}
-
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 const calculateDuration = (start, end) => {
@@ -161,14 +151,7 @@ const getStatusType = (status) => {
   return map[status] || 'info'
 }
 
-const getStatusText = (status) => {
-  const map = {
-    1: '可用',
-    2: '已约满',
-    3: '已删除'
-  }
-  return map[status] || '未知'
-}
+const getStatusText = (status, statusDesc) => statusDesc || availableTimeStatusLabelMap.value[status] || ''
 
 const disabledDate = (time) => {
   return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
@@ -176,7 +159,8 @@ const disabledDate = (time) => {
 
 const ensureAuditApproved = async () => {
   const res = await getChefProfile({})
-  if (res.data?.auditStatus !== '通过') {
+  const approved = await isChefAuditApproved(res.data?.auditStatus)
+  if (!approved) {
     ElMessage.warning('厨师审核尚未通过，请先完善资料并等待审核')
     router.replace('/chef/profile')
     return false
@@ -261,6 +245,13 @@ const handleDelete = (row) => {
 }
 
 onMounted(() => {
+  getAvailableTimeStatusLabelMap()
+    .then(map => {
+      availableTimeStatusLabelMap.value = map
+    })
+    .catch(error => {
+      console.error('加载可预约时间状态枚举失败:', error)
+    })
   ensureAuditApproved().then((passed) => {
     if (passed) {
       loadData()

@@ -6,8 +6,8 @@
           <div class="hero-eyebrow">CHEF PROFILE</div>
           <h2>{{ profileForm.realName || userStore.userInfo.username || '厨师个人资料' }}</h2>
           <div class="hero-meta">
-            <el-tag v-if="profile.auditStatus" :type="getAuditStatusType(profile.auditStatus)" effect="light">
-              {{ profile.auditStatus }}
+            <el-tag v-if="profile.auditStatusDesc" :type="getAuditStatusType(profile.auditStatus)" effect="light">
+              {{ profile.auditStatusDesc }}
             </el-tag>
             <span v-if="profileForm.serviceArea">{{ profileForm.serviceArea }}</span>
           </div>
@@ -201,24 +201,6 @@ import { getCuisineTypeOptions, getGenderOptions } from '@/api/constant'
 import { useUserStore } from '@/stores/user'
 import ImageUpload from '@/components/ImageUpload.vue'
 
-const cuisineNameToCodeMap = {
-  川菜: '1',
-  粤菜: '2',
-  湘菜: '3',
-  鲁菜: '4',
-  苏菜: '5',
-  浙菜: '6',
-  闽菜: '7',
-  徽菜: '8',
-  西餐: '9',
-  日料: '10'
-}
-
-const genderDescToCodeMap = {
-  男: 1,
-  女: 2
-}
-
 const userStore = useUserStore()
 const profileFormRef = ref(null)
 const loading = ref(false)
@@ -372,9 +354,9 @@ const profileRules = {
 
 const getAuditStatusType = (status) => {
   const map = {
-    '待审核': 'warning',
-    '通过': 'success',
-    '拒绝': 'danger'
+    1: 'warning',
+    2: 'success',
+    3: 'danger'
   }
   return map[status] || 'info'
 }
@@ -387,13 +369,11 @@ const loadProfile = async () => {
       profile.value = res.data
       Object.assign(profileForm, {
         ...res.data,
-        cuisineType: Array.isArray(res.data.cuisineType)
-          ? res.data.cuisineType.map(item => cuisineNameToCodeMap[item]).filter(Boolean)
-          : [],
+        cuisineType: Array.isArray(res.data.cuisineType) ? res.data.cuisineType.map(item => String(item)) : [],
         idCardImgs: Array.isArray(res.data.idCardImgs) ? res.data.idCardImgs : [],
         healthCertImgs: Array.isArray(res.data.healthCertImgs) ? res.data.healthCertImgs : [],
         chefCertImgs: Array.isArray(res.data.chefCertImgs) ? res.data.chefCertImgs : [],
-        gender: genderDescToCodeMap[res.data.gender] || 1,
+        gender: res.data.gender || 1,
         price: res.data.price ? res.data.price / 100 : 100
       })
     }

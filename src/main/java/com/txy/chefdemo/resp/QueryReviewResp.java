@@ -1,6 +1,5 @@
 package com.txy.chefdemo.resp;
 
-import com.txy.chefdemo.domain.Review;
 import com.txy.chefdemo.domain.dto.ReviewDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -14,11 +14,14 @@ public class ChefDetailDTO {
     private String avatar;
     private String displayName;
     private Integer age;
-    private String gender;
+    private Integer gender;
+    private String genderDesc;
     private Integer workYears;
-    private List<String> cuisineType;
+    private List<String> cuisineTypeDesc;
+    private List<Integer> cuisineType;
     private String serviceArea;
     private Long price;
+    private String priceDesc;
     private Integer minPeople;
     private Integer maxPeople;
     private String serviceDesc;

@@ -17,13 +17,16 @@ public class UserDTO {
     /** 用户名 */
     private String username;
     /** 角色 */
-    private String role;
+    private Integer role;
+    private String roleDesc;
     /** 头像URL */
     private String avatar;
     /** 手机号 */
     private String phone;
+    private Integer status;
     /** 状态 */
-    private String status;
+    private String statusDesc;
+    private Long lastLoginTime;
     /** 最后登录时间 xxxx-xx-xx xx:xx:xx */
-    private String lastLoginTime;
+    private String lastLoginTimeDesc;
 }

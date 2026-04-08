@@ -1,7 +1,6 @@
 package com.txy.chefdemo.service;
 
 import com.txy.chefdemo.domain.WalletRecord;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

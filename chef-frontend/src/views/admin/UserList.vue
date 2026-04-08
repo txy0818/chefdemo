@@ -61,20 +61,20 @@
       <el-table :data="tableData" border style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="用户ID" width="80" />
         <el-table-column prop="username" label="用户名" width="150" />
-        <el-table-column prop="role" label="角色" width="100" />
+        <el-table-column prop="roleDesc" label="角色" width="100" />
         <el-table-column prop="phone" label="手机号" width="120" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="statusDesc" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '正常' ? 'success' : 'danger'">
-              {{ row.status }}
+            <el-tag :type="row.status === 1 ? 'success' : 'danger'">
+              {{ row.statusDesc }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="lastLoginTime" label="最后登录时间" width="180" />
+        <el-table-column prop="lastLoginTimeDesc" label="最后登录时间" width="180" />
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="{ row }">
             <el-button
-              v-if="row.status === '正常'"
+              v-if="row.status === 1"
               type="danger"
               size="small"
               @click="handleUpdateStatus(row, 2)"

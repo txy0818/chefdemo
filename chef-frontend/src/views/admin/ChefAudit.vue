@@ -25,9 +25,9 @@
         <el-table-column prop="displayName" label="昵称" width="120" />
         <el-table-column prop="realName" label="真实姓名" width="120" />
         <el-table-column prop="phone" label="手机号" width="120" />
-        <el-table-column prop="cuisineType" label="擅长菜系" width="150">
+        <el-table-column prop="cuisineTypeDesc" label="擅长菜系" width="150">
           <template #default="{ row }">
-            <el-tag v-for="(item, index) in row.cuisineType" :key="index" size="small" style="margin-right: 5px">
+            <el-tag v-for="(item, index) in row.cuisineTypeDesc" :key="index" size="small" style="margin-right: 5px">
               {{ item }}
             </el-tag>
           </template>
@@ -35,7 +35,7 @@
         <el-table-column prop="serviceArea" label="服务区域" width="120" />
         <el-table-column prop="price" label="价格(元/小时)" width="120">
           <template #default="{ row }">
-            {{ (row.price / 100).toFixed(2) }}
+            {{ row.priceDesc }}
           </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="200">
@@ -72,11 +72,11 @@
         <el-descriptions-item label="真实姓名">{{ currentChef.realName }}</el-descriptions-item>
         <el-descriptions-item label="手机号">{{ currentChef.phone }}</el-descriptions-item>
         <el-descriptions-item label="年龄">{{ currentChef.age }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ currentChef.gender }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ currentChef.genderDesc }}</el-descriptions-item>
         <el-descriptions-item label="从业年限">{{ currentChef.workYears }}年</el-descriptions-item>
         <el-descriptions-item label="服务区域" :span="2">{{ currentChef.serviceArea }}</el-descriptions-item>
         <el-descriptions-item label="服务描述" :span="2">{{ currentChef.serviceDesc }}</el-descriptions-item>
-        <el-descriptions-item label="价格">{{ (currentChef.price / 100).toFixed(2) }}元/小时</el-descriptions-item>
+        <el-descriptions-item label="价格">{{ currentChef.priceDesc }}元/小时</el-descriptions-item>
         <el-descriptions-item label="服务人数">{{ currentChef.minPeople }}-{{ currentChef.maxPeople }}人</el-descriptions-item>
         <el-descriptions-item label="身份证照片" :span="2">
           <el-image
@@ -131,7 +131,7 @@
       <el-form ref="auditFormRef" :model="auditForm" :rules="auditRules" label-width="80px">
         <el-form-item label="审核结果">
           <el-tag :type="auditForm.auditStatus === 2 ? 'success' : 'danger'">
-            {{ auditForm.auditStatus === 2 ? '通过' : '拒绝' }}
+            {{ getAuditStatusLabel(auditForm.auditStatus) }}
           </el-tag>
         </el-form-item>
         <el-form-item label="原因" prop="reason" v-if="auditForm.auditStatus === 3">
@@ -159,6 +159,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { queryAuditChef, auditChef } from '@/api/admin'
+import { getAuditStatusOptions } from '@/api/constant'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 
@@ -174,6 +175,7 @@ const currentChef = ref(null)
 const auditFormRef = ref(null)
 const imagePreviewVisible = ref(false)
 const previewImageUrl = ref('')
+const auditStatusOptions = ref([])
 
 const queryForm = reactive({
   page: 1,
@@ -238,8 +240,13 @@ const handleAudit = (row, status) => {
   auditForm.chefUserId = row.userId
   auditForm.auditStatus = status
   auditForm.reason = ''
-  auditTitle.value = status === 2 ? '审核通过' : '审核拒绝'
+  auditTitle.value = `审核${getAuditStatusLabel(status)}`
   auditVisible.value = true
+}
+
+const getAuditStatusLabel = (status) => {
+  const option = auditStatusOptions.value.find(item => item.value === status)
+  return option ? option.label : ''
 }
 
 const confirmAudit = async () => {
@@ -264,6 +271,13 @@ const confirmAudit = async () => {
 }
 
 onMounted(() => {
+  getAuditStatusOptions()
+    .then(res => {
+      auditStatusOptions.value = Array.isArray(res.data) ? res.data : []
+    })
+    .catch(error => {
+      console.error('加载厨师审核状态枚举失败:', error)
+    })
   handleQuery()
 })
 </script>

@@ -37,6 +37,8 @@ import com.txy.chefdemo.service.UserInteractionService;
 import com.txy.chefdemo.service.UserService;
 import com.txy.chefdemo.service.WalletRecordService;
 import com.txy.chefdemo.service.WalletService;
+import com.txy.chefdemo.utils.DateUtils;
+import com.txy.chefdemo.utils.DefaultValueUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -253,7 +255,8 @@ public class UserInteractionServiceImpl implements UserInteractionService {
         return new UserWalletDTO(
                 ObjectUtils.defaultIfNull(wallet.getId(), 0L),
                 ObjectUtils.defaultIfNull(wallet.getUserId(), 0L),
-                ObjectUtils.defaultIfNull(wallet.getBalance(), 0L)
+                ObjectUtils.defaultIfNull(wallet.getBalance(), 0L),
+                DefaultValueUtil.formatYuan(wallet.getBalance())
         );
     }
 
@@ -269,9 +272,11 @@ public class UserInteractionServiceImpl implements UserInteractionService {
                 ObjectUtils.defaultIfNull(record.getId(), 0L),
                 ObjectUtils.defaultIfNull(record.getReservationOrderId(), 0L),
                 ObjectUtils.defaultIfNull(record.getAmount(), 0L),
+                DefaultValueUtil.formatYuan(record.getAmount()),
                 record.getType(),
                 ObjectUtils.isNotEmpty(walletRecordType) ? walletRecordType.getDesc() : "-",
-                ObjectUtils.defaultIfNull(record.getCreateTime(), 0L)
+                ObjectUtils.defaultIfNull(record.getCreateTime(), 0L),
+                DefaultValueUtil.defaultString(DateUtils.format(record.getCreateTime(), DateUtils.DATE_TIME_FORMAT))
         );
     }
 }

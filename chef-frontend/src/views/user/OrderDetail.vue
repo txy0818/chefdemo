@@ -15,14 +15,14 @@
       <section class="status-hero glass-panel">
         <div class="status-main">
           <span class="status-kicker">订单 #{{ order.id }}</span>
-          <h1>{{ getStatusText(order.status) }}</h1>
-          <p>支付状态：{{ order.payStatusDesc || (order.payStatus === 1 ? '未支付' : '已支付') }}</p>
+          <h1>{{ order.statusDesc }}</h1>
+          <p>支付状态：{{ order.payStatusDesc || payStatusLabelMap[order.payStatus] }}</p>
         </div>
         <div class="status-side">
           <el-tag class="status-tag" :type="getStatusType(order.status)" size="large">
-            {{ getStatusText(order.status) }}
+            {{ order.statusDesc }}
           </el-tag>
-          <strong>¥{{ (order.totalAmount / 100).toFixed(2) }}</strong>
+          <strong>{{ order.totalAmountDesc }}</strong>
         </div>
       </section>
 
@@ -39,21 +39,21 @@
               <el-descriptions-item label="订单ID">{{ order.id }}</el-descriptions-item>
               <el-descriptions-item label="订单状态">
                 <el-tag :type="getStatusType(order.status)">
-                  {{ getStatusText(order.status) }}
+                  {{ order.statusDesc }}
                 </el-tag>
               </el-descriptions-item>
               <el-descriptions-item label="厨师">{{ order.chefName }}</el-descriptions-item>
               <el-descriptions-item label="订单金额">
-                <span class="amount-text">¥{{ (order.totalAmount / 100).toFixed(2) }}</span>
+                <span class="amount-text">{{ order.totalAmountDesc }}</span>
               </el-descriptions-item>
               <el-descriptions-item label="所属时间段" :span="2">
-                {{ formatTimeRange(order.chefAvailableStartTime, order.chefAvailableEndTime) }}
+                {{ order.chefAvailableTimeDesc }}
               </el-descriptions-item>
-              <el-descriptions-item label="开始时间">{{ formatTime(order.startTime) }}</el-descriptions-item>
-              <el-descriptions-item label="结束时间">{{ formatTime(order.endTime) }}</el-descriptions-item>
+              <el-descriptions-item label="开始时间">{{ order.startTimeDesc }}</el-descriptions-item>
+              <el-descriptions-item label="结束时间">{{ order.endTimeDesc }}</el-descriptions-item>
               <el-descriptions-item label="用餐人数">{{ order.peopleCount }}人</el-descriptions-item>
               <el-descriptions-item label="支付状态">
-                {{ order.payStatusDesc || (order.payStatus === 1 ? '未支付' : '已支付') }}
+                {{ order.payStatusDesc || payStatusLabelMap[order.payStatus] }}
               </el-descriptions-item>
               <el-descriptions-item label="联系人">{{ order.contactName }}</el-descriptions-item>
               <el-descriptions-item label="联系电话">{{ order.contactPhone }}</el-descriptions-item>
@@ -118,7 +118,7 @@
               </el-button>
 
               <el-alert
-                :title="`订单状态：${getStatusText(order.status)}，支付状态：${order.payStatusDesc}`"
+                :title="`订单状态：${order.statusDesc}，支付状态：${order.payStatusDesc || payStatusLabelMap[order.payStatus]}`"
                 :type="getStatusAlertType(order.status)"
                 :closable="false"
               />
@@ -167,7 +167,7 @@
       <template #footer>
         <el-button @click="payVisible = false">取消</el-button>
         <el-button type="primary" @click="confirmPay" :loading="paying">
-          确认支付 ¥{{ (order?.totalAmount / 100).toFixed(2) }}
+          确认支付 {{ order?.totalAmountDesc }}
         </el-button>
       </template>
     </el-dialog>
@@ -178,7 +178,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { orderDetail, payOrder, cancelOrder } from '@/api/user'
-import { getPaymentTypeOptions } from '@/api/constant'
+import { getPaymentTypeOptions, getPayStatusLabelMap } from '@/api/constant'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, Wallet } from '@element-plus/icons-vue'
 
@@ -192,6 +192,7 @@ const cancelVisible = ref(false)
 const payVisible = ref(false)
 const cancelFormRef = ref(null)
 const paymentTypeOptions = ref([])
+const payStatusLabelMap = ref({})
 
 const cancelForm = reactive({
   orderId: null,
@@ -223,15 +224,6 @@ const payForm = reactive({
   payType: 1
 })
 
-const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleString('zh-CN')
-}
-
-const formatTimeRange = (startTime, endTime) => {
-  if (!startTime || !endTime) return '-'
-  return `${formatTime(startTime)} - ${formatTime(endTime)}`
-}
-
 const getStatusType = (status) => {
   const map = { 1: 'warning', 2: 'info', 3: 'primary', 4: 'danger', 5: 'success', 6: 'info' }
   return map[status] || 'info'
@@ -240,11 +232,6 @@ const getStatusType = (status) => {
 const getStatusAlertType = (status) => {
   const map = { 1: 'warning', 2: 'info', 3: 'success', 4: 'error', 5: 'success', 6: 'info' }
   return map[status] || 'info'
-}
-
-const getStatusText = (status) => {
-  const map = { 1: '待支付', 2: '待接单', 3: '已接单', 4: '已拒单', 5: '已完成', 6: '已取消' }
-  return map[status] || '未知'
 }
 
 const loadData = async () => {
@@ -270,6 +257,14 @@ const loadPaymentTypeOptions = async () => {
     }
   } catch (error) {
     console.error('加载支付方式失败:', error)
+  }
+}
+
+const loadPayStatusOptions = async () => {
+  try {
+    payStatusLabelMap.value = await getPayStatusLabelMap()
+  } catch (error) {
+    console.error('加载支付状态枚举失败:', error)
   }
 }
 
@@ -334,6 +329,7 @@ const goBack = () => {
 onMounted(() => {
   loadData()
   loadPaymentTypeOptions()
+  loadPayStatusOptions()
 })
 </script>
 

@@ -1,6 +1,5 @@
 package com.txy.chefdemo.resp;
 
-import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.dto.OrderViewDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;

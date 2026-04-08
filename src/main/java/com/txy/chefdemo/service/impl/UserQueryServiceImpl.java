@@ -13,7 +13,6 @@ import com.txy.chefdemo.domain.bo.ReviewSearchBo;
 import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
 import com.txy.chefdemo.domain.constant.CuisineType;
 import com.txy.chefdemo.domain.constant.Gender;
-import com.txy.chefdemo.domain.constant.OrderStatus;
 import com.txy.chefdemo.domain.constant.ReviewAuditStatus;
 import com.txy.chefdemo.domain.dto.ChefAvailableTimeDTO;
 import com.txy.chefdemo.domain.dto.ChefCardDTO;
@@ -38,6 +37,8 @@ import com.txy.chefdemo.service.ReservationOrderService;
 import com.txy.chefdemo.service.ReviewService;
 import com.txy.chefdemo.service.UserQueryService;
 import com.txy.chefdemo.service.UserService;
+import com.txy.chefdemo.utils.DateUtils;
+import com.txy.chefdemo.utils.DefaultValueUtil;
 import com.txy.chefdemo.utils.ObjectMapperUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,11 +88,14 @@ public class UserQueryServiceImpl implements UserQueryService {
         detail.setAvatar(StringUtils.isNotBlank(profile.getAvatar()) ? profile.getAvatar() : "-");
         detail.setDisplayName(StringUtils.isNotBlank(profile.getDisplayName()) ? profile.getDisplayName() : "-");
         detail.setAge(ObjectUtils.defaultIfNull(profile.getAge(), 0));
-        detail.setGender(ObjectUtils.isNotEmpty(Gender.getByCode(profile.getGender())) ? Gender.getByCode(profile.getGender()).getDesc() : "-");
+        detail.setGender(ObjectUtils.defaultIfNull(profile.getGender(), 0));
+        detail.setGenderDesc(ObjectUtils.isNotEmpty(Gender.getByCode(profile.getGender())) ? Gender.getByCode(profile.getGender()).getDesc() : "-");
         detail.setWorkYears(ObjectUtils.defaultIfNull(profile.getWorkYears(), 0));
-        detail.setCuisineType(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(profile.getCuisineType(), Integer.class)));
+        detail.setCuisineType(ObjectMapperUtils.fromJSONToList(profile.getCuisineType(), Integer.class));
+        detail.setCuisineTypeDesc(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(profile.getCuisineType(), Integer.class)));
         detail.setServiceArea(StringUtils.isNotBlank(profile.getServiceArea()) ? profile.getServiceArea() : "-");
         detail.setPrice(ObjectUtils.defaultIfNull(profile.getPrice(), 0L));
+        detail.setPriceDesc(DefaultValueUtil.formatYuan(profile.getPrice()));
         detail.setMinPeople(ObjectUtils.defaultIfNull(profile.getMinPeople(), 0));
         detail.setMaxPeople(ObjectUtils.defaultIfNull(profile.getMaxPeople(), 0));
         detail.setServiceDesc(StringUtils.isNotBlank(profile.getServiceDesc()) ? profile.getServiceDesc() : "-");
@@ -112,7 +116,9 @@ public class UserQueryServiceImpl implements UserQueryService {
             ChefAvailableTimeDTO dto = new ChefAvailableTimeDTO();
             dto.setId(ObjectUtils.defaultIfNull(time.getId(), 0L));
             dto.setStartTime(ObjectUtils.defaultIfNull(time.getStartTime(), 0L));
+            dto.setStartTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(time.getStartTime(), DateUtils.DATE_TIME_FORMAT)));
             dto.setEndTime(ObjectUtils.defaultIfNull(time.getEndTime(), 0L));
+            dto.setEndTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(time.getEndTime(), DateUtils.DATE_TIME_FORMAT)));
             dto.setStatus(ObjectUtils.defaultIfNull(time.getStatus(), 0));
             dto.setStatusDesc(ObjectUtils.isNotEmpty(time.getStatus()) && ObjectUtils.isNotEmpty(AvailableTimeStatus.getByCode(time.getStatus()))
                     ? AvailableTimeStatus.getByCode(time.getStatus()).getDesc() : "-");
@@ -138,10 +144,12 @@ public class UserQueryServiceImpl implements UserQueryService {
             dto.setChefName(ObjectUtils.isNotEmpty(chef) && StringUtils.isNotBlank(chef.getUsername()) ? chef.getUsername() : "-");
             dto.setScore(ObjectUtils.isNotEmpty(review.getScore()) ? String.valueOf(review.getScore() / 100.0) : "-");
             dto.setContent(StringUtils.isNotBlank(review.getContent()) ? review.getContent() : "-");
-            dto.setAuditStatus(ObjectUtils.isNotEmpty(review.getAuditStatus()) && ObjectUtils.isNotEmpty(ReviewAuditStatus.getByCode(review.getAuditStatus()))
+            dto.setAuditStatus(ObjectUtils.defaultIfNull(review.getAuditStatus(), 0));
+            dto.setAuditStatusDesc(ObjectUtils.isNotEmpty(review.getAuditStatus()) && ObjectUtils.isNotEmpty(ReviewAuditStatus.getByCode(review.getAuditStatus()))
                     ? ReviewAuditStatus.getByCode(review.getAuditStatus()).getDesc() : "-");
             dto.setAuditReason(StringUtils.isNotBlank(review.getAuditReason()) ? review.getAuditReason() : "-");
             dto.setCreateTime(ObjectUtils.defaultIfNull(review.getCreateTime(), 0L));
+            dto.setCreateTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(review.getCreateTime(), DateUtils.DATE_TIME_FORMAT)));
             return dto;
         }).collect(Collectors.toList());
         return new ChefReviewDetailResp(BaseRespConstant.SUC, reviewDTOS, total);
@@ -212,9 +220,11 @@ public class UserQueryServiceImpl implements UserQueryService {
             chefCardDTO.setChefUserId(ObjectUtils.defaultIfNull(chefProfile.getUserId(), 0L));
             chefCardDTO.setAvatar(StringUtils.isNotBlank(chefProfile.getAvatar()) ? chefProfile.getAvatar() : "-");
             chefCardDTO.setDisplayName(StringUtils.isNotBlank(chefProfile.getDisplayName()) ? chefProfile.getDisplayName() : "-");
-            chefCardDTO.setCuisineType(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class)));
+            chefCardDTO.setCuisineType(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class));
+            chefCardDTO.setCuisineTypeDesc(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class)));
             chefCardDTO.setServiceArea(StringUtils.isNotBlank(chefProfile.getServiceArea()) ? chefProfile.getServiceArea() : "-");
             chefCardDTO.setPrice(ObjectUtils.defaultIfNull(chefProfile.getPrice(), 0L));
+            chefCardDTO.setPriceDesc(DefaultValueUtil.formatYuan(chefProfile.getPrice()));
             chefCardDTO.setScore(ObjectUtils.isNotEmpty(chefProfile.getScore())
                     ? BigDecimal.valueOf(chefProfile.getScore()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).doubleValue() : 0.0);
             return chefCardDTO;

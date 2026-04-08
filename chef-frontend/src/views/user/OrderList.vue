@@ -43,14 +43,14 @@
               <span class="order-chef">{{ order.chefName }}</span>
             </div>
             <div class="order-badges">
-              <el-tag :type="getStatusType(order.status)">{{ getStatusText(order.status) }}</el-tag>
+              <el-tag :type="getStatusType(order.status)">{{ order.statusDesc }}</el-tag>
               <span class="pay-status">{{ order.payStatusDesc }}</span>
             </div>
           </div>
           <el-descriptions :column="2" border>
             <el-descriptions-item label="厨师">{{ order.chefName }}</el-descriptions-item>
-            <el-descriptions-item label="金额">¥{{ (order.totalAmount / 100).toFixed(2) }}</el-descriptions-item>
-            <el-descriptions-item label="时间">{{ formatTime(order.startTime) }}</el-descriptions-item>
+            <el-descriptions-item label="金额">{{ order.totalAmountDesc }}</el-descriptions-item>
+            <el-descriptions-item label="时间">{{ order.startTimeDesc }}</el-descriptions-item>
             <el-descriptions-item label="人数">{{ order.peopleCount }}人</el-descriptions-item>
             <el-descriptions-item label="支付状态">{{ order.payStatusDesc }}</el-descriptions-item>
           </el-descriptions>
@@ -76,6 +76,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { orderList as fetchOrderList } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { getOrderStatusTabOptions } from '@/api/constant'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -87,19 +88,7 @@ const queryForm = reactive({
   page: 1,
   size: 10
 })
-const tabOptions = [
-  { label: '全部', name: '0' },
-  { label: '待支付', name: '1' },
-  { label: '待接单', name: '2' },
-  { label: '已接单', name: '3' },
-  { label: '已拒单', name: '4' },
-  { label: '已完成', name: '5' },
-  { label: '已取消', name: '6' }
-]
-
-const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleString('zh-CN')
-}
+const tabOptions = ref([{ label: '全部', name: '0' }])
 
 const getStatusType = (status) => {
   const map = {
@@ -111,18 +100,6 @@ const getStatusType = (status) => {
     6: 'info'
   }
   return map[status] || 'info'
-}
-
-const getStatusText = (status) => {
-  const map = {
-    1: '待支付',
-    2: '待接单',
-    3: '已接单',
-    4: '已拒单',
-    5: '已完成',
-    6: '已取消'
-  }
-  return map[status] || '未知'
 }
 
 const buildQueryParams = () => {
@@ -170,6 +147,16 @@ const getCountText = (tabName) => {
 }
 
 onMounted(() => {
+  getOrderStatusTabOptions()
+    .then(options => {
+      tabOptions.value = options.map(item => ({
+        label: item.label,
+        name: String(item.value)
+      }))
+    })
+    .catch(error => {
+      console.error('加载订单状态枚举失败:', error)
+    })
   loadData()
 })
 </script>

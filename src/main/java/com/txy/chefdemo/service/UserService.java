@@ -2,7 +2,6 @@ package com.txy.chefdemo.service;
 
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.bo.UserSearchBo;
-import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**

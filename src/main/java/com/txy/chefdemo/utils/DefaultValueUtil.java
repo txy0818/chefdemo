@@ -2,6 +2,8 @@ package com.txy.chefdemo.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +33,15 @@ public class DefaultValueUtil {
      */
     public static String defaultString(String value) {
         return StringUtils.isNotEmpty(value) ? value : "-";
+    }
+
+    /**
+     * 金额兜底并转成元字符串
+     */
+    public static String formatYuan(Long value) {
+        return BigDecimal.valueOf(defaultLong(value))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                .toPlainString();
     }
     
     /**

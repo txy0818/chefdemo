@@ -24,10 +24,12 @@ public class ReviewDTO {
     private String score;
     /** 评价内容 */
     private String content;
+    private Integer auditStatus;
     /** 审核状态 */
-    private String auditStatus;
+    private String auditStatusDesc;
     /** 审核驳回原因 */
     private String auditReason;
     /** 评价时间 */
     private Long createTime;
+    private String createTimeDesc;
 }

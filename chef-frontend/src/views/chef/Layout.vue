@@ -59,6 +59,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { logout, queryInfo } from '@/api/auth'
 import { getProfile as getChefProfile, notificationList as fetchNotificationList } from '@/api/chef'
+import { isChefAuditApproved } from '@/api/constant'
 import HeaderUserInfo from '@/components/HeaderUserInfo.vue'
 import { NOTIFICATION_UNREAD_CHANGE_EVENT, showRealtimeNotification } from '@/utils/notification'
 import { createUserSocket } from '@/utils/ws'
@@ -114,7 +115,7 @@ const loadChefAuditStatus = async () => {
   if (!userStore.userInfo.userId) return
   try {
     const res = await getChefProfile({})
-    isAuditApproved.value = res.data?.auditStatus === '通过'
+    isAuditApproved.value = await isChefAuditApproved(res.data?.auditStatus)
   } catch (error) {
     isAuditApproved.value = false
   }

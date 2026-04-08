@@ -13,8 +13,10 @@ public class ChefCardDTO {
     private Long chefUserId;
     private String avatar;
     private String displayName;
-    private List<String> cuisineType;
+    private List<String> cuisineTypeDesc;
+    private List<Integer> cuisineType;
     private String serviceArea;
     private Long price;
+    private String priceDesc;
     private Double score;
 }

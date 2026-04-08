@@ -12,4 +12,6 @@ public class UserWalletDTO {
     private Long userId;
     /** 当前余额(分) */
     private Long balance;
+    // 元
+    private String balanceDesc;
 }

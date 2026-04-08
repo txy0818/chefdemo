@@ -21,14 +21,19 @@ public class OrderViewDTO {
     private Long chefAvailableTimeId;
     /** 所属预约时间段开始时间 */
     private Long chefAvailableStartTime;
+    private String chefAvailableTimeDesc;
     /** 所属预约时间段结束时间 */
     private Long chefAvailableEndTime;
+    private String chefAvailableTimeStatusDesc;
     /** 预约开始时间 */
     private Long startTime;
+    private String startTimeDesc;
     /** 预约结束时间 */
     private Long endTime;
-    /** 订单总金额(元) */
+    private String endTimeDesc;
+    /** 订单总金额(分) */
     private Long totalAmount;
+    private String totalAmountDesc;
     /** 预约人数 */
     private Integer peopleCount;
     /** 特殊要求 */
@@ -51,4 +56,5 @@ public class OrderViewDTO {
     private String cancelReason;
     /** 支付截止时间 */
     private Long payDeadlineTime;
+    private String payDeadlineTimeDesc;
 }

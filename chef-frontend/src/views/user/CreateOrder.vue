@@ -36,7 +36,7 @@
                 <el-option
                   v-for="time in availableTimes"
                   :key="time.id"
-                  :label="`${formatTime(time.startTime)} - ${formatTime(time.endTime)}`"
+                  :label="`${time.startTimeDesc} - ${time.endTimeDesc}`"
                   :value="time.id"
                   :disabled="time.status !== 1"
                 />
@@ -67,7 +67,7 @@
 
             <el-form-item v-if="selectedTime">
               <div class="time-range-tip">
-                可选范围：{{ formatDetailTime(selectedTime.startTime) }} 至 {{ formatDetailTime(selectedTime.endTime) }}
+                可选范围：{{ selectedTime.startTimeDesc }} 至 {{ selectedTime.endTimeDesc }}
               </div>
             </el-form-item>
 
@@ -151,14 +151,14 @@
             </div>
             <div>
               <strong>{{ chefInfo.displayName }}</strong>
-              <span>¥{{ (chefInfo.price / 100).toFixed(0) }}/小时</span>
+              <span>{{ chefInfo.priceDesc }}元/小时</span>
             </div>
           </div>
 
           <div class="summary-list">
             <div class="summary-item">
               <span>预约时段</span>
-              <strong>{{ selectedTime ? `${formatTime(selectedTime.startTime)} - ${formatTime(selectedTime.endTime)}` : '未选择' }}</strong>
+              <strong>{{ selectedTime ? `${selectedTime.startTimeDesc} - ${selectedTime.endTimeDesc}` : '未选择' }}</strong>
             </div>
             <div class="summary-item">
               <span>服务时长</span>
@@ -176,7 +176,7 @@
 
           <div class="amount-panel">
             <span>预计订单金额</span>
-            <strong>¥{{ (totalAmount / 100).toFixed(2) }}</strong>
+            <strong>{{ totalAmountDesc }}</strong>
             <small>最终金额会按照所选时长和厨师单价计算。</small>
           </div>
         </el-card>
@@ -303,35 +303,13 @@ const totalAmount = computed(() => {
   if (hours <= 0) return 0
   return Math.ceil(chefInfo.value.price * hours)
 })
+const totalAmountDesc = computed(() => `¥${(totalAmount.value / 100).toFixed(2)}`)
 const durationText = computed(() => {
   if (!orderForm.startTime || !orderForm.endTime) return '待确认'
   const hours = (Number(orderForm.endTime) - Number(orderForm.startTime)) / (1000 * 60 * 60)
   if (hours <= 0) return '待确认'
   return `${hours.toFixed(hours % 1 === 0 ? 0 : 1)} 小时`
 })
-
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const formatDetailTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const loadData = async () => {
   loading.value = true

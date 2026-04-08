@@ -1,13 +1,10 @@
 package com.txy.chefdemo.utils;
 
-import jodd.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
 
 /**
  * @Author tianxinyu

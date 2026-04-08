@@ -23,5 +23,6 @@ public class ReportDTO {
     /** 处理结果 */
     private String processResult;
     /** 处理状态 */
-    private String status;
+    private String statusDesc;
+    private Integer status;
 }

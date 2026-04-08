@@ -1,12 +1,10 @@
 package com.txy.chefdemo.task;
 
-import com.txy.chefdemo.domain.ChefAvailableTime;
 import com.txy.chefdemo.domain.ChefProfile;
 import com.txy.chefdemo.domain.Review;
 import com.txy.chefdemo.domain.bo.ChefProfileSearchBo;
 import com.txy.chefdemo.domain.bo.ReviewSearchBo;
 import com.txy.chefdemo.domain.constant.AuditStatus;
-import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
 import com.txy.chefdemo.mapper.ChefProfileMapper;
 import com.txy.chefdemo.mapper.ReviewMapper;
 import lombok.extern.slf4j.Slf4j;

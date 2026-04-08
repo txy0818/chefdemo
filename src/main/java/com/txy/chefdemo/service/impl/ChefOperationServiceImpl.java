@@ -37,6 +37,7 @@ import com.txy.chefdemo.service.ReservationOrderService;
 import com.txy.chefdemo.service.UserService;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.OrderStateEvent;
+import com.txy.chefdemo.utils.DateUtils;
 import com.txy.chefdemo.utils.DefaultValueUtil;
 import com.txy.chefdemo.utils.ObjectMapperUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -56,7 +57,7 @@ import java.util.stream.Collectors;
 public class ChefOperationServiceImpl implements ChefOperationService {
 
     private static final Long DEFAULT_SCORE = 500L;
-
+    private static final String SRC = "chef";
     @Autowired
     private UserService userService;
     @Autowired
@@ -159,7 +160,9 @@ public class ChefOperationServiceImpl implements ChefOperationService {
             ChefAvailableTimeDTO dto = new ChefAvailableTimeDTO();
             dto.setId(DefaultValueUtil.defaultLong(time.getId()));
             dto.setStartTime(DefaultValueUtil.defaultLong(time.getStartTime()));
+            dto.setStartTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(time.getStartTime(), DateUtils.DATE_TIME_FORMAT)));
             dto.setEndTime(DefaultValueUtil.defaultLong(time.getEndTime()));
+            dto.setEndTimeDesc(DefaultValueUtil.defaultString(DateUtils.format(time.getEndTime(), DateUtils.DATE_TIME_FORMAT)));
             dto.setStatus(DefaultValueUtil.defaultInteger(time.getStatus()));
             dto.setStatusDesc(DefaultValueUtil.defaultString(AvailableTimeStatus.getByCode(time.getStatus()).getDesc()));
             return dto;
@@ -234,8 +237,9 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
-        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.CHEF_ACCEPT,
-                new OrderContext(order.getId(), currentChefId, null, req.getReason()));
+        OrderContext orderContext = new OrderContext(order.getId(), currentChefId, null, req.getReason());
+        orderContext.setSource(SRC);
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.CHEF_ACCEPT, orderContext);
     }
 
     @Override
@@ -247,8 +251,9 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         }
         long now = System.currentTimeMillis();
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(order.getEndTime()) && now >= order.getEndTime(), "未到预约结束时间，暂不能完成订单");
-        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.COMPLETE,
-                new OrderContext(order.getId(), currentChefId, null, req.getReason()));
+        OrderContext orderContext = new OrderContext(order.getId(), currentChefId, null, req.getReason());
+        orderContext.setSource(SRC);
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.COMPLETE, orderContext);
     }
 
     @Override
@@ -260,8 +265,9 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
-        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.CHEF_REJECT,
-                new OrderContext(order.getId(), currentChefId, null, reason));
+        OrderContext orderContext = new OrderContext(order.getId(), currentChefId, null, reason);
+        orderContext.setSource(SRC);
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.CHEF_REJECT, orderContext);
     }
 
     private ChefProfileDTO buildChefProfileDTO(ChefProfile chefProfile) {
@@ -274,16 +280,20 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         chefProfileDTO.setIdCardImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getIdCardImgs(), String.class)));
         chefProfileDTO.setHealthCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getHealthCertImgs(), String.class)));
         chefProfileDTO.setChefCertImgs(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getChefCertImgs(), String.class)));
-        chefProfileDTO.setCuisineType(DefaultValueUtil.defaultList(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class))));
+        chefProfileDTO.setCuisineType(DefaultValueUtil.defaultList(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class)));
+        chefProfileDTO.setCuisineTypeDesc(DefaultValueUtil.defaultList(CuisineType.fromCodes(ObjectMapperUtils.fromJSONToList(chefProfile.getCuisineType(), Integer.class))));
         chefProfileDTO.setServiceArea(DefaultValueUtil.defaultString(chefProfile.getServiceArea()));
         chefProfileDTO.setServiceDesc(DefaultValueUtil.defaultString(chefProfile.getServiceDesc()));
         chefProfileDTO.setPrice(DefaultValueUtil.defaultLong(chefProfile.getPrice()));
+        chefProfileDTO.setPriceDesc(DefaultValueUtil.formatYuan(chefProfile.getPrice()));
         chefProfileDTO.setMinPeople(DefaultValueUtil.defaultInteger(chefProfile.getMinPeople()));
         chefProfileDTO.setMaxPeople(DefaultValueUtil.defaultInteger(chefProfile.getMaxPeople()));
         chefProfileDTO.setAge(DefaultValueUtil.defaultInteger(chefProfile.getAge()));
-        chefProfileDTO.setGender(ObjectUtils.isNotEmpty(Gender.getByCode(chefProfile.getGender())) ? Gender.getByCode(chefProfile.getGender()).getDesc() : "-");
+        chefProfileDTO.setGender(DefaultValueUtil.defaultInteger(chefProfile.getGender()));
+        chefProfileDTO.setGenderDesc(ObjectUtils.isNotEmpty(Gender.getByCode(chefProfile.getGender())) ? Gender.getByCode(chefProfile.getGender()).getDesc() : "-");
         chefProfileDTO.setWorkYears(DefaultValueUtil.defaultInteger(chefProfile.getWorkYears()));
-        chefProfileDTO.setAuditStatus(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
+        chefProfileDTO.setAuditStatus(DefaultValueUtil.defaultInteger(chefProfile.getAuditStatus()));
+        chefProfileDTO.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
         chefProfileDTO.setPhone(StringUtils.isNotBlank(chefProfile.getPhone()) ? chefProfile.getPhone() : "-");
         chefProfileDTO.setScore(DefaultValueUtil.defaultString(
                 BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
@@ -323,15 +333,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     }
 
     private OrderViewDTO buildChefOrderView(ReservationOrder order) {
-        OrderViewDTO orderViewDTO = reservationOrderService.buildOrderView(order);
-        ChefAvailableTimeSearchBo timeSearchBo = new ChefAvailableTimeSearchBo();
-        timeSearchBo.setId(order.getChefAvailableTimeId());
-        List<ChefAvailableTime> times = chefAvailableTimeService.queryByCondition(timeSearchBo);
-        ChefAvailableTime time = CollectionUtils.isEmpty(times) ? null : times.get(0);
-        orderViewDTO.setChefAvailableTimeId(ObjectUtils.defaultIfNull(order.getChefAvailableTimeId(), 0L));
-        orderViewDTO.setChefAvailableStartTime(ObjectUtils.isNotEmpty(time) ? ObjectUtils.defaultIfNull(time.getStartTime(), 0L) : 0L);
-        orderViewDTO.setChefAvailableEndTime(ObjectUtils.isNotEmpty(time) ? ObjectUtils.defaultIfNull(time.getEndTime(), 0L) : 0L);
-        return orderViewDTO;
+        return reservationOrderService.buildOrderView(order);
     }
 
     private ReservationOrder requireChefOrder(Long currentChefId, Long orderId) {

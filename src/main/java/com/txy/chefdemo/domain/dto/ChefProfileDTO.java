@@ -29,27 +29,32 @@ public class ChefProfileDTO {
     /** 厨师证图片URL列表(JSON) */
     private List<String> chefCertImgs;
     /** 擅长菜系(枚举ID集合 1,2,3) */
-    private List<String> cuisineType;
+    private List<String> cuisineTypeDesc;
+    private List<Integer> cuisineType;
     /** 服务区域 */
     private String serviceArea;
     /** 服务说明/个人简介 */
     private String serviceDesc;
     /** 每小时价格(分) */
     private Long price;
+    /** 每小时价格(元/小时) */
+    private String priceDesc;
     /** 最少服务人数 */
     private Integer minPeople;
     /** 最多服务人数 */
     private Integer maxPeople;
     /** 年龄 */
     private Integer age;
+    private Integer gender;
     /** 性别 1-男 2-女 */
-    private String gender;
+    private String genderDesc;
     /** 从业年限 */
     private Integer workYears;
     /** phone */
     private String phone;
+    private Integer auditStatus;
     /** 审核状态 1-待审核 2-审核通过 3-审核未通过 */
-    private String auditStatus;
+    private String auditStatusDesc;
     /** 评分*/
     private String score;
 }

@@ -24,7 +24,7 @@
                 <h1>{{ chef.displayName }}</h1>
                 <p class="chef-subtitle">适合家庭聚餐、纪念日晚餐和轻量宴请的上门私厨服务。</p>
               </div>
-              <div class="price-badge">¥{{ (chef.price / 100).toFixed(0) }}/小时</div>
+              <div class="price-badge">{{ chef.priceDesc }}元/小时</div>
             </div>
 
             <div class="rating">
@@ -105,8 +105,8 @@
                 :class="{ 'is-available': time.status === 1, 'is-disabled': time.status !== 1 }"
                 @click="handleSelectTime(time)"
               >
-                <strong>{{ formatTime(time.startTime) }}</strong>
-                <span>{{ formatTime(time.endTime) }}</span>
+                <strong>{{ time.startTimeDesc }}</strong>
+                <span>{{ time.endTimeDesc }}</span>
               </button>
             </div>
           </el-card>
@@ -131,7 +131,7 @@
                   <el-rate v-model="review.score" disabled />
                 </div>
                 <p class="review-content">{{ review.content }}</p>
-                <span class="review-time">{{ formatTime(review.createTime) }}</span>
+                <span class="review-time">{{ review.createTimeDesc || formatDateTime(review.createTime) }}</span>
               </el-card>
             </div>
           </el-card>
@@ -201,6 +201,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { chefDetail, chefTimes, chefReviews } from '@/api/user'
 import { Location, Money, User, Clock, ArrowLeft } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { formatDateTime } from '@/utils/datetime'
 
 const route = useRoute()
 const router = useRouter()
@@ -209,22 +210,11 @@ const chef = ref(null)
 const imagePreviewVisible = ref(false)
 const previewImageUrl = ref('')
 const cuisineTags = computed(() => {
-  if (!chef.value?.cuisineType) return []
-  return Array.isArray(chef.value.cuisineType)
-    ? chef.value.cuisineType
-    : String(chef.value.cuisineType).split(/[、,，/\s]+/).filter(Boolean)
+  if (!chef.value?.cuisineTypeDesc) return []
+  return Array.isArray(chef.value.cuisineTypeDesc)
+    ? chef.value.cuisineTypeDesc
+    : String(chef.value.cuisineTypeDesc).split(/[、,，/\s]+/).filter(Boolean)
 })
-
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const loadData = async () => {
   loading.value = true

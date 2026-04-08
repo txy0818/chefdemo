@@ -13,6 +13,7 @@ import io.minio.MinioClient;
 import io.minio.http.Method;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,13 +51,10 @@ public class FileController {
      * 4. 前端再拿这个 uploadUrl 直接把文件 PUT 到 MinIO
      * 5. 上传成功后，前端使用 fileUrl 作为最终文件访问地址
      */
-    private final MinioClient minioClient;
-    private final MinioProperties minioProperties;
-
-    public FileController(MinioClient minioClient, MinioProperties minioProperties) {
-        this.minioClient = minioClient;
-        this.minioProperties = minioProperties;
-    }
+    @Autowired
+    private MinioClient minioClient;
+    @Autowired
+    private MinioProperties minioProperties;
 
     /**
      * 生成 MinIO 预签名上传地址：
@@ -73,7 +71,7 @@ public class FileController {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req), "参数错误");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getFileName()), "文件名不能为空");
 
-        // 这个 userId 不是前端传的，而是登录鉴权通过后，拦截器放进 request 里的当前登录用户 id。
+        // 而是登录鉴权通过后，拦截器放进 request 里的当前登录用户 id。
         Long userId = AuthRequestUtils.requireCurrentUserId(request);
 
         // folder 只允许保留安全字符，避免传入 ../../ 之类的非法路径。

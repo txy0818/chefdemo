@@ -49,10 +49,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="content" label="评价内容" min-width="200" />
-        <el-table-column prop="auditStatus" label="审核状态" width="100">
+        <el-table-column prop="auditStatusDesc" label="审核状态" width="100">
           <template #default="{ row }">
             <el-tag :type="getAuditStatusType(row.auditStatus)">
-              {{ row.auditStatus }}
+              {{ row.auditStatusDesc }}
             </el-tag>
           </template>
         </el-table-column>
@@ -60,7 +60,7 @@
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="{ row }">
             <el-button
-              v-if="row.auditStatus === '待审核'"
+              v-if="row.auditStatus === 1"
               type="success"
               size="small"
               @click="handleAudit(row, 2)"
@@ -68,7 +68,7 @@
               通过
             </el-button>
             <el-button
-              v-if="row.auditStatus === '待审核'"
+              v-if="row.auditStatus === 1"
               type="warning"
               size="small"
               @click="handleAudit(row, 3)"
@@ -102,7 +102,7 @@
       <el-form ref="auditFormRef" :model="auditForm" :rules="auditRules" label-width="80px">
         <el-form-item label="审核结果">
           <el-tag :type="auditForm.auditStatus === 2 ? 'success' : 'warning'">
-            {{ auditForm.auditStatus === 2 ? '通过' : '驳回' }}
+            {{ getAuditStatusLabel(auditForm.auditStatus) }}
           </el-tag>
         </el-form-item>
         <el-form-item label="原因" prop="reason" v-if="auditForm.auditStatus === 3">
@@ -191,11 +191,16 @@ const auditRules = {
 
 const getAuditStatusType = (status) => {
   const map = {
-    '待审核': 'warning',
-    '已通过': 'success',
-    '已拒绝': 'danger'
+    1: 'warning',
+    2: 'success',
+    3: 'danger'
   }
   return map[status] || 'info'
+}
+
+const getAuditStatusLabel = (status) => {
+  const option = auditStatusOptions.value.find(item => item.value === status)
+  return option ? option.label : ''
 }
 
 const handleQuery = async () => {
@@ -222,7 +227,7 @@ const handleAudit = (row, status) => {
   auditForm.orderId = row.reservationOrderId
   auditForm.auditStatus = status
   auditForm.reason = ''
-  auditTitle.value = status === 2 ? '审核通过' : '审核驳回'
+  auditTitle.value = `审核${getAuditStatusLabel(status)}`
   auditVisible.value = true
 }
 

@@ -5,7 +5,7 @@
         <div class="wallet-copy">
           <div class="wallet-eyebrow">WALLET CENTER</div>
           <h2>我的余额</h2>
-          <div class="balance-value">¥{{ (wallet.balance / 100).toFixed(2) }}</div>
+          <div class="balance-value">¥{{ wallet.balanceDesc }}</div>
         </div>
         <div class="wallet-actions">
           <div class="quick-title">快捷充值</div>
@@ -69,7 +69,7 @@
           <el-table-column label="金额(元)" width="140">
             <template #default="{ row }">
               <span :class="row.type === 1 ? 'income' : 'expense'">
-                {{ row.type === 1 || row.type === 3 ? '+' : '-' }}¥{{ (row.amount / 100).toFixed(2) }}
+                {{ row.type === 1 || row.type === 3 ? '+' : '-' }}¥{{ row.amountDesc }}
               </span>
             </template>
           </el-table-column>
@@ -81,7 +81,7 @@
           </el-table-column>
           <el-table-column label="时间" min-width="180">
             <template #default="{ row }">
-              {{ formatTime(row.createTime) }}
+              {{ row.createTimeDesc }}
             </template>
           </el-table-column>
         </el-table>
@@ -121,7 +121,8 @@ const recordTotal = ref(0)
 
 const wallet = reactive({
   walletId: 0,
-  balance: 0
+  balance: 0,
+  balanceDesc: '0.00'
 })
 
 const recordQuery = reactive({
@@ -129,14 +130,10 @@ const recordQuery = reactive({
   size: 10
 })
 
-const formatTime = (timestamp) => {
-  if (!timestamp) return '-'
-  return new Date(timestamp).toLocaleString('zh-CN')
-}
-
 const applyWalletData = (data) => {
   wallet.walletId = data?.walletId || 0
   wallet.balance = data?.balance || 0
+  wallet.balanceDesc = data?.balanceDesc || '0.00'
 }
 
 const loadWalletBalance = async () => {

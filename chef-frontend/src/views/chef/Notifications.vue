@@ -32,7 +32,7 @@
               <el-icon v-else color="#b6c2b2"><BellFilled /></el-icon>
               <span class="notification-title">{{ notification.title || '系统通知' }}</span>
             </div>
-            <span class="notification-time">{{ formatTime(notification.createTime) }}</span>
+            <span class="notification-time">{{ formatDateTime(notification.createTime) }}</span>
           </div>
 
           <div class="notification-content">{{ notification.content }}</div>
@@ -65,6 +65,7 @@ import { Bell, BellFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { notificationList as fetchNotificationList, readNotification } from '@/api/chef'
 import { emitNotificationUnreadChange } from '@/utils/notification'
+import { formatDateTime } from '@/utils/datetime'
 
 const userStore = useUserStore()
 const loading = ref(false)
@@ -75,30 +76,6 @@ const queryForm = ref({
   page: 1,
   size: 10
 })
-
-const formatTime = timestamp => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diff = now - date
-
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-  }
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (date.toDateString() === yesterday.toDateString()) {
-    return `昨天 ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`
-  }
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 const loadData = async () => {
   loading.value = true
@@ -234,11 +211,6 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .card-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .notification-top {
     align-items: flex-start;
     flex-direction: column;
   }

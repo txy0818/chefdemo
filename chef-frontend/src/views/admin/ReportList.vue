@@ -45,17 +45,17 @@
         <el-table-column prop="targetUserName" label="被举报人" width="120" />
         <el-table-column prop="reason" label="举报原因" min-width="200" />
         <el-table-column prop="processResult" label="处理结果" width="150" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="statusDesc" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '待处理' ? 'warning' : 'success'">
-              {{ row.status }}
+            <el-tag :type="row.status === 1 ? 'warning' : 'success'">
+              {{ row.statusDesc }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="150">
           <template #default="{ row }">
             <el-button
-              v-if="row.status === '待处理'"
+              v-if="row.status === 1"
               type="primary"
               size="small"
               @click="handleProcess(row)"
