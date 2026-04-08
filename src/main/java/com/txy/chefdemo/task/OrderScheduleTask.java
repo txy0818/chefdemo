@@ -45,6 +45,7 @@ public class OrderScheduleTask {
     private FrozenChefCleanupService frozenChefCleanupService;
 
     /**
+     * 兜底订单补偿
      * 1. 每分钟扫描所有待支付订单。
      * 2. 判断是否已超过支付截止时间。
      * 3. 对超时未支付订单触发状态机，自动流转为“已取消”。
@@ -64,8 +65,7 @@ public class OrderScheduleTask {
                 context.setSource("schedule-scan");
                 context.setNotifyEnabled(false);
                 orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()),
-                        OrderStateEvent.TIMEOUT_CANCEL,
-                        context);
+                        OrderStateEvent.TIMEOUT_CANCEL, context);
                 log.info("[schedule-scan] orderId={} 超时取消补偿成功", order.getId());
             } catch (Exception e) {
                 log.error("[schedule-scan] 自动取消超时订单失败, orderId={}", order.getId(), e);

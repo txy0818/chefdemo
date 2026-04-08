@@ -12,9 +12,6 @@ import com.txy.chefdemo.service.FrozenChefCleanupService;
  */
 public class InitUserSqlGenerator {
 
-    private InitUserSqlGenerator() {
-    }
-
     public static void main(String[] args) {
         long now = System.currentTimeMillis();
         System.out.println(generateAdminInsertSql(now));

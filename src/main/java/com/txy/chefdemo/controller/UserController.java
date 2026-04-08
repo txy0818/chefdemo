@@ -13,6 +13,7 @@ import com.txy.chefdemo.domain.dto.UserWalletDTO;
 import com.txy.chefdemo.req.*;
 import com.txy.chefdemo.resp.*;
 import com.txy.chefdemo.resp.constants.BaseRespConstant;
+import com.txy.chefdemo.service.FrozenChefCleanupService;
 import com.txy.chefdemo.service.OrderFlowService;
 import com.txy.chefdemo.service.ReservationOrderService;
 import com.txy.chefdemo.service.UserInteractionService;
@@ -53,6 +54,8 @@ public class UserController {
     private UserInteractionService userInteractionService;
     @Autowired
     private UserQueryService userQueryService;
+    @Autowired
+    private FrozenChefCleanupService frozenChefCleanupService;
     @Resource
     private RedissonClient redissonClient;
 
@@ -175,9 +178,9 @@ public class UserController {
             return;
         }
         try {
-            OrderContext context = new OrderContext(orderId, null, null, "订单超时未支付，系统自动取消");
+            Long systemOperatorId = frozenChefCleanupService.getSystemOperatorId(System.currentTimeMillis());
+            OrderContext context = new OrderContext(orderId, systemOperatorId, null, "订单超时未支付，系统自动取消");
             context.setSource("delay-queue");
-            context.setNotifyEnabled(true);
             orderFlowService.trigger(OrderStatus.PENDING_PAYMENT, OrderStateEvent.TIMEOUT_CANCEL, context);
             log.info("[delay-queue] orderId={} 超时取消成功", orderId);
         } catch (Exception e) {
@@ -206,7 +209,7 @@ public class UserController {
      * 2. 查询厨师基础资料、服务资料、证件和评分；
      * 3. 转换成详情 DTO 返回前端。
      */
-    @LogExecution(returnType = ChefTimeDetailResp.class)
+    @LogExecution(returnType = DataResp.class)
     @PostMapping("/chef/detail")
     public DataResp<ChefDetailDTO> chefDetail(@RequestBody ChefDetailReq req, HttpServletRequest request) {
         AuthRequestUtils.requireUser(request, UserRole.NORMAL_USER);

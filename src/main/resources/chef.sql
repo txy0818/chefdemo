@@ -236,3 +236,9 @@ CREATE TABLE notification_record (
 
                                      KEY idx_user_read (user_id, read_status)
 ) COMMENT='通知记录表';
+
+
+INSERT INTO user (username, password, role, avatar, phone, status, last_login_time, create_time, update_time) VALUES ('admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 1, '', '', 1, 1775643273031, 1775643273031, 1775643273031);
+
+INSERT INTO user (username, password, role, avatar, phone, status, last_login_time, create_time, update_time) VALUES ('system', 'bbc5e661e106c6dcd8dc6dd186454c2fcba3c710fb4d8e71a60c93eaf077f073', 1, '', '', 2, 1775643273031, 1775643273031, 1775643273031);
+

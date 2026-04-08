@@ -230,7 +230,6 @@ CREATE TABLE notification_record (
                                      user_id BIGINT NOT NULL COMMENT '接收用户ID',
                                      title VARCHAR(100) NOT NULL COMMENT '通知标题',
                                      content VARCHAR(500) NOT NULL COMMENT '通知内容',
-                                     biz_id BIGINT NOT NULL COMMENT '业务ID',
                                      read_status TINYINT NOT NULL DEFAULT 1 COMMENT '读取状态 1-未读 2-已读',
                                      create_time BIGINT NOT NULL COMMENT '创建时间(毫秒)',
                                      update_time BIGINT NOT NULL COMMENT '更新时间(毫秒)',

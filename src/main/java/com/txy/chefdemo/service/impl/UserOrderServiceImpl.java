@@ -52,6 +52,7 @@ public class UserOrderServiceImpl implements UserOrderService {
     private OrderFlowService orderFlowService;
     @Autowired
     private RedissonClient redissonClient;
+    private static final String SRC = "user";
 
     @Override
     @Transactional
@@ -143,8 +144,9 @@ public class UserOrderServiceImpl implements UserOrderService {
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())) {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
-        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.PAY,
-                new OrderContext(order.getId(), currentUserId, req.getPayType(), null));
+        OrderContext orderContext = new OrderContext(order.getId(), currentUserId, req.getPayType(), null);
+        orderContext.setSource(SRC);
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.PAY, orderContext);
     }
 
     @Override
@@ -158,8 +160,9 @@ public class UserOrderServiceImpl implements UserOrderService {
                 && !Objects.equals(order.getStatus(), OrderStatus.PENDING_ACCEPT.getCode())) {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
-        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.USER_CANCEL,
-                new OrderContext(order.getId(), currentUserId, null, cancelReason));
+        OrderContext orderContext = new OrderContext(order.getId(), currentUserId, null, cancelReason);
+        orderContext.setSource(SRC);
+        orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.USER_CANCEL, orderContext);
     }
 
     private ReservationOrder requireOwnedOrder(Long currentUserId, Long orderId) {
