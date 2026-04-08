@@ -183,7 +183,7 @@ public class AdminQueryServiceImpl implements AdminQueryService {
     private ChefProfileSearchBo buildChefSearch(QueryChefReq req) {
         ChefProfileSearchBo searchBo = new ChefProfileSearchBo();
         if (req.getAuditStatus() != 0) {
-            searchBo.setAuditStatus(AuditStatus.getByCode(req.getAuditStatus()) != null ? req.getAuditStatus() : 0);
+            searchBo.setAuditStatus(ObjectUtils.isNotEmpty(AuditStatus.getByCode(req.getAuditStatus())) ? req.getAuditStatus() : 0);
         }
         if (req.getUserId() != 0L) {
             searchBo.setUserId(req.getUserId());
@@ -243,7 +243,7 @@ public class AdminQueryServiceImpl implements AdminQueryService {
     private List<ChefProfileDTO> buildChefList(List<ChefProfile> chefProfileList) {
         return chefProfileList.stream().map(chefProfile -> {
             ChefProfileDTO chefProfileDTO = new ChefProfileDTO();
-            long score = chefProfile.getScore() != null ? chefProfile.getScore() : DEFAULT_SCORE;
+            long score = ObjectUtils.defaultIfNull(chefProfile.getScore(), DEFAULT_SCORE);
             chefProfileDTO.setUserId(DefaultValueUtil.defaultLong(chefProfile.getUserId()));
             chefProfileDTO.setAvatar(StringUtils.isNotBlank(chefProfile.getAvatar()) ? chefProfile.getAvatar() : "-");
             chefProfileDTO.setDisplayName(DefaultValueUtil.defaultString(chefProfile.getDisplayName()));

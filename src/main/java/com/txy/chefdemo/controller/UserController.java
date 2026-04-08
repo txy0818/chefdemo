@@ -24,6 +24,7 @@ import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.OrderStateEvent;
 import com.txy.chefdemo.utils.AuthRequestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RDelayedQueue;
 import org.redisson.api.RedissonClient;
@@ -121,7 +122,7 @@ public class UserController {
             while (running) {
                 try {
                     Long orderId = queue.poll(1, TimeUnit.SECONDS);
-                    if (orderId != null) {
+                    if (ObjectUtils.isNotEmpty(orderId)) {
                         handleDelayQueueCancel(orderId);
                     }
                 } catch (InterruptedException e) {
@@ -143,7 +144,7 @@ public class UserController {
     public void destroy() {
         log.info("[delay-queue] 开始关闭取消订单处理线程");
         running = false;
-        if (cancelOrderThread != null) {
+        if (ObjectUtils.isNotEmpty(cancelOrderThread)) {
             cancelOrderThread.interrupt();
             try {
                 cancelOrderThread.join(5000);

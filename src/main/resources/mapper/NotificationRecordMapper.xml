@@ -10,7 +10,6 @@
         <result column="user_id" property="userId"/>
         <result column="title" property="title"/>
         <result column="content" property="content"/>
-        <result column="biz_id" property="bizId"/>
         <result column="read_status" property="readStatus"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
@@ -18,10 +17,10 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="record.id">
         INSERT INTO notification_record
-        (user_id, title, content, biz_id, read_status, create_time, update_time)
+        (user_id, title, content, read_status, create_time, update_time)
         VALUES
-        (#{record.userId}, #{record.title}, #{record.content}, #{record.bizId},
-         #{record.readStatus}, #{record.createTime}, #{record.updateTime})
+        (#{record.userId}, #{record.title}, #{record.content}, #{record.readStatus},
+         #{record.createTime}, #{record.updateTime})
     </insert>
 
     <select id="queryById" resultMap="NotificationRecordResultMap">
@@ -54,7 +53,6 @@
         UPDATE notification_record
         SET title = #{record.title},
             content = #{record.content},
-            biz_id = #{record.bizId},
             read_status = #{record.readStatus},
             update_time = #{record.updateTime}
         WHERE id = #{record.id}

@@ -6,6 +6,7 @@ import com.txy.chefdemo.resp.BaseResp;
 import com.txy.chefdemo.resp.SimpleResp;
 import com.txy.chefdemo.utils.ObjectMapperUtils;
 import com.txy.chefdemo.utils.JWTUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -61,7 +62,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     private boolean hasPathPermission(String requestUri, Integer userRole) {
-        if (StringUtils.isBlank(requestUri) || userRole == null) {
+        if (StringUtils.isBlank(requestUri) || ObjectUtils.isEmpty(userRole)) {
             return false;
         }
         if (requestUri.startsWith("/admin/")) {

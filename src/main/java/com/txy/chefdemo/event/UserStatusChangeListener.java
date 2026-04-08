@@ -13,6 +13,7 @@ import com.txy.chefdemo.service.OrderFlowService;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.OrderStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -30,15 +31,12 @@ public class UserStatusChangeListener {
 
     @Resource
     private ReservationOrderMapper orderMapper;
-
     @Resource
     private UserMapper userMapper;
-
     @Autowired
     private OrderFlowService orderFlowService;
     @Autowired
     private FrozenChefCleanupService frozenChefCleanupService;
-
     private static final String SOURCE = "user-status-listener";
 
     @EventListener
@@ -51,7 +49,7 @@ public class UserStatusChangeListener {
 
         Long userId = event.getUserId();
         User user = userMapper.queryById(userId);
-        if (user == null) {
+        if (ObjectUtils.isEmpty(user)) {
             log.warn("[{}] userId={} 状态变更事件未找到用户，跳过处理", SOURCE, userId);
             return;
         }

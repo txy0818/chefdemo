@@ -18,7 +18,6 @@ public class NotificationService {
                 messageType,
                 record.getTitle(),
                 record.getContent(),
-                record.getBizId(),
                 record
         );
         WebSocketServer.send(record.getUserId(), ObjectMapperUtils.toJSON(message));
@@ -29,7 +28,6 @@ public class NotificationService {
                 WebSocketMessageType.FORCE_LOGOUT,
                 title,
                 content,
-                userId,
                 null
         );
         WebSocketServer.send(userId, ObjectMapperUtils.toJSON(message));

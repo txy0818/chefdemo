@@ -56,11 +56,11 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Override
     @Transactional
     public OrderViewDTO createOrder(Long currentUserId, CreateOrderReq req) {
-        Preconditions.checkArgument(req.getChefUserId() != null, "厨师不能为空");
-        Preconditions.checkArgument(req.getChefAvailableTimeId() != null, "时间段不能为空");
-        Preconditions.checkArgument(req.getStartTime() != null && req.getEndTime() != null, "预约时间不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getChefUserId()), "厨师不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getChefAvailableTimeId()), "时间段不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime()) && ObjectUtils.isNotEmpty(req.getEndTime()), "预约时间不能为空");
         Preconditions.checkArgument(req.getStartTime() < req.getEndTime(), "开始时间必须早于结束时间");
-        Preconditions.checkArgument(req.getPeopleCount() != null && req.getPeopleCount() > 0, "人数非法");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getPeopleCount()) && req.getPeopleCount() > 0, "人数非法");
 
         User user = userService.queryById(currentUserId);
         if (ObjectUtils.isEmpty(user)) {
@@ -105,7 +105,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         }
 
         long totalTime = req.getEndTime() - req.getStartTime();
-        long avgPrice = profile.getPrice() != null ? profile.getPrice() : 0L;
+        long avgPrice = ObjectUtils.defaultIfNull(profile.getPrice(), 0L);
         long totalAmount = Math.max(avgPrice, (long) Math.ceil(avgPrice * (totalTime / 3600000D)));
 
         ReservationOrder order = new ReservationOrder();
@@ -138,7 +138,7 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Override
     @Transactional
     public void payOrder(Long currentUserId, PayOrderReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
         ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());
         if (!Objects.equals(order.getStatus(), OrderStatus.PENDING_PAYMENT.getCode())) {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
@@ -150,7 +150,7 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Override
     @Transactional
     public void cancelOrder(Long currentUserId, CancelOrderReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
         Preconditions.checkArgument(org.apache.commons.lang3.StringUtils.isNotBlank(req.getCancelReason()), "取消原因不能为空");
         String cancelReason = req.getCancelReason().trim();
         ReservationOrder order = requireOwnedOrder(currentUserId, req.getOrderId());

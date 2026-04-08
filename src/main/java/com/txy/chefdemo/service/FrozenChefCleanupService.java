@@ -12,6 +12,7 @@ import com.txy.chefdemo.domain.constant.ReportStatus;
 import com.txy.chefdemo.domain.constant.UserRole;
 import com.txy.chefdemo.domain.constant.UserStatus;
 import com.txy.chefdemo.utils.PasswordUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ public class FrozenChefCleanupService {
 
     @Transactional
     public void cleanupFrozenChef(Long chefUserId, Long operatorId, long now) {
+        // 获取 system 的 管理员
         Long systemOperatorId = resolveSystemOperatorId(operatorId, now);
         rejectPendingChefProfile(chefUserId, systemOperatorId, now);
         rejectPendingReviews(chefUserId, now);
@@ -50,17 +52,17 @@ public class FrozenChefCleanupService {
 
     private void rejectPendingChefProfile(Long chefUserId, Long operatorId, long now) {
         ChefAuditRecord pendingRecord = chefAuditRecordService.queryPendingRecordByChefUserId(chefUserId);
-        if (pendingRecord == null) {
+        if (ObjectUtils.isEmpty(pendingRecord)) {
             return;
         }
         pendingRecord.setAuditStatus(AuditStatus.REJECTED.getCode());
         pendingRecord.setRejectReason(FROZEN_REJECT_REASON);
         pendingRecord.setAuditTime(now);
-        pendingRecord.setOperatorId(operatorId == null ? 0L : operatorId);
+        pendingRecord.setOperatorId(ObjectUtils.defaultIfNull(operatorId, 0L));
         chefAuditRecordService.updateById(List.of(pendingRecord));
 
         ChefProfile profile = chefProfileService.queryByUserId(chefUserId);
-        if (profile != null) {
+        if (ObjectUtils.isNotEmpty(profile)) {
             profile.setAuditStatus(AuditStatus.REJECTED.getCode());
             profile.setUpdateTime(now);
             chefProfileService.upsert(profile);
@@ -94,7 +96,7 @@ public class FrozenChefCleanupService {
         for (Report report : reports) {
             report.setStatus(ReportStatus.REJECTED.getCode());
             report.setProcessResult(FROZEN_REJECT_REASON);
-            report.setProcessedBy(operatorId == null ? 0L : operatorId);
+            report.setProcessedBy(ObjectUtils.defaultIfNull(operatorId, 0L));
             report.setUpdateTime(now);
             reportService.updateById(report);
         }
@@ -102,7 +104,7 @@ public class FrozenChefCleanupService {
 
     private Long resolveSystemOperatorId(Long fallbackOperatorId, long now) {
         User systemUser = userService.queryByUsername(SYSTEM_USERNAME);
-        if (systemUser != null && systemUser.getId() != null) {
+        if (ObjectUtils.isNotEmpty(systemUser) && ObjectUtils.isNotEmpty(systemUser.getId())) {
             boolean needUpdate = false;
             if (!Integer.valueOf(UserRole.ADMIN.getCode()).equals(systemUser.getRole())) {
                 systemUser.setRole(UserRole.ADMIN.getCode());
@@ -134,9 +136,9 @@ public class FrozenChefCleanupService {
         newSystemUser.setUpdateTime(now);
         userService.upsert(newSystemUser);
         User created = userService.queryByUsername(SYSTEM_USERNAME);
-        if (created != null && created.getId() != null) {
+        if (ObjectUtils.isNotEmpty(created) && ObjectUtils.isNotEmpty(created.getId())) {
             return created.getId();
         }
-        return fallbackOperatorId == null ? 0L : fallbackOperatorId;
+        return ObjectUtils.defaultIfNull(fallbackOperatorId, 0L);
     }
 }

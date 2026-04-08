@@ -1,5 +1,7 @@
 package com.txy.chefdemo.domain.constant;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 /**
  * @Author tianxinyu
  * @Create 2026-03-03
@@ -21,7 +23,7 @@ public enum PayStatus {
     public String getDesc() { return desc; }
 
     public static PayStatus fromCode(Integer code) {
-        if (code == null) return null;
+        if (ObjectUtils.isEmpty(code)) return null;
         for (PayStatus value : values()) {
             if (value.code == code) {
                 return value;

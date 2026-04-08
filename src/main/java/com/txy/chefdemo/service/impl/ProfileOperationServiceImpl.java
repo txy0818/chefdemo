@@ -32,7 +32,7 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
     @Override
     public UserDTO queryInfo(Long currentUserId) {
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
         return buildUserDTO(user);
     }
 
@@ -40,7 +40,7 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
     @Transactional
     public void updateUserInfo(Long currentUserId, UpdateProfileReq req) {
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
         if (StringUtils.isBlank(req.getAvatar()) && StringUtils.isBlank(user.getAvatar())
                 && StringUtils.isNotBlank(req.getPhone()) && req.getPhone().equals(user.getPhone())) {
             throw new BusinessException("用户信息未改变");
@@ -63,7 +63,7 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
     @Transactional
     public void updatePassword(Long currentUserId, UpdatePasswordReq req) {
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getOldPassword()), "旧密码不能为空");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getNewPassword()), "新密码不能为空");
 

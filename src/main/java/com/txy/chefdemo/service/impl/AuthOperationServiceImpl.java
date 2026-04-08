@@ -46,10 +46,10 @@ public class AuthOperationServiceImpl implements AuthOperationService {
     @Override
     @Transactional
     public RegisterResp register(RegisterReq registerReq) {
-        Preconditions.checkArgument(registerReq != null, "参数错误");
-        Preconditions.checkArgument(registerReq.getUsername() != null, "用户名不能为空");
-        Preconditions.checkArgument(registerReq.getPassword() != null, "密码不能为空");
-        Preconditions.checkArgument(registerReq.getUserRole() != null, "用户角色不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(registerReq), "参数错误");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(registerReq.getUsername()), "用户名不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(registerReq.getPassword()), "密码不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(registerReq.getUserRole()), "用户角色不能为空");
 
         User existUser = userService.queryByUsername(registerReq.getUsername());
         if (ObjectUtils.isNotEmpty(existUser)) {
@@ -83,10 +83,10 @@ public class AuthOperationServiceImpl implements AuthOperationService {
 
     @Override
     public LogInResp login(LogInReq logInReq) {
-        Preconditions.checkArgument(logInReq != null, "参数错误");
-        Preconditions.checkArgument(logInReq.getUsername() != null, "用户名不能为空");
-        Preconditions.checkArgument(logInReq.getPassword() != null, "密码不能为空");
-        Preconditions.checkArgument(logInReq.getRole() != null, "用户角色不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(logInReq), "参数错误");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(logInReq.getUsername()), "用户名不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(logInReq.getPassword()), "密码不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(logInReq.getRole()), "用户角色不能为空");
 
         User user = userService.queryByUsername(logInReq.getUsername());
         if (ObjectUtils.isEmpty(user)) {
@@ -119,7 +119,7 @@ public class AuthOperationServiceImpl implements AuthOperationService {
     @Override
     public void logout(Long currentUserId, String authorizationHeader) {
         Long userId = currentUserId;
-        if (userId == null || userId <= 0L) {
+        if (ObjectUtils.isEmpty(userId) || userId <= 0L) {
             Preconditions.checkArgument(StringUtils.isNotBlank(authorizationHeader), "token不能为空");
             String token = StringUtils.substringAfter(authorizationHeader, AuthConstant.BEARER_PREFIX);
             userId = JWTUtil.getUserId(token);
@@ -129,16 +129,16 @@ public class AuthOperationServiceImpl implements AuthOperationService {
 
     private BaseResp buildStatusErrorResp(Long userId) {
         String desc = BaseRespConstant.STATUS_ERROR.getDesc();
-        if (userId == null) {
+        if (ObjectUtils.isEmpty(userId)) {
             return new BaseResp(BaseRespConstant.STATUS_ERROR.getCode(), desc);
         }
         UserStatusRecord frozenRecord = userStatusRecordService.queryByUserId(userId).stream()
-                .filter(record -> record != null
-                        && Objects.equals(record.getAfterStatus(), UserStatus.FROZEN.getCode())
+                .filter(ObjectUtils::isNotEmpty)
+                .filter(record -> Objects.equals(record.getAfterStatus(), UserStatus.FROZEN.getCode())
                         && StringUtils.isNotBlank(record.getReason()))
                 .findFirst()
                 .orElse(null);
-        if (frozenRecord != null) {
+        if (ObjectUtils.isNotEmpty(frozenRecord)) {
             desc = "账号已冻结，原因：" + frozenRecord.getReason();
         }
         return new BaseResp(BaseRespConstant.STATUS_ERROR.getCode(), desc);

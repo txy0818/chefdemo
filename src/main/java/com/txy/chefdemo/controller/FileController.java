@@ -11,6 +11,7 @@ import com.txy.chefdemo.utils.AuthRequestUtils;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.http.Method;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,7 +70,7 @@ public class FileController {
     @PostMapping("/presigned/upload")
     public DataResp<PresignedUploadDTO> getPresignedUploadUrl(@RequestBody PresignedUploadReq req,
                                                               HttpServletRequest request) throws Exception {
-        Preconditions.checkArgument(req != null, "参数错误");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req), "参数错误");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getFileName()), "文件名不能为空");
 
         // 这个 userId 不是前端传的，而是登录鉴权通过后，拦截器放进 request 里的当前登录用户 id。
@@ -79,7 +80,7 @@ public class FileController {
         String folder = sanitizeFolder(req.getFolder());
         // 生成 MinIO 中真正存储的对象路径，例如 avatars/3/20260404/uuid.jpeg
         String objectKey = buildObjectKey(folder, userId, req.getFileName());
-        int expiry = minioProperties.getUploadExpirySeconds() != null ? minioProperties.getUploadExpirySeconds() : 900;
+        int expiry = ObjectUtils.defaultIfNull(minioProperties.getUploadExpirySeconds(), 900);
 
         // 生成一个临时有效的 PUT 地址，前端拿这个地址直接上传二进制文件。
         String uploadUrl = minioClient.getPresignedObjectUrl(

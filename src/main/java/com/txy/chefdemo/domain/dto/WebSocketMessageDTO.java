@@ -11,6 +11,5 @@ public class WebSocketMessageDTO {
     private String type;
     private String title;
     private String content;
-    private Long bizId;
     private Object data;
 }

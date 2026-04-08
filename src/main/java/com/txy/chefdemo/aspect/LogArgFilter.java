@@ -1,6 +1,7 @@
 package com.txy.chefdemo.aspect;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletRequest;
@@ -16,7 +17,7 @@ import java.io.OutputStream;
 public class LogArgFilter {
 
     public static Object filter(Object arg) {
-        if (arg == null) {
+        if (ObjectUtils.isEmpty(arg)) {
             return null;
         }
 

@@ -70,7 +70,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     public UserWalletDTO getWalletBalance(Long currentUserId) {
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
         Wallet wallet = ensureWallet(currentUserId);
         return buildUserWalletDTO(wallet);
     }
@@ -78,10 +78,10 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     public QueryWalletRecordResp queryWalletRecords(Long currentUserId, QueryWalletRecordReq req) {
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
 
-        long page = req.getPage() == null || req.getPage() <= 0 ? 1L : req.getPage();
-        long size = req.getSize() == null || req.getSize() <= 0 ? 10L : req.getSize();
+        long page = ObjectUtils.isEmpty(req.getPage()) || req.getPage() <= 0 ? 1L : req.getPage();
+        long size = ObjectUtils.isEmpty(req.getSize()) || req.getSize() <= 0 ? 10L : req.getSize();
         long offset = (page - 1) * size;
         List<WalletRecordDTO> records = walletRecordService.queryByUserIdPage(currentUserId, offset, size)
                 .stream()
@@ -94,13 +94,13 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     @Transactional
     public UserWalletDTO rechargeWallet(Long currentUserId, RechargeWalletReq req) {
-        Preconditions.checkArgument(req.getAmount() != null && req.getAmount() > 0L, "充值金额不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getAmount()) && req.getAmount() > 0L, "充值金额不能为空");
         User user = userService.queryById(currentUserId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
 
         long now = System.currentTimeMillis();
         Wallet wallet = ensureWallet(currentUserId);
-        wallet.setBalance((wallet.getBalance() != null ? wallet.getBalance() : 0L) + req.getAmount());
+        wallet.setBalance(ObjectUtils.defaultIfNull(wallet.getBalance(), 0L) + req.getAmount());
         wallet.setUpdateTime(now);
         walletService.updateById(wallet);
 
@@ -119,8 +119,8 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     @Transactional
     public void createReview(Long currentUserId, CreateReviewReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
-        Preconditions.checkArgument(req.getScore() != null && req.getScore() >= 1 && req.getScore() <= 5, "评分非法");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getScore()) && req.getScore() >= 1 && req.getScore() <= 5, "评分非法");
 
         ReservationOrder order = requireOwnedCompletedOrder(currentUserId, req.getOrderId(), "无权限", BaseRespConstant.STATUS_ERROR.getDesc());
         ReviewSearchBo reviewSearchBo = new ReviewSearchBo();
@@ -147,7 +147,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     @Transactional
     public void deleteReview(Long currentUserId, DeleteReviewReq req) {
-        Preconditions.checkArgument(req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
         ReviewSearchBo reviewSearchBo = new ReviewSearchBo();
         reviewSearchBo.setOrderId(req.getOrderId());
         List<Review> reviews = reviewService.queryByCondition(reviewSearchBo);
@@ -168,7 +168,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     @Transactional
     public void createReport(Long currentUserId, CreateReportReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getReason()), "举报理由不能为空");
         String reason = req.getReason().trim();
         ReservationOrder order = requireOwnedCompletedOrder(
@@ -192,8 +192,8 @@ public class UserInteractionServiceImpl implements UserInteractionService {
 
     @Override
     public ListResp<NotificationRecord> notificationList(Long currentUserId, QueryNotificationReq req) {
-        long page = req.getPage() == null || req.getPage() <= 0 ? 1L : req.getPage();
-        long size = req.getSize() == null || req.getSize() <= 0 ? 10L : req.getSize();
+        long page = ObjectUtils.isEmpty(req.getPage()) || req.getPage() <= 0 ? 1L : req.getPage();
+        long size = ObjectUtils.isEmpty(req.getSize()) || req.getSize() <= 0 ? 10L : req.getSize();
         long offset = (page - 1) * size;
         List<NotificationRecord> list = notificationRecordService.queryPageByUserId(
                 currentUserId, req.getUnreadOnly(), offset, size);
@@ -204,7 +204,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
     @Override
     @Transactional
     public void readNotification(Long currentUserId, ReadNotificationReq req) {
-        Preconditions.checkArgument(req != null && req.getNotificationId() != null, "通知不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getNotificationId()), "通知不能为空");
         NotificationRecord record = notificationRecordService.queryById(req.getNotificationId());
         if (ObjectUtils.isEmpty(record)) {
             throw new BusinessException("通知不存在");
@@ -236,7 +236,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
 
     private Wallet ensureWallet(Long userId) {
         Wallet wallet = walletService.queryByUserId(userId);
-        if (wallet != null) {
+        if (ObjectUtils.isNotEmpty(wallet)) {
             return wallet;
         }
         long now = System.currentTimeMillis();
@@ -251,9 +251,9 @@ public class UserInteractionServiceImpl implements UserInteractionService {
 
     private UserWalletDTO buildUserWalletDTO(Wallet wallet) {
         return new UserWalletDTO(
-                wallet.getId() != null ? wallet.getId() : 0L,
-                wallet.getUserId() != null ? wallet.getUserId() : 0L,
-                wallet.getBalance() != null ? wallet.getBalance() : 0L
+                ObjectUtils.defaultIfNull(wallet.getId(), 0L),
+                ObjectUtils.defaultIfNull(wallet.getUserId(), 0L),
+                ObjectUtils.defaultIfNull(wallet.getBalance(), 0L)
         );
     }
 
@@ -266,12 +266,12 @@ public class UserInteractionServiceImpl implements UserInteractionService {
             }
         }
         return new WalletRecordDTO(
-                record.getId() != null ? record.getId() : 0L,
-                record.getReservationOrderId() != null ? record.getReservationOrderId() : 0L,
-                record.getAmount() != null ? record.getAmount() : 0L,
+                ObjectUtils.defaultIfNull(record.getId(), 0L),
+                ObjectUtils.defaultIfNull(record.getReservationOrderId(), 0L),
+                ObjectUtils.defaultIfNull(record.getAmount(), 0L),
                 record.getType(),
-                walletRecordType != null ? walletRecordType.getDesc() : "-",
-                record.getCreateTime() != null ? record.getCreateTime() : 0L
+                ObjectUtils.isNotEmpty(walletRecordType) ? walletRecordType.getDesc() : "-",
+                ObjectUtils.defaultIfNull(record.getCreateTime(), 0L)
         );
     }
 }

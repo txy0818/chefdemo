@@ -19,7 +19,9 @@ public class JWTUtil {
      * .setIssuedAt(new Date()) "iat": 1234567890  JWT标准字段，签发时间
      * .setExpiration(...) "exp": 1234567890  JWT标准字段，过期时间
      * .claim("username", username) "username": "张三" 自定义字段
-     * .claim("role", role) "role": 3自定义字段
+     * .claim("role", role) "role": 3 自定义字段
+     *
+     * "iat": 1710000000 token 生成时间
      */
     public static String generateToken(Long userId, String username, Integer role) {
         return Jwts.builder()

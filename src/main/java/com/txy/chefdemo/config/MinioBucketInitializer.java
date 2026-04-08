@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 public class MinioBucketInitializer {
 
     // 后端签名 + 前端直传
-    // 调用chef-frontend/setup-minio.sh，通过mc将minio的跨域等设置好
+    // 调用chef-frontend/setup-minio.sh，通过mc将minio的跨域等设置
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;

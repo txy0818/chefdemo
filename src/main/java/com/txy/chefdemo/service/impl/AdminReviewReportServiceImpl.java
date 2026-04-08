@@ -24,6 +24,7 @@ import com.txy.chefdemo.service.ReviewService;
 import com.txy.chefdemo.service.UserService;
 import com.txy.chefdemo.utils.DefaultValueUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -105,7 +106,7 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
     @Override
     @Transactional
     public void handleReport(Long currentAdminId, HandleReportReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "举报不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "举报不能为空");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getProcessResult()), "处理结果不能为空");
         String processResult = req.getProcessResult().trim();
 

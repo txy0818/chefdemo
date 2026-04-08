@@ -12,7 +12,6 @@ public class NotificationRecord {
     private Long userId;
     private String title;
     private String content;
-    private Long bizId;
     private Integer readStatus;
     private Long createTime;
     private Long updateTime;

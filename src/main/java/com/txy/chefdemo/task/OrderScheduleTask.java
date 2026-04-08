@@ -19,9 +19,11 @@ import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.OrderStateEvent;
 import com.txy.chefdemo.transition.order.support.OrderTransitionSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class OrderScheduleTask {
         List<ReservationOrder> reservationOrders = reservationOrderService.queryByCondition(searchBo);
         long now = System.currentTimeMillis();
         for (ReservationOrder order : reservationOrders) {
-            if (order.getPayDeadlineTime() == null || order.getPayDeadlineTime() > now) {
+            if (ObjectUtils.isEmpty(order.getPayDeadlineTime()) || order.getPayDeadlineTime() > now) {
                 continue;
             }
             try {
@@ -83,7 +85,7 @@ public class OrderScheduleTask {
         List<ReservationOrder> reservationOrders = reservationOrderService.queryByCondition(searchBo);
         long now = System.currentTimeMillis();
         for (ReservationOrder order : reservationOrders) {
-            if (order.getEndTime() == null || order.getEndTime() + 5 * 60 * 1000L > now) {
+            if (ObjectUtils.isEmpty(order.getEndTime()) || order.getEndTime() + 5 * 60 * 1000L > now) {
                 continue;
             }
             try {
@@ -111,13 +113,16 @@ public class OrderScheduleTask {
         searchBo.setStatuses(List.of(OrderStatus.REJECTED.getCode(), OrderStatus.CANCELLED.getCode()));
         List<ReservationOrder> reservationOrders = reservationOrderService.queryByCondition(searchBo);
         for (ReservationOrder order : reservationOrders) {
-            if (order.getId() == null || order.getPayStatus() == null || order.getPayStatus() != PayStatus.PAID.getCode()) {
+            if (ObjectUtils.isEmpty(order.getId())
+                    || ObjectUtils.isEmpty(order.getPayStatus())
+                    || order.getPayStatus() != PayStatus.PAID.getCode()) {
                 continue;
             }
             try {
                 List<WalletRecord> walletRecords = walletRecordService.queryByOrderId(order.getId());
                 boolean refunded = walletRecords.stream()
-                        .anyMatch(record -> record.getType() != null && record.getType() == WalletRecordType.REFUND.getCode());
+                        .anyMatch(record -> ObjectUtils.isNotEmpty(record.getType())
+                                && record.getType() == WalletRecordType.REFUND.getCode());
                 if (refunded) {
                     order.setPayStatus(PayStatus.REFUNDED.getCode());
                     orderTransitionSupport.updateOrder(order);
@@ -157,7 +162,7 @@ public class OrderScheduleTask {
         userSearchBo.setRole(UserRole.CHEF.getCode());
         userSearchBo.setStatus(UserStatus.FROZEN.getCode());
         List<User> frozenChefs = userService.queryUserListByCondition(userSearchBo);
-        if (frozenChefs == null || frozenChefs.isEmpty()) {
+        if (CollectionUtils.isEmpty(frozenChefs)) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -182,7 +187,7 @@ public class OrderScheduleTask {
                 OrderStatus.ACCEPTED.getCode()
         ));
         List<ReservationOrder> openOrders = reservationOrderService.queryByCondition(searchBo);
-        if (openOrders == null || openOrders.isEmpty()) {
+        if (CollectionUtils.isEmpty(openOrders)) {
             return;
         }
         for (ReservationOrder order : openOrders) {
@@ -200,7 +205,7 @@ public class OrderScheduleTask {
     }
 
     private String buildFrozenCancelReason(User frozenChef, ReservationOrder order) {
-        String suffix = order.getPayStatus() != null && order.getPayStatus() == PayStatus.PAID.getCode()
+        String suffix = ObjectUtils.isNotEmpty(order.getPayStatus()) && order.getPayStatus() == PayStatus.PAID.getCode()
                 ? "订单" + OrderStatus.CANCELLED.getDesc() + "并" + PayStatus.REFUNDED.getDesc()
                 : "订单" + OrderStatus.CANCELLED.getDesc();
         return frozenChef.getUsername() + " 厨师账号被冻结，" + suffix;

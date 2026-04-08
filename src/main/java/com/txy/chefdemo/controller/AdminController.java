@@ -49,6 +49,8 @@ public class AdminController {
     @Autowired
     private AdminQueryService adminQueryService;
 
+    // userId 本项目用的token中解析的userId 通过拦截器存放到HttpServletRequest的attribute中
+    // ks内部直接前端传递userId
     /**
      * 查询厨师资料列表：
      * 1. 根据审核状态、用户 ID、用户名和分页参数构建条件；
@@ -81,7 +83,7 @@ public class AdminController {
      * 2. 更新用户状态；
      * 3. 删除 Redis 登录态并记录状态变更日志；
      * 4. 发送通知；
-     * 5. 若冻结的是厨师，则发布事件处理相关订单。
+     * 5. 若冻结的是厨师，则发布事件处理相关订单(applicationEvent)。
      */
     @Transactional
     @LogExecution(returnType = SimpleResp.class)

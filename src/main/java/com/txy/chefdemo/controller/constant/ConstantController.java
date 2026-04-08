@@ -41,7 +41,6 @@ public class ConstantController {
         return new ListResp<>(BaseRespConstant.SUC, buildLabels(CuisineType.values()));
     }
 
-
     /** 返回性别枚举。 */
     @LogExecution(returnType = ListResp.class)
     @GetMapping("/gender")

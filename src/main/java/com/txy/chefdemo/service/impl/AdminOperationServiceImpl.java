@@ -59,7 +59,7 @@ public class AdminOperationServiceImpl implements AdminOperationService {
     @Override
     @Transactional
     public void updateUserStatus(Long currentAdminId, UpdateUserStatusReq req) {
-        Preconditions.checkArgument(req != null && req.getUserId() != null, "用户不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getUserId()), "用户不能为空");
         Preconditions.checkArgument(StringUtils.isNotBlank(req.getReason()), "原因不能为空");
         String reason = req.getReason().trim();
 
@@ -70,8 +70,6 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         user.setStatus(req.getStatus());
         user.setUpdateTime(System.currentTimeMillis());
         userService.upsert(user);
-
-        redissonClient.getBucket(AuthConstant.LOGIN_TOKEN_KEY_PREFIX + req.getUserId()).delete();
 
         long now = System.currentTimeMillis();
         UserStatusRecord userStatusRecord = new UserStatusRecord();
@@ -84,22 +82,24 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         userStatusRecordService.insert(userStatusRecord);
 
         notifyUserStatusChange(user, req.getStatus(), reason, now);
-        publisher.publishEvent(new UserStatusChangeEvent(user.getId(), req.getStatus(), currentAdminId));
+        if (user.getRole().equals(UserRole.CHEF.getCode()) && req.getStatus().equals(UserStatus.FROZEN.getCode())) {
+            publisher.publishEvent(new UserStatusChangeEvent(user.getId(), req.getStatus(), currentAdminId));
+        }
     }
 
     @Override
     @Transactional
     public void auditChef(Long currentAdminId, AuditChefReq req) {
-        Preconditions.checkArgument(req != null && req.getChefUserId() != null, "厨师不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getChefUserId()), "厨师不能为空");
         String reason = StringUtils.trimToEmpty(req.getReason());
         if (Objects.equals(req.getAuditStatus(), AuditStatus.REJECTED.getCode())) {
             Preconditions.checkArgument(StringUtils.isNotBlank(req.getReason()), "拒绝原因不能为空");
         }
 
         ChefProfile profile = chefProfileService.queryByUserId(req.getChefUserId());
-        Preconditions.checkArgument(profile != null, "厨师资料不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(profile), "厨师资料不存在");
         ChefAuditRecord record = chefAuditRecordService.queryPendingRecordByChefUserId(req.getChefUserId());
-        Preconditions.checkArgument(record != null, "厨师资料待审核记录不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(record), "厨师资料待审核记录不存在");
 
         record.setAuditStatus(req.getAuditStatus());
         long now = System.currentTimeMillis();
@@ -116,7 +116,7 @@ public class AdminOperationServiceImpl implements AdminOperationService {
 
     private void notifyChefAuditResult(Long chefUserId, Integer auditStatus, String reason, long now) {
         AuditStatus status = AuditStatus.getByCode(auditStatus);
-        if (status == null) {
+        if (ObjectUtils.isEmpty(status)) {
             return;
         }
         String title = "厨师资料审核通知";
@@ -130,14 +130,14 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         } else {
             content = "您的厨师资料审核状态已更新。";
         }
-        NotificationRecord record = buildNotificationRecord(chefUserId, title, content, chefUserId, now);
+        NotificationRecord record = buildNotificationRecord(chefUserId, title, content, now);
         notificationRecordService.insert(record);
         notificationService.notifyUser(record, WebSocketMessageType.CHEF_AUDIT_RESULT);
     }
 
     private void notifyUserStatusChange(User user, Integer status, String reason, long now) {
         UserStatus targetStatus = UserStatus.getByCode(status);
-        if (targetStatus == null) {
+        if (ObjectUtils.isEmpty(targetStatus)) {
             return;
         }
         String title;
@@ -151,22 +151,21 @@ public class AdminOperationServiceImpl implements AdminOperationService {
             title = "账号恢复通知";
             content = "您的账号已恢复正常，可以重新登录并继续使用系统。";
         }
-        NotificationRecord record = buildNotificationRecord(user.getId(), title, content, user.getId(), now);
+        NotificationRecord record = buildNotificationRecord(user.getId(), title, content, now);
         notificationRecordService.insert(record);
         notificationService.notifyUser(record);
-        if (targetStatus == UserStatus.FROZEN && user.getRole() != null && user.getRole() != UserRole.ADMIN.getCode()) {
-            redissonClient.getBucket(AuthConstant.LOGIN_TOKEN_KEY_PREFIX + user.getId()).delete();
-            notificationService.forceLogout(user.getId(), title, content);
-        }
+
+        redissonClient.getBucket(AuthConstant.LOGIN_TOKEN_KEY_PREFIX + user.getId()).delete();
+        notificationService.forceLogout(user.getId(), title, content);
+
     }
 
-    private NotificationRecord buildNotificationRecord(Long userId, String title, String content, Long bizId, long now) {
+    private NotificationRecord buildNotificationRecord(Long userId, String title, String content, long now) {
         return new NotificationRecord(
                 null,
                 userId,
                 title,
                 content,
-                bizId,
                 NotificationReadStatus.UNREAD.getCode(),
                 now,
                 now

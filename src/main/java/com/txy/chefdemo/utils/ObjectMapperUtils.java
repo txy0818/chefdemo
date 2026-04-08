@@ -14,7 +14,6 @@ import java.util.Map;
  * @Create 2026-01-08
  */
 public class ObjectMapperUtils {
-    // 线程安全，可复用的 ObjectMapper
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private ObjectMapperUtils() {

@@ -2,6 +2,7 @@ package com.txy.chefdemo.resp;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +17,12 @@ public class ListResp<T> {
     public ListResp(BaseResp baseResp, List<T> data) {
         this.baseResp = baseResp;
         this.data = data;
-        this.total = data == null ? 0 : data.size();
+        this.total = ObjectUtils.isEmpty(data) ? 0 : data.size();
     }
 
     public ListResp(BaseResp baseResp, List<T> data, Integer total) {
         this.baseResp = baseResp;
         this.data = data;
-        this.total = total == null ? 0 : total;
+        this.total = ObjectUtils.defaultIfNull(total, 0);
     }
 }

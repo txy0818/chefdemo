@@ -86,11 +86,11 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     public void saveProfile(Long currentChefId, SaveChefProfileReq req) {
         long now = System.currentTimeMillis();
         User user = userService.queryById(currentChefId);
-        Preconditions.checkArgument(user != null, "用户不存在");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(user), "用户不存在");
 
         ChefProfile profile = chefProfileService.queryByUserId(currentChefId);
         ChefAuditRecord pendingRecord = chefAuditRecordService.queryPendingRecordByChefUserId(currentChefId);
-        Preconditions.checkArgument(pendingRecord == null, "已有待审核记录，请等待管理员审核");
+        Preconditions.checkArgument(ObjectUtils.isEmpty(pendingRecord), "已有待审核记录，请等待管理员审核");
         if (ObjectUtils.isEmpty(profile)) {
             profile = new ChefProfile();
             profile.setUserId(currentChefId);
@@ -130,7 +130,9 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     @Override
     @Transactional
     public void addAvailableTime(Long currentChefId, AddAvailableTimeReq req) {
-        Preconditions.checkArgument(req.getStartTime() != null && req.getEndTime() != null && req.getStartTime() < req.getEndTime(), "时间段非法");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime())
+                && ObjectUtils.isNotEmpty(req.getEndTime())
+                && req.getStartTime() < req.getEndTime(), "时间段非法");
         assertChefAuditApproved(currentChefId);
 
         ChefAvailableTimeSearchBo searchBo = new ChefAvailableTimeSearchBo();
@@ -168,7 +170,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     @Override
     @Transactional
     public void deleteAvailableTime(Long currentChefId, DeleteAvailableTimeReq req) {
-        Preconditions.checkArgument(req != null && req.getTimeId() != 0L, "时间段不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && req.getTimeId() != 0L, "时间段不能为空");
         assertChefAuditApproved(currentChefId);
         ChefAvailableTimeSearchBo timeSearchBo = new ChefAvailableTimeSearchBo();
         timeSearchBo.setId(req.getTimeId());
@@ -197,7 +199,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
 
     @Override
     public OrderViewDTO orderDetail(Long currentChefId, QueryOrderDetailReq req) {
-        Preconditions.checkArgument(req != null && req.getOrderId() != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(req) && ObjectUtils.isNotEmpty(req.getOrderId()), "订单不能为空");
         assertChefAuditApproved(currentChefId);
         ReservationOrder order = requireChefOrder(currentChefId, req.getOrderId());
         return buildChefOrderView(order);
@@ -211,7 +213,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         if (req.getStatus() != 0) {
             searchBo.setStatus(req.getStatus());
         }
-        if (req.getPage() != null && req.getSize() != null && req.getPage() > 0 && req.getSize() > 0) {
+        if (ObjectUtils.isNotEmpty(req.getPage()) && ObjectUtils.isNotEmpty(req.getSize()) && req.getPage() > 0 && req.getSize() > 0) {
             searchBo.setOffset((req.getPage() - 1) * req.getSize());
             searchBo.setSize(req.getSize());
         } else {
@@ -244,7 +246,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
             throw new BusinessException(BaseRespConstant.STATUS_ERROR.getDesc());
         }
         long now = System.currentTimeMillis();
-        Preconditions.checkArgument(order.getEndTime() != null && now >= order.getEndTime(), "未到预约结束时间，暂不能完成订单");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(order.getEndTime()) && now >= order.getEndTime(), "未到预约结束时间，暂不能完成订单");
         orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()), OrderStateEvent.COMPLETE,
                 new OrderContext(order.getId(), currentChefId, null, req.getReason()));
     }
@@ -264,7 +266,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
 
     private ChefProfileDTO buildChefProfileDTO(ChefProfile chefProfile) {
         ChefProfileDTO chefProfileDTO = new ChefProfileDTO();
-        long score = chefProfile.getScore() != null ? chefProfile.getScore() : DEFAULT_SCORE;
+        long score = ObjectUtils.defaultIfNull(chefProfile.getScore(), DEFAULT_SCORE);
         chefProfileDTO.setUserId(DefaultValueUtil.defaultLong(chefProfile.getUserId()));
         chefProfileDTO.setAvatar(StringUtils.isNotBlank(chefProfile.getAvatar()) ? chefProfile.getAvatar() : "-");
         chefProfileDTO.setDisplayName(DefaultValueUtil.defaultString(chefProfile.getDisplayName()));
@@ -326,14 +328,14 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         timeSearchBo.setId(order.getChefAvailableTimeId());
         List<ChefAvailableTime> times = chefAvailableTimeService.queryByCondition(timeSearchBo);
         ChefAvailableTime time = CollectionUtils.isEmpty(times) ? null : times.get(0);
-        orderViewDTO.setChefAvailableTimeId(order.getChefAvailableTimeId() != null ? order.getChefAvailableTimeId() : 0L);
-        orderViewDTO.setChefAvailableStartTime(time != null && time.getStartTime() != null ? time.getStartTime() : 0L);
-        orderViewDTO.setChefAvailableEndTime(time != null && time.getEndTime() != null ? time.getEndTime() : 0L);
+        orderViewDTO.setChefAvailableTimeId(ObjectUtils.defaultIfNull(order.getChefAvailableTimeId(), 0L));
+        orderViewDTO.setChefAvailableStartTime(ObjectUtils.isNotEmpty(time) ? ObjectUtils.defaultIfNull(time.getStartTime(), 0L) : 0L);
+        orderViewDTO.setChefAvailableEndTime(ObjectUtils.isNotEmpty(time) ? ObjectUtils.defaultIfNull(time.getEndTime(), 0L) : 0L);
         return orderViewDTO;
     }
 
     private ReservationOrder requireChefOrder(Long currentChefId, Long orderId) {
-        Preconditions.checkArgument(orderId != null, "订单不能为空");
+        Preconditions.checkArgument(ObjectUtils.isNotEmpty(orderId), "订单不能为空");
         assertChefAuditApproved(currentChefId);
         ReservationOrderSearchBo searchBo = new ReservationOrderSearchBo();
         searchBo.setOrderId(orderId);
@@ -350,7 +352,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
 
     private void assertChefAuditApproved(Long chefUserId) {
         ChefProfile chefProfile = chefProfileService.queryByUserId(chefUserId);
-        if (chefProfile == null || !Objects.equals(chefProfile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
+        if (ObjectUtils.isEmpty(chefProfile) || !Objects.equals(chefProfile.getAuditStatus(), AuditStatus.APPROVED.getCode())) {
             throw new BusinessException(BaseRespConstant.AUDIT_NOT_PASS.getDesc());
         }
     }

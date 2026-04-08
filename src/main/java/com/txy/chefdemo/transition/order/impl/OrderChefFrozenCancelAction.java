@@ -7,6 +7,7 @@ import com.txy.chefdemo.transition.order.OrderAction;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.support.OrderTransitionSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class OrderChefFrozenCancelAction implements OrderAction {
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
         long now = System.currentTimeMillis();
-        String reason = context.getReason() == null ? "因账号状态变更，订单已由系统关闭。" : context.getReason();
+        String reason = ObjectUtils.defaultIfNull(context.getReason(), "因账号状态变更，订单已由系统关闭。");
         log.info("[{}] orderId={} 进入冻结关闭订单处理", context.getSource(), order.getId());
         
         order.setCancelReason(reason);

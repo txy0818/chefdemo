@@ -6,6 +6,7 @@ import com.txy.chefdemo.resp.BaseResp;
 import com.txy.chefdemo.resp.constants.BaseRespConstant;
 import com.txy.chefdemo.utils.ObjectMapperUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -86,6 +87,6 @@ public class ServiceExpHandlerAspect {
             }
             return BaseRespConstant.failUnknown(message);
         }
-        return BaseRespConstant.failUnknown(message != null ? message : "系统异常");
+        return BaseRespConstant.failUnknown(ObjectUtils.defaultIfNull(message, "系统异常"));
     }
 }

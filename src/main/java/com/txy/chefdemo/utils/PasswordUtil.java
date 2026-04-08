@@ -1,5 +1,8 @@
 package com.txy.chefdemo.utils;
 
+import jodd.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +19,7 @@ public class PasswordUtil {
     }
 
     public static String sha256(String input) {
-        if (input == null) {
+        if (StringUtils.isBlank(input)) {
             throw new IllegalArgumentException("输入字符串不能为空");
         }
         try {
@@ -31,6 +34,8 @@ public class PasswordUtil {
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
+            // 整数转成十六进制
+            // byte：0-255（每个字节都固定输出成两位十六进制） 10 -> a (0a)
             String hex = Integer.toHexString(b & 0xFF);
             if (hex.length() == 1) {
                 sb.append('0');

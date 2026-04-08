@@ -14,6 +14,7 @@ import com.txy.chefdemo.service.WalletService;
 import com.txy.chefdemo.transition.order.OrderAction;
 import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.support.OrderTransitionSupport;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,10 +43,10 @@ public class OrderPayAction implements OrderAction {
         Preconditions.checkArgument(Objects.equals(order.getUserId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
 
         long now = System.currentTimeMillis();
-        Integer payType = context.getPayType() == null ? PaymentType.WALLET.getCode() : context.getPayType();
+        Integer payType = ObjectUtils.defaultIfNull(context.getPayType(), PaymentType.WALLET.getCode());
         if (Objects.equals(payType, PaymentType.WALLET.getCode())) {
             Wallet wallet = walletService.queryByUserId(context.getOperatorUserId());
-            Preconditions.checkArgument(wallet != null, "钱包不存在");
+            Preconditions.checkArgument(ObjectUtils.isNotEmpty(wallet), "钱包不存在");
             Preconditions.checkArgument(wallet.getBalance() >= order.getTotalAmount(), BaseRespConstant.BALANCE_NOT_ENOUGH.getDesc());
             wallet.setBalance(wallet.getBalance() - order.getTotalAmount());
             wallet.setUpdateTime(now);
