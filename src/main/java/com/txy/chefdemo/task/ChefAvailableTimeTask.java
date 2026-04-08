@@ -27,7 +27,7 @@ public class ChefAvailableTimeTask {
 
     /**
      * 1. 每分钟扫描仍处于可用类状态的时间段。
-     * 2. 找出结束时间早于当前时间的过期时间段。
+     * 2. 找出开始时间早于等于当前时间的过期时间段。
      * 3. 将这些时间段的状态批量更新为“已过期”。
      */
     @Scheduled(cron = "0 */1 * * * ?")
@@ -36,10 +36,10 @@ public class ChefAvailableTimeTask {
         
         try {
             long now = System.currentTimeMillis();
-            // 查询所有未过期且结束时间小于当前时间的时间段
+            // 查询所有未过期且开始时间已到的时间段
             ChefAvailableTimeSearchBo searchBo = new ChefAvailableTimeSearchBo();
-            searchBo.setStatusList(AvailableTimeStatus.getNormalCodes());
-            searchBo.setStartTime(now);
+            searchBo.setStatus(AvailableTimeStatus.AVAILABLE.getCode());
+            searchBo.setStartTimeLte(now);
             List<ChefAvailableTime> expiredTimeSlots = chefAvailableTimeMapper.queryByCondition(searchBo);
             
             if (CollectionUtils.isEmpty(expiredTimeSlots)) {

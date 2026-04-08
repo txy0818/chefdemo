@@ -19,6 +19,7 @@ public class ChefAvailableTimeSearchBo {
     private Long chefId;
     private List<Long> chefIdList;
     private Long startTime;
+    private Long startTimeLte;
     private Long endTime;
     private Integer status;
     private List<Integer> statusList;

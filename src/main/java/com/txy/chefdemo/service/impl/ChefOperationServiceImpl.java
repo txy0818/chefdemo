@@ -56,6 +56,8 @@ import java.util.stream.Collectors;
 @Service
 public class ChefOperationServiceImpl implements ChefOperationService {
 
+    private static final long MIN_TIME_RANGE_MILLIS = 5 * 60 * 1000L;
+
     private static final Long DEFAULT_SCORE = 500L;
     private static final String SRC = "chef";
     @Autowired
@@ -138,6 +140,7 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime())
                 && ObjectUtils.isNotEmpty(req.getEndTime())
                 && req.getStartTime() < req.getEndTime(), "时间段非法");
+        Preconditions.checkArgument(req.getEndTime() - req.getStartTime() > MIN_TIME_RANGE_MILLIS, "时间间隔必须大于5分钟");
         assertChefAuditApproved(currentChefId);
 
         ChefAvailableTimeSearchBo searchBo = new ChefAvailableTimeSearchBo();

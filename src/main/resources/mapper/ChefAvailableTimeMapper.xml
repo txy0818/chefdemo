@@ -89,6 +89,10 @@
                 AND start_time &gt;= #{searchBo.startTime}
             </if>
 
+            <if test="searchBo.startTimeLte != null and searchBo.startTimeLte > 0">
+                AND start_time &lt;= #{searchBo.startTimeLte}
+            </if>
+
             <if test="searchBo.endTime != null and searchBo.endTime > 0">
                 AND end_time &lt;= #{searchBo.endTime}
             </if>
