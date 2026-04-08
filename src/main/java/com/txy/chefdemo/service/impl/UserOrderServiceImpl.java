@@ -27,10 +27,12 @@ import com.txy.chefdemo.transition.order.OrderContext;
 import com.txy.chefdemo.transition.order.OrderStateEvent;
 import org.apache.commons.lang3.ObjectUtils;
 import org.redisson.api.RDelayedQueue;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -39,6 +41,11 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserOrderServiceImpl implements UserOrderService {
+
+    private static final String SRC = "user";
+    private static final String CREATE_ORDER_LOCK_PREFIX = "order:create:";
+    private static final long CREATE_ORDER_LOCK_WAIT_SECONDS = 3L;
+    private static final long CREATE_ORDER_LOCK_LEASE_SECONDS = 10L;
 
     @Autowired
     private UserService userService;
@@ -52,17 +59,35 @@ public class UserOrderServiceImpl implements UserOrderService {
     private OrderFlowService orderFlowService;
     @Autowired
     private RedissonClient redissonClient;
-    private static final String SRC = "user";
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Override
-    @Transactional
     public OrderViewDTO createOrder(Long currentUserId, CreateOrderReq req) {
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getChefUserId()), "厨师不能为空");
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getChefAvailableTimeId()), "时间段不能为空");
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getStartTime()) && ObjectUtils.isNotEmpty(req.getEndTime()), "预约时间不能为空");
         Preconditions.checkArgument(req.getStartTime() < req.getEndTime(), "开始时间必须早于结束时间");
         Preconditions.checkArgument(ObjectUtils.isNotEmpty(req.getPeopleCount()) && req.getPeopleCount() > 0, "人数非法");
+        RLock lock = redissonClient.getLock(CREATE_ORDER_LOCK_PREFIX + req.getChefAvailableTimeId());
+        boolean locked = false;
+        try {
+            locked = lock.tryLock(CREATE_ORDER_LOCK_WAIT_SECONDS, CREATE_ORDER_LOCK_LEASE_SECONDS, TimeUnit.SECONDS);
+            if (!locked) {
+                throw new BusinessException("当前时间段下单人数较多，请稍后重试");
+            }
+            return transactionTemplate.execute(status -> doCreateOrder(currentUserId, req));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException("当前下单人数较多，请稍后重试");
+        } finally {
+            if (locked && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
 
+    private OrderViewDTO doCreateOrder(Long currentUserId, CreateOrderReq req) {
         User user = userService.queryById(currentUserId);
         if (ObjectUtils.isEmpty(user)) {
             throw new BusinessException("用户不存在");
