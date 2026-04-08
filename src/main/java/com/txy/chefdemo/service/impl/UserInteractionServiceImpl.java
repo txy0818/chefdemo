@@ -8,6 +8,7 @@ import com.txy.chefdemo.domain.Review;
 import com.txy.chefdemo.domain.User;
 import com.txy.chefdemo.domain.Wallet;
 import com.txy.chefdemo.domain.WalletRecord;
+import com.txy.chefdemo.domain.bo.ReportSearchBo;
 import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
 import com.txy.chefdemo.domain.bo.ReviewSearchBo;
 import com.txy.chefdemo.domain.constant.NotificationReadStatus;
