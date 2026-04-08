@@ -203,9 +203,16 @@ const startNotificationPolling = async () => {
         return
       }
       knownUnreadIds.add(item.id)
+      emitRealtimeDataRefresh({
+        type: 'NOTIFICATION',
+        title: item.title,
+        content: item.content,
+        id: item.id
+      })
       showRealtimeNotification({
         title: item.title,
-        content: item.content
+        content: item.content,
+        id: item.id
       })
     })
   }, 3000)
