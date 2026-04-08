@@ -58,13 +58,14 @@ public class OrderPayAction implements OrderAction {
         order.setPayStatus(PayStatus.PAID.getCode());
         order.setPayTime(now);
         order.setStatus(OrderStatus.PENDING_ACCEPT.getCode());
+        ReservationOrder updatedOrder = support.updateOrder(order);
         support.createBothSideNotification(
-                order,
+                updatedOrder,
                 "订单状态更新",
-                "您的订单已支付成功，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId(),
+                "您的订单已支付成功，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                 "订单状态更新",
-                "您有一笔新订单待处理，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId()
+                "您有一笔新订单待处理，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + updatedOrder.getId()
         );
-        return support.updateOrder(order);
+        return updatedOrder;
     }
 }

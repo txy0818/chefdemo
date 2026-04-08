@@ -41,13 +41,17 @@ public class OrderChefFrozenCancelAction implements OrderAction {
         
         if (order.getStatus().equals(OrderStatus.PENDING_PAYMENT.getCode())) {
             order.setStatus(OrderStatus.CANCELLED.getCode());
+            ReservationOrder updatedOrder = support.updateOrder(order);
             support.createBothSideNotification(
-                    order,
+                    updatedOrder,
                     "订单状态更新",
-                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
+                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                     "订单状态更新",
-                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
+                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId()
             );
+            support.releaseTime(updatedOrder.getChefAvailableTimeId());
+            log.info("[{}] orderId={} 冻结关闭订单处理完成", context.getSource(), updatedOrder.getId());
+            return updatedOrder;
         } else {
             boolean paid = order.getPayStatus().equals(PayStatus.PAID.getCode());
             order.setStatus(OrderStatus.CANCELLED.getCode());
@@ -55,17 +59,17 @@ public class OrderChefFrozenCancelAction implements OrderAction {
                 support.refundIfPaid(order);
                 order.setPayStatus(PayStatus.REFUNDED.getCode());
             }
+            ReservationOrder updatedOrder = support.updateOrder(order);
             support.createBothSideNotification(
-                    order,
+                    updatedOrder,
                     "订单状态更新",
-                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
+                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                     "订单状态更新",
-                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
+                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId()
             );
+            support.releaseTime(updatedOrder.getChefAvailableTimeId());
+            log.info("[{}] orderId={} 冻结关闭订单处理完成", context.getSource(), updatedOrder.getId());
+            return updatedOrder;
         }
-        
-        support.releaseTime(order.getChefAvailableTimeId());
-        log.info("[{}] orderId={} 冻结关闭订单处理完成", context.getSource(), order.getId());
-        return support.updateOrder(order);
     }
 }

@@ -96,7 +96,6 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
 
     @Override
     public QueryReportResp reportList(QueryReportReq req) {
-        Preconditions.checkArgument(req.getStatus() != 0, "举报状态错误");
         ReportSearchBo reportSearchBo = buildReportSearch(req);
         List<Report> reports = reportService.queryByCondition(reportSearchBo);
         int cnt = reportService.queryCnt(reportSearchBo);

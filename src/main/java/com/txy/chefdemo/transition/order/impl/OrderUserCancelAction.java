@@ -44,24 +44,28 @@ public class OrderUserCancelAction implements OrderAction {
             order.setStatus(OrderStatus.CANCELLED.getCode());
             support.refundIfPaid(order);
             order.setPayStatus(PayStatus.REFUNDED.getCode());
+            ReservationOrder updatedOrder = support.updateOrder(order);
             support.createBothSideNotification(
-                    order,
+                    updatedOrder,
                     "订单状态更新",
-                    "您的订单已取消，退款已退回钱包，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
+                    "您的订单已取消，退款已退回钱包，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                     "订单状态更新",
-                    "用户已取消订单，系统已完成退款，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
+                    "用户已取消订单，系统已完成退款，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId()
             );
+            support.releaseTime(updatedOrder.getChefAvailableTimeId());
+            return updatedOrder;
         } else {
             order.setStatus(OrderStatus.CANCELLED.getCode());
+            ReservationOrder updatedOrder = support.updateOrder(order);
             support.createBothSideNotification(
-                    order,
+                    updatedOrder,
                     "订单状态更新",
-                    "您的订单已取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
+                    "您的订单已取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                     "订单状态更新",
-                    "用户已取消订单，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
+                    "用户已取消订单，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId()
             );
+            support.releaseTime(updatedOrder.getChefAvailableTimeId());
+            return updatedOrder;
         }
-        support.releaseTime(order.getChefAvailableTimeId());
-        return support.updateOrder(order);
     }
 }

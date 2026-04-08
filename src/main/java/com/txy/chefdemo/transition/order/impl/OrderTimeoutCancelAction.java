@@ -31,15 +31,16 @@ public class OrderTimeoutCancelAction implements OrderAction {
         order.setCancelReason("订单5分钟内未支付，系统自动取消");
         order.setCancelTime(System.currentTimeMillis());
         support.releaseTime(order.getChefAvailableTimeId());
+        ReservationOrder updatedOrder = support.updateOrder(order);
         if (!Boolean.FALSE.equals(context.getNotifyEnabled())) {
             support.createBothSideNotification(
-                    order,
+                    updatedOrder,
                     "订单状态更新",
-                    "您的订单因5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
+                    "您的订单因5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                     "订单状态更新",
-                    "订单因用户5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
+                    "订单因用户5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + updatedOrder.getId()
             );
         }
-        return support.updateOrder(order);
+        return updatedOrder;
     }
 }

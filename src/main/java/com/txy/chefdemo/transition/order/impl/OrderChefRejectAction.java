@@ -40,13 +40,14 @@ public class OrderChefRejectAction implements OrderAction {
             support.refundIfPaid(order);
             order.setPayStatus(PayStatus.REFUNDED.getCode());
         }
+        ReservationOrder updatedOrder = support.updateOrder(order);
         support.createBothSideNotification(
-                order,
+                updatedOrder,
                 "订单状态更新",
-                "厨师已拒绝接单，退款已退回钱包，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId(),
+                "厨师已拒绝接单，退款已退回钱包，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId(),
                 "订单状态更新",
-                "您已拒绝该订单，系统已完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId()
+                "您已拒绝该订单，系统已完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + updatedOrder.getId()
         );
-        return support.updateOrder(order);
+        return updatedOrder;
     }
 }

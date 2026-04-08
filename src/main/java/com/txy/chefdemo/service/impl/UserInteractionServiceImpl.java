@@ -179,6 +179,13 @@ public class UserInteractionServiceImpl implements UserInteractionService {
                 "无权限",
                 "仅" + OrderStatus.COMPLETED.getDesc() + "订单可举报"
         );
+        ReportSearchBo reportSearchBo = new ReportSearchBo();
+        reportSearchBo.setOrderId(req.getOrderId());
+        reportSearchBo.setStatus(ReportStatus.PENDING.getCode());
+        List<Report> existingReports = reportService.queryByCondition(reportSearchBo);
+        if (!CollectionUtils.isEmpty(existingReports)) {
+            throw new BusinessException("该订单已有待处理举报，请勿重复提交");
+        }
 
         long now = System.currentTimeMillis();
         Report report = new Report();

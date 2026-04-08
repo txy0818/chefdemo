@@ -30,13 +30,14 @@ public class OrderCompleteAction implements OrderAction {
         Preconditions.checkArgument(Objects.equals(order.getChefId(), context.getOperatorUserId()), BaseRespConstant.FORBIDDEN.getDesc());
         order.setStatus(OrderStatus.COMPLETED.getCode());
         order.setCompleteTime(System.currentTimeMillis());
+        ReservationOrder updatedOrder = support.updateOrder(order);
         support.createBothSideNotification(
-                order,
+                updatedOrder,
                 "订单状态更新",
-                "您的订单已完成，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”，欢迎对服务进行评价。订单ID：" + order.getId(),
+                "您的订单已完成，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”，欢迎对服务进行评价。订单ID：" + updatedOrder.getId(),
                 "订单状态更新",
-                "您已完成本次服务订单，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + order.getId()
+                "您已完成本次服务订单，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + updatedOrder.getId()
         );
-        return support.updateOrder(order);
+        return updatedOrder;
     }
 }
