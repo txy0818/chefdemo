@@ -271,8 +271,8 @@ public class AdminQueryServiceImpl implements AdminQueryService {
             chefProfileDTO.setAuditStatus(DefaultValueUtil.defaultInteger(chefProfile.getAuditStatus()));
             chefProfileDTO.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(chefProfile.getAuditStatus())) ? AuditStatus.getByCode(chefProfile.getAuditStatus()).getDesc() : "-");
             chefProfileDTO.setPendingAuditStatus(0);
-            chefProfileDTO.setPendingAuditStatusDesc("");
-            chefProfileDTO.setPendingRejectReason("");
+            chefProfileDTO.setPendingAuditStatusDesc("-");
+            chefProfileDTO.setPendingRejectReason("-");
             chefProfileDTO.setPhone(StringUtils.isNotBlank(chefProfile.getPhone()) ? chefProfile.getPhone() : "-");
             chefProfileDTO.setScore(DefaultValueUtil.defaultString(BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()));
             return chefProfileDTO;
@@ -333,8 +333,8 @@ public class AdminQueryServiceImpl implements AdminQueryService {
         dto.setAuditStatusDesc(ObjectUtils.isNotEmpty(AuditStatus.getByCode(auditStatus)) ? AuditStatus.getByCode(auditStatus).getDesc() : "-");
         dto.setPendingAuditStatus(useChange ? DefaultValueUtil.defaultInteger(change.getAuditStatus()) : 0);
         dto.setPendingAuditStatusDesc(useChange && ObjectUtils.isNotEmpty(AuditStatus.getByCode(change.getAuditStatus()))
-                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "");
-        dto.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "");
+                ? AuditStatus.getByCode(change.getAuditStatus()).getDesc() : "-");
+        dto.setPendingRejectReason(useChange ? DefaultValueUtil.defaultString(change.getRejectReason()) : "-");
         dto.setPhone(StringUtils.isNotBlank(phone) ? phone : "-");
         dto.setScore(DefaultValueUtil.defaultString(
                 BigDecimal.valueOf(score).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()

@@ -347,14 +347,30 @@ public class ChefOperationServiceImpl implements ChefOperationService {
     private ChefProfileDTO buildEmptyChefProfileDTO(User user) {
         ChefProfileDTO dto = new ChefProfileDTO();
         dto.setUserId(DefaultValueUtil.defaultLong(user.getId()));
-        dto.setAvatar(StringUtils.defaultIfBlank(user.getAvatar(), "-"));
+        dto.setAvatar(DefaultValueUtil.defaultString(user.getAvatar()));
         dto.setDisplayName(DefaultValueUtil.defaultString(user.getUsername()));
-        dto.setPhone(StringUtils.defaultIfBlank(user.getPhone(), "-"));
+        dto.setRealName("-");
+        dto.setIdCardImgs(DefaultValueUtil.defaultList(null));
+        dto.setHealthCertImgs(DefaultValueUtil.defaultList(null));
+        dto.setChefCertImgs(DefaultValueUtil.defaultList(null));
+        dto.setCuisineTypeDesc(DefaultValueUtil.defaultList(null));
+        dto.setCuisineType(DefaultValueUtil.defaultList(null));
+        dto.setServiceArea("-");
+        dto.setServiceDesc("-");
+        dto.setPrice(0L);
+        dto.setPriceDesc(DefaultValueUtil.formatYuan(0L));
+        dto.setMinPeople(0);
+        dto.setMaxPeople(0);
+        dto.setAge(0);
+        dto.setGender(0);
+        dto.setGenderDesc("-");
+        dto.setWorkYears(0);
+        dto.setPhone(DefaultValueUtil.defaultString(user.getPhone()));
         dto.setAuditStatus(0);
-        dto.setAuditStatusDesc("");
+        dto.setAuditStatusDesc("-");
         dto.setPendingAuditStatus(0);
-        dto.setPendingAuditStatusDesc("");
-        dto.setPendingRejectReason("");
+        dto.setPendingAuditStatusDesc("-");
+        dto.setPendingRejectReason("-");
         dto.setScore(DefaultValueUtil.defaultString(
                 BigDecimal.valueOf(DEFAULT_SCORE).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).toString()
         ));
