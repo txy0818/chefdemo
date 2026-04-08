@@ -1,7 +1,6 @@
 package com.txy.chefdemo.controller;
 
 import com.txy.chefdemo.aspect.LogExecution;
-import com.txy.chefdemo.domain.NotificationRecord;
 import com.txy.chefdemo.domain.ReservationOrder;
 import com.txy.chefdemo.domain.bo.ReservationOrderSearchBo;
 import com.txy.chefdemo.domain.constant.OrderStatus;
@@ -72,7 +71,7 @@ public class UserController {
      * 6. 评价页：对已完成订单评分和评价；
      * 7. 举报页：对已完成订单的厨师发起举报；
      * 8. 个人中心页：统一放在 ProfileController；
-     * 9. 通知列表页：查看系统通知、标记已读；
+     * 9. 通知列表页：统一放在 ProfileController；
      * 10. 余额页：查看余额、充值。
      *
      * 查询钱包余额：
@@ -360,30 +359,4 @@ public class UserController {
         return new DataResp<>(BaseRespConstant.SUC, userQueryService.orderDetail(currentUserId, req));
     }
 
-    /**
-     * 分页查询通知列表：
-     * 1. 根据用户 ID 查询通知；
-     * 2. 支持只看未读和分页查询；
-     * 3. 返回通知列表和总数。
-     */
-    @LogExecution(returnType = ListResp.class)
-    @PostMapping("/notification/list")
-    public ListResp<NotificationRecord> notificationList(@RequestBody QueryNotificationReq req, HttpServletRequest request) {
-        Long currentUserId = AuthRequestUtils.requireCurrentUserId(request);
-        return userInteractionService.notificationList(currentUserId, req);
-    }
-
-    /**
-     * 标记通知已读：
-     * 1. 校验通知存在且属于当前用户；
-     * 2. 将通知状态更新为已读。
-     */
-    @Transactional
-    @LogExecution(returnType = SimpleResp.class)
-    @PostMapping("/notification/read")
-    public SimpleResp readNotification(@RequestBody ReadNotificationReq req, HttpServletRequest request) {
-        Long currentUserId = AuthRequestUtils.requireUser(request, UserRole.NORMAL_USER);
-        userInteractionService.readNotification(currentUserId, req);
-        return new SimpleResp(BaseRespConstant.SUC);
-    }
 }

@@ -38,17 +38,21 @@
             {{ row.priceDesc }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" width="200">
+        <el-table-column label="操作" fixed="right" width="236" align="center" header-align="center">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleViewDetail(row)">
-              查看详情
-            </el-button>
-            <el-button type="success" size="small" @click="handleAudit(row, 2)">
-              通过
-            </el-button>
-            <el-button type="danger" size="small" @click="handleAudit(row, 3)">
-              拒绝
-            </el-button>
+            <div class="action-stack">
+              <el-button type="primary" size="small" @click="handleViewDetail(row)">
+                查看详情
+              </el-button>
+              <div class="action-row">
+                <el-button type="success" size="small" @click="handleAudit(row, 2)">
+                  通过
+                </el-button>
+                <el-button type="danger" size="small" @click="handleAudit(row, 3)">
+                  拒绝
+                </el-button>
+              </div>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -308,6 +312,39 @@ onMounted(() => {
 
 .panel-card {
   border: none;
+}
+
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.action-stack :deep(.el-button) {
+  min-height: 32px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.action-stack > :deep(.el-button) {
+  min-width: 132px;
+}
+
+.action-row :deep(.el-button) {
+  flex: 1;
+  min-width: 58px;
+  margin-left: 0;
 }
 
 .clickable-image {

@@ -32,9 +32,9 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+        <el-form-item class="query-actions">
+          <el-button class="query-btn query-btn-primary" type="primary" @click="handleQuery">查询</el-button>
+          <el-button class="query-btn query-btn-secondary" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
       
@@ -57,31 +57,33 @@
           </template>
         </el-table-column>
         <el-table-column prop="auditReason" label="审核原因" width="150" />
-        <el-table-column label="操作" fixed="right" width="200">
+        <el-table-column label="操作" fixed="right" width="232" align="center" header-align="center">
           <template #default="{ row }">
-            <el-button
-              v-if="row.auditStatus === 1"
-              type="success"
-              size="small"
-              @click="handleAudit(row, 2)"
-            >
-              通过
-            </el-button>
-            <el-button
-              v-if="row.auditStatus === 1"
-              type="warning"
-              size="small"
-              @click="handleAudit(row, 3)"
-            >
-              驳回
-            </el-button>
-            <el-button
-              type="danger"
-              size="small"
-              @click="handleDelete(row)"
-            >
-              删除
-            </el-button>
+            <div class="action-stack">
+              <div v-if="row.auditStatus === 1" class="action-row">
+                <el-button
+                  type="success"
+                  size="small"
+                  @click="handleAudit(row, 2)"
+                >
+                  通过
+                </el-button>
+                <el-button
+                  type="warning"
+                  size="small"
+                  @click="handleAudit(row, 3)"
+                >
+                  驳回
+                </el-button>
+              </div>
+              <el-button
+                type="danger"
+                size="small"
+                @click="handleDelete(row)"
+              >
+                删除
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -318,6 +320,66 @@ onMounted(() => {
 
 .review-list :deep(.el-form-item) {
   margin-bottom: 12px;
+}
+
+.query-actions :deep(.el-form-item__content) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-btn {
+  min-width: 92px;
+  min-height: 38px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.query-btn:hover {
+  transform: translateY(-1px);
+}
+
+.query-btn-primary {
+  box-shadow: 0 10px 18px rgba(59, 130, 246, 0.18);
+}
+
+.query-btn-secondary {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #475569;
+}
+
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.action-stack :deep(.el-button) {
+  min-height: 32px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.action-stack > :deep(.el-button) {
+  min-width: 132px;
+}
+
+.action-row :deep(.el-button) {
+  flex: 1;
+  min-width: 58px;
+  margin-left: 0;
 }
 
 .review-list :deep(.el-pagination) {

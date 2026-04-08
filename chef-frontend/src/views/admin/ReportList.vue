@@ -32,9 +32,9 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+        <el-form-item class="query-actions">
+          <el-button class="query-btn query-btn-primary" type="primary" @click="handleQuery">查询</el-button>
+          <el-button class="query-btn query-btn-secondary" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
       
@@ -52,17 +52,19 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" width="150">
+        <el-table-column label="操作" fixed="right" width="180" align="center" header-align="center">
           <template #default="{ row }">
-            <el-button
-              v-if="row.status === 1"
-              type="primary"
-              size="small"
-              @click="handleProcess(row)"
-            >
-              处理
-            </el-button>
-            <el-tag v-else type="success">已处理</el-tag>
+            <div class="action-stack">
+              <el-button
+                v-if="row.status === 1"
+                type="primary"
+                size="small"
+                @click="handleProcess(row)"
+              >
+                处理
+              </el-button>
+              <el-tag v-else type="success" effect="light">已处理</el-tag>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -264,6 +266,47 @@ onMounted(() => {
 
 .report-list :deep(.el-form-item) {
   margin-bottom: 12px;
+}
+
+.query-actions :deep(.el-form-item__content) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-btn {
+  min-width: 92px;
+  min-height: 38px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.query-btn:hover {
+  transform: translateY(-1px);
+}
+
+.query-btn-primary {
+  box-shadow: 0 10px 18px rgba(59, 130, 246, 0.18);
+}
+
+.query-btn-secondary {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #475569;
+}
+
+.action-stack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.action-stack :deep(.el-button) {
+  min-width: 118px;
+  min-height: 32px;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 .report-list :deep(.el-pagination) {

@@ -92,7 +92,7 @@ export function completeOrder(data) {
 // 通知列表
 export function notificationList(data) {
   return request({
-    url: '/user/notification/list',
+    url: '/profile/notification/list',
     method: 'post',
     data
   })
@@ -101,7 +101,7 @@ export function notificationList(data) {
 // 标记通知已读
 export function readNotification(data) {
   return request({
-    url: '/user/notification/read',
+    url: '/profile/notification/read',
     method: 'post',
     data
   })

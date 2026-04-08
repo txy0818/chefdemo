@@ -51,9 +51,9 @@
           <el-input v-model="queryForm.userId" placeholder="请输入目标用户 ID" clearable />
         </el-form-item>
         
-        <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+        <el-form-item class="query-actions">
+          <el-button class="query-btn query-btn-primary" type="primary" @click="handleQuery">查询</el-button>
+          <el-button class="query-btn query-btn-secondary" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
       
@@ -71,24 +71,26 @@
           </template>
         </el-table-column>
         <el-table-column prop="lastLoginTimeDesc" label="最后登录时间" width="180" />
-        <el-table-column label="操作" fixed="right" width="200">
+        <el-table-column label="操作" fixed="right" width="180" align="center" header-align="center">
           <template #default="{ row }">
-            <el-button
-              v-if="row.status === 1"
-              type="danger"
-              size="small"
-              @click="handleUpdateStatus(row, 2)"
-            >
-              冻结
-            </el-button>
-            <el-button
-              v-else
-              type="success"
-              size="small"
-              @click="handleUpdateStatus(row, 1)"
-            >
-              解冻
-            </el-button>
+            <div class="action-stack">
+              <el-button
+                v-if="row.status === 1"
+                type="danger"
+                size="small"
+                @click="handleUpdateStatus(row, 2)"
+              >
+                冻结
+              </el-button>
+              <el-button
+                v-else
+                type="success"
+                size="small"
+                @click="handleUpdateStatus(row, 1)"
+              >
+                解冻
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -297,6 +299,20 @@ onMounted(() => {
   border: none;
 }
 
+.action-stack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.action-stack :deep(.el-button) {
+  min-width: 118px;
+  min-height: 32px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
 .query-form {
   margin-bottom: 20px;
   padding: 20px;
@@ -307,6 +323,33 @@ onMounted(() => {
 
 .query-form :deep(.el-form-item) {
   margin-bottom: 12px;
+}
+
+.query-actions :deep(.el-form-item__content) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-btn {
+  min-width: 92px;
+  min-height: 38px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.query-btn:hover {
+  transform: translateY(-1px);
+}
+
+.query-btn-primary {
+  box-shadow: 0 10px 18px rgba(59, 130, 246, 0.18);
+}
+
+.query-btn-secondary {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #475569;
 }
 
 .user-list :deep(.el-table .cell) {

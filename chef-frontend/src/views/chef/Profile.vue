@@ -16,7 +16,7 @@
       <div class="hero-stats">
         <div class="stat-card">
           <span class="stat-label">价格</span>
-          <span class="stat-value">{{ Number(profileForm.price || 0).toFixed(0) }} 元/小时</span>
+          <span class="stat-value">{{ Number(profileForm.price || 0) }} 元/小时</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">服务人数</span>
@@ -59,7 +59,7 @@
 
           <div class="inline-grid two-col">
             <el-form-item label="年龄(岁)" prop="age">
-              <el-input-number v-model="profileForm.age" :min="18" :max="70" :precision="0" :step="1" />
+              <el-input-number v-model="profileForm.age" :precision="0" :step="1" />
             </el-form-item>
           </div>
 
@@ -77,7 +77,7 @@
 
           <div class="inline-grid two-col">
             <el-form-item label="从业年限(年)" prop="workYears">
-              <el-input-number v-model="profileForm.workYears" :min="1" :max="50" :precision="0" :step="1" />
+              <el-input-number v-model="profileForm.workYears" :precision="0" :step="1" />
             </el-form-item>
           </div>
         </el-form>
@@ -137,16 +137,16 @@
 
           <el-form-item label="价格" prop="price">
             <div class="unit-input-wrap">
-              <el-input-number v-model="profileForm.price" :min="0.01" :precision="2" :step="0.1" />
+              <el-input-number v-model="profileForm.price" :precision="0" :step="1" />
               <span class="unit-text">元/小时</span>
             </div>
           </el-form-item>
 
           <el-form-item label="服务人数" prop="minPeople">
             <div class="people-range-wrap">
-              <el-input-number v-model="profileForm.minPeople" :min="1" :precision="0" :step="1" />
+              <el-input-number v-model="profileForm.minPeople" :precision="0" :step="1" />
               <span class="range-separator">-</span>
-              <el-input-number v-model="profileForm.maxPeople" :min="1" :precision="0" :step="1" />
+              <el-input-number v-model="profileForm.maxPeople" :precision="0" :step="1" />
               <span class="unit-text">人</span>
             </div>
           </el-form-item>
@@ -227,25 +227,29 @@ const profileForm = reactive({
 
 const profileRules = {
   realName: [
-    { required: true, message: '请输入真实姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '真实姓名长度为 2 到 20 个字符', trigger: 'blur' }
+    { required: true, message: '请输入真实姓名', trigger: ['blur', 'change'] },
+    { min: 2, max: 20, message: '真实姓名长度为 2 到 20 个字符', trigger: ['blur', 'change'] }
   ],
   age: [
-    { required: true, message: '请输入年龄', trigger: 'blur' },
+    { required: true, message: '请输入年龄', trigger: ['blur', 'change'] },
     {
       validator: (_, value, callback) => {
-        if (value == null || !Number.isInteger(Number(value)) || Number(value) <= 0) {
-          callback(new Error('年龄必须为正整数'))
+        if (value == null || !Number.isInteger(Number(value))) {
+          callback(new Error('年龄必须为整数'))
+          return
+        }
+        if (Number(value) < 18) {
+          callback(new Error('年龄必须大于等于 18 岁'))
           return
         }
         callback()
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ],
-  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  gender: [{ required: true, message: '请选择性别', trigger: ['blur', 'change'] }],
   workYears: [
-    { required: true, message: '请输入从业年限', trigger: 'blur' },
+    { required: true, message: '请输入从业年限', trigger: ['blur', 'change'] },
     {
       validator: (_, value, callback) => {
         if (value == null || !Number.isInteger(Number(value)) || Number(value) <= 0) {
@@ -254,12 +258,12 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ],
-  cuisineType: [{ required: true, message: '请选择擅长菜系', trigger: 'change' }],
-  serviceArea: [{ required: true, message: '请输入服务区域', trigger: 'blur' }],
-  serviceDesc: [{ required: true, message: '请输入服务描述', trigger: 'blur' }],
+  cuisineType: [{ required: true, message: '请选择擅长菜系', trigger: ['blur', 'change'] }],
+  serviceArea: [{ required: true, message: '请输入服务区域', trigger: ['blur', 'change'] }],
+  serviceDesc: [{ required: true, message: '请输入服务描述', trigger: ['blur', 'change'] }],
   idCardImgs: [
     {
       required: true,
@@ -270,7 +274,7 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'change'
+      trigger: ['blur', 'change']
     }
   ],
   healthCertImgs: [
@@ -283,7 +287,7 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'change'
+      trigger: ['blur', 'change']
     }
   ],
   chefCertImgs: [
@@ -296,11 +300,11 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'change'
+      trigger: ['blur', 'change']
     }
   ],
   minPeople: [
-    { required: true, message: '请输入最少服务人数', trigger: 'blur' },
+    { required: true, message: '请输入最少服务人数', trigger: ['blur', 'change'] },
     {
       validator: (_, value, callback) => {
         if (value == null || !Number.isInteger(Number(value)) || Number(value) <= 0) {
@@ -313,11 +317,11 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ],
   maxPeople: [
-    { required: true, message: '请输入最多服务人数', trigger: 'blur' },
+    { required: true, message: '请输入最多服务人数', trigger: ['blur', 'change'] },
     {
       validator: (_, value, callback) => {
         if (value == null || !Number.isInteger(Number(value)) || Number(value) <= 0) {
@@ -330,24 +334,28 @@ const profileRules = {
         }
         callback()
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ],
   price: [
-    { required: true, message: '请输入价格', trigger: 'blur' },
+    { required: true, message: '请输入价格', trigger: ['blur', 'change'] },
     {
       validator: (_, value, callback) => {
         if (value == null || Number.isNaN(Number(value))) {
           callback(new Error('请输入正确的价格，单位为元/小时'))
           return
         }
+        if (!Number.isInteger(Number(value))) {
+          callback(new Error('价格必须为整数，单位为元/小时'))
+          return
+        }
         if (Number(value) <= 0) {
-          callback(new Error('价格必须为正数，单位为元/小时'))
+          callback(new Error('价格必须为大于 0 的整数，单位为元/小时'))
           return
         }
         callback()
       },
-      trigger: 'blur'
+      trigger: ['blur', 'change']
     }
   ]
 }
