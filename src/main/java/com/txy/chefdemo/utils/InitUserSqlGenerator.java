@@ -12,12 +12,12 @@ import com.txy.chefdemo.service.FrozenChefCleanupService;
  */
 public class InitUserSqlGenerator {
 
-    public static void main(String[] args) {
-        long now = System.currentTimeMillis();
-        System.out.println(generateAdminInsertSql(now));
-        System.out.println();
-        System.out.println(generateSystemInsertSql(now));
-    }
+//    public static void main(String[] args) {
+//        long now = System.currentTimeMillis();
+//        System.out.println(generateAdminInsertSql(now));
+//        System.out.println();
+//        System.out.println(generateSystemInsertSql(now));
+//    }
 
     public static String generateAdminInsertSql(long now) {
         return buildInsertSql("admin", "123", UserRole.ADMIN.getCode(), now);

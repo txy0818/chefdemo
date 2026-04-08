@@ -87,52 +87,52 @@ public class JWTUtil {
         return claims.get("role", Integer.class);
     }
 
-    public static void main(String[] args) {
-        System.out.println("=".repeat(80));
-        System.out.println("JWT Token 生成器和测试工具");
-        System.out.println("=".repeat(80));
-        System.out.println();
-
-        // 测试用户数据
-        // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NTE0MDYyNywiZXhwIjoxNzc1MjI3MDI3fQ.FFJxs1uEXAeS-1gSMLOQ93nA0cVasOfaUWNkQCi2Vmc
-        Long adminUserId = 1L;
-        String adminUsername = "admin";
-        Integer adminRole = 1; // 1-管理员
-
-        Long chefUserId = 2L;
-        String chefUsername = "chef001";
-        Integer chefRole = 2; // 2-厨师
-
-        Long normalUserId = 3L;
-        String normalUsername = "user001";
-        Integer normalRole = 3; // 3-普通用户
-
-        // 生成不同角色的Token
-        System.out.println("1. 生成不同角色的JWT Token:");
-        System.out.println("-".repeat(80));
-        
-        String adminToken = generateToken(adminUserId, adminUsername, adminRole);
-        System.out.println("管理员Token:");
-        System.out.println("  用户ID: " + adminUserId);
-        System.out.println("  用户名: " + adminUsername);
-        System.out.println("  角色: " + adminRole + " (管理员)");
-        System.out.println("  Token: " + adminToken);
-        System.out.println();
-
-        String chefToken = generateToken(chefUserId, chefUsername, chefRole);
-        System.out.println("厨师Token:");
-        System.out.println("  用户ID: " + chefUserId);
-        System.out.println("  用户名: " + chefUsername);
-        System.out.println("  角色: " + chefRole + " (厨师)");
-        System.out.println("  Token: " + chefToken);
-        System.out.println();
-
-        String normalToken = generateToken(normalUserId, normalUsername, normalRole);
-        System.out.println("普通用户Token:");
-        System.out.println("  用户ID: " + normalUserId);
-        System.out.println("  用户名: " + normalUsername);
-        System.out.println("  角色: " + normalRole + " (普通用户)");
-        System.out.println("  Token: " + normalToken);
-        System.out.println();
-    }
+//    public static void main(String[] args) {
+//        System.out.println("=".repeat(80));
+//        System.out.println("JWT Token 生成器和测试工具");
+//        System.out.println("=".repeat(80));
+//        System.out.println();
+//
+//        // 测试用户数据
+//        // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NTE0MDYyNywiZXhwIjoxNzc1MjI3MDI3fQ.FFJxs1uEXAeS-1gSMLOQ93nA0cVasOfaUWNkQCi2Vmc
+//        Long adminUserId = 1L;
+//        String adminUsername = "admin";
+//        Integer adminRole = 1; // 1-管理员
+//
+//        Long chefUserId = 2L;
+//        String chefUsername = "chef001";
+//        Integer chefRole = 2; // 2-厨师
+//
+//        Long normalUserId = 3L;
+//        String normalUsername = "user001";
+//        Integer normalRole = 3; // 3-普通用户
+//
+//        // 生成不同角色的Token
+//        System.out.println("1. 生成不同角色的JWT Token:");
+//        System.out.println("-".repeat(80));
+//
+//        String adminToken = generateToken(adminUserId, adminUsername, adminRole);
+//        System.out.println("管理员Token:");
+//        System.out.println("  用户ID: " + adminUserId);
+//        System.out.println("  用户名: " + adminUsername);
+//        System.out.println("  角色: " + adminRole + " (管理员)");
+//        System.out.println("  Token: " + adminToken);
+//        System.out.println();
+//
+//        String chefToken = generateToken(chefUserId, chefUsername, chefRole);
+//        System.out.println("厨师Token:");
+//        System.out.println("  用户ID: " + chefUserId);
+//        System.out.println("  用户名: " + chefUsername);
+//        System.out.println("  角色: " + chefRole + " (厨师)");
+//        System.out.println("  Token: " + chefToken);
+//        System.out.println();
+//
+//        String normalToken = generateToken(normalUserId, normalUsername, normalRole);
+//        System.out.println("普通用户Token:");
+//        System.out.println("  用户ID: " + normalUserId);
+//        System.out.println("  用户名: " + normalUsername);
+//        System.out.println("  角色: " + normalRole + " (普通用户)");
+//        System.out.println("  Token: " + normalToken);
+//        System.out.println();
+//    }
 }
