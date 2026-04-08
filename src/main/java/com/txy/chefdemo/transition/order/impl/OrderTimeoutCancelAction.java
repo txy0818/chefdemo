@@ -24,7 +24,7 @@ public class OrderTimeoutCancelAction implements OrderAction {
     @Override
     public ReservationOrder execute(OrderContext context) {
         ReservationOrder order = support.queryOrder(context.getOrderId());
-        if (!OrderStatus.PENDING_PAYMENT.getCode().equals(order.getStatus())) {
+        if (OrderStatus.PENDING_PAYMENT.getCode() != order.getStatus()) {
             return order;
         }
         order.setStatus(OrderStatus.CANCELLED.getCode());

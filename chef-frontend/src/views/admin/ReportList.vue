@@ -147,7 +147,7 @@ const processFormRef = ref(null)
 const reportStatusOptions = ref([])
 
 const queryForm = reactive({
-  status: 1,
+  status: null,
   page: 1,
   size: 10
 })
@@ -192,7 +192,7 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryForm.status = 1
+  queryForm.status = null
   queryForm.page = 1
   handleQuery()
 }
