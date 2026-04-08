@@ -9,5 +9,6 @@ import java.util.List;
  */
 public interface UserStatusRecordService {
     Long insert(UserStatusRecord record);
+
     List<UserStatusRecord> queryByUserId(Long userId);
 }

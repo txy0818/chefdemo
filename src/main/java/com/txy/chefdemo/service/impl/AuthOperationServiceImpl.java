@@ -65,8 +65,8 @@ public class AuthOperationServiceImpl implements AuthOperationService {
         user.setStatus(UserStatus.NORMAL.getCode());
         user.setCreateTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());
-        Long upsert = userService.upsert(user);
-        if (upsert <= 0) {
+        Long insert = userService.insert(user);
+        if (insert <= 0) {
             return new RegisterResp(BaseRespConstant.FAIL);
         }
         user = userService.queryByUsername(user.getUsername());
@@ -76,7 +76,7 @@ public class AuthOperationServiceImpl implements AuthOperationService {
             wallet.setBalance(0L);
             wallet.setCreateTime(System.currentTimeMillis());
             wallet.setUpdateTime(System.currentTimeMillis());
-            walletService.upsert(wallet);
+            walletService.insert(wallet);
         }
         return new RegisterResp(BaseRespConstant.SUC);
     }
@@ -109,7 +109,7 @@ public class AuthOperationServiceImpl implements AuthOperationService {
 
         user.setLastLoginTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());
-        userService.upsert(user);
+        userService.updateById(user);
         String token = JWTUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
         RBucket<String> bucket = redissonClient.getBucket(AuthConstant.LOGIN_TOKEN_KEY_PREFIX + user.getId());
         bucket.set(token, 1, TimeUnit.DAYS);

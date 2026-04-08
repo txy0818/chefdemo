@@ -10,10 +10,9 @@ import java.util.List;
  * @Create 2026-03-03
  */
 public interface ChefAvailableTimeService {
-
     Long insert(ChefAvailableTime chefAvailableTime);
 
-    Integer updateById(ChefAvailableTime time);
+    int updateById(ChefAvailableTime time);
 
     List<ChefAvailableTime> queryByCondition(ChefAvailableTimeSearchBo searchBo);
 

@@ -10,13 +10,17 @@ import java.util.List;
 
 @Service
 public class NotificationRecordServiceImpl implements NotificationRecordService {
-
     @Autowired
     private NotificationRecordMapper notificationRecordMapper;
 
     @Override
     public Long insert(NotificationRecord record) {
         return notificationRecordMapper.insert(record);
+    }
+
+    @Override
+    public int updateById(NotificationRecord record) {
+        return notificationRecordMapper.updateById(record);
     }
 
     @Override
@@ -29,19 +33,13 @@ public class NotificationRecordServiceImpl implements NotificationRecordService 
         return notificationRecordMapper.queryByUserId(userId);
     }
 
-
     @Override
     public List<NotificationRecord> queryPageByUserId(Long userId, Boolean unreadOnly, Long offset, Long size) {
         return notificationRecordMapper.queryPageByUserId(userId, unreadOnly, offset, size);
     }
 
     @Override
-    public Integer queryCountByUserId(Long userId, Boolean unreadOnly) {
+    public int queryCountByUserId(Long userId, Boolean unreadOnly) {
         return notificationRecordMapper.queryCountByUserId(userId, unreadOnly);
-    }
-
-    @Override
-    public Integer updateById(NotificationRecord record) {
-        return notificationRecordMapper.updateById(record);
     }
 }

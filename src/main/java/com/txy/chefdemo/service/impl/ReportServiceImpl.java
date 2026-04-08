@@ -19,13 +19,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportMapper reportMapper;
 
     @Override
-    public List<Report> queryByCondition(ReportSearchBo reportSearchBo) {
-        return reportMapper.queryByCondition(reportSearchBo);
-    }
-
-    @Override
-    public int queryCnt(ReportSearchBo reportSearchBo) {
-        return reportMapper.queryCnt(reportSearchBo);
+    public Long insert(Report report) {
+        return reportMapper.insert(report);
     }
 
     @Override
@@ -34,7 +29,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Long insert(Report report) {
-        return reportMapper.insert(report);
+    public List<Report> queryByCondition(ReportSearchBo reportSearchBo) {
+        return reportMapper.queryByCondition(reportSearchBo);
+    }
+
+    @Override
+    public int queryCnt(ReportSearchBo reportSearchBo) {
+        return reportMapper.queryCnt(reportSearchBo);
     }
 }

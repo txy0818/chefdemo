@@ -143,7 +143,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
         review.setStatus(ReviewStatus.NORMAL.getCode());
         review.setCreateTime(now);
         review.setUpdateTime(now);
-        reviewService.upsert(review);
+        reviewService.insert(review);
     }
 
     @Override
@@ -164,7 +164,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
 
         review.setStatus(ReviewStatus.DELETED.getCode());
         review.setUpdateTime(System.currentTimeMillis());
-        reviewService.upsert(review);
+        reviewService.updateById(review);
     }
 
     @Override
@@ -247,7 +247,7 @@ public class UserInteractionServiceImpl implements UserInteractionService {
         newWallet.setBalance(0L);
         newWallet.setCreateTime(now);
         newWallet.setUpdateTime(now);
-        walletService.upsert(newWallet);
+        walletService.insert(newWallet);
         return walletService.queryByUserId(userId);
     }
 

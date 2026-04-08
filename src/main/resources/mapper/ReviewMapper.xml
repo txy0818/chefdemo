@@ -20,6 +20,38 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="review.id">
+        INSERT INTO review
+        (
+            reservation_order_id, user_id, chef_id,
+            score, content,
+            audit_status, audit_reason, status,
+            create_time, update_time
+        )
+        VALUES
+            (
+                #{review.reservationOrderId}, #{review.userId}, #{review.chefId},
+                #{review.score}, #{review.content},
+                #{review.auditStatus}, #{review.auditReason}, #{review.status},
+                #{review.createTime}, #{review.updateTime}
+            )
+    </insert>
+
+    <update id="updateById">
+        UPDATE review
+        SET
+            reservation_order_id = #{review.reservationOrderId},
+            user_id = #{review.userId},
+            chef_id = #{review.chefId},
+            score = #{review.score},
+            content = #{review.content},
+            audit_status = #{review.auditStatus},
+            audit_reason = #{review.auditReason},
+            status = #{review.status},
+            update_time = #{review.updateTime}
+        WHERE id = #{review.id}
+    </update>
+
     <!-- ===================== upsert ===================== -->
     <insert id="upsert">
         INSERT INTO review

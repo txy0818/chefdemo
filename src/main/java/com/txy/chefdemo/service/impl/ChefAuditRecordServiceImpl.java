@@ -23,6 +23,11 @@ public class ChefAuditRecordServiceImpl implements ChefAuditRecordService {
     }
 
     @Override
+    public int updateById(List<ChefAuditRecord> record) {
+        return chefAuditRecordMapper.updateById(record);
+    }
+
+    @Override
     public List<ChefAuditRecord> queryPendingRecord() {
         return chefAuditRecordMapper.queryPendingRecord();
     }
@@ -30,10 +35,5 @@ public class ChefAuditRecordServiceImpl implements ChefAuditRecordService {
     @Override
     public ChefAuditRecord queryPendingRecordByChefUserId(Long chefUserId) {
         return chefAuditRecordMapper.queryPendingRecordByChefUserId(chefUserId);
-    }
-
-    @Override
-    public long updateById(List<ChefAuditRecord> record) {
-        return chefAuditRecordMapper.updateById(record);
     }
 }

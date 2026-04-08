@@ -65,7 +65,7 @@ public class FrozenChefCleanupService {
         if (ObjectUtils.isNotEmpty(profile)) {
             profile.setAuditStatus(AuditStatus.REJECTED.getCode());
             profile.setUpdateTime(now);
-            chefProfileService.upsert(profile);
+            chefProfileService.updateById(profile);
         }
     }
 
@@ -81,7 +81,7 @@ public class FrozenChefCleanupService {
             review.setAuditStatus(AuditStatus.REJECTED.getCode());
             review.setAuditReason(FROZEN_REJECT_REASON);
             review.setUpdateTime(now);
-            reviewService.upsert(review);
+            reviewService.updateById(review);
         }
     }
 
@@ -121,7 +121,7 @@ public class FrozenChefCleanupService {
             }
             if (needUpdate) {
                 systemUser.setUpdateTime(now);
-                userService.upsert(systemUser);
+                userService.updateById(systemUser);
             }
             return systemUser.getId();
         }
@@ -134,7 +134,7 @@ public class FrozenChefCleanupService {
         newSystemUser.setPhone("");
         newSystemUser.setCreateTime(now);
         newSystemUser.setUpdateTime(now);
-        userService.upsert(newSystemUser);
+        userService.insert(newSystemUser);
         User created = userService.queryByUsername(SYSTEM_USERNAME);
         if (ObjectUtils.isNotEmpty(created) && ObjectUtils.isNotEmpty(created.getId())) {
             return created.getId();

@@ -76,7 +76,7 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
             review.setAuditReason(reason);
         }
         review.setUpdateTime(System.currentTimeMillis());
-        reviewService.upsert(review);
+        reviewService.updateById(review);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
         Review review = reviews.get(0);
         review.setStatus(ReviewStatus.DELETED.getCode());
         review.setUpdateTime(System.currentTimeMillis());
-        reviewService.upsert(review);
+        reviewService.updateById(review);
     }
 
     @Override

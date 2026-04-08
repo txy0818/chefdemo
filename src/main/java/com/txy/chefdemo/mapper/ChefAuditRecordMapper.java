@@ -14,9 +14,9 @@ import java.util.List;
 public interface ChefAuditRecordMapper {
     Long insert(@Param("record") ChefAuditRecord record);
 
+    int updateById(@Param("records") List<ChefAuditRecord> record);
+
     List<ChefAuditRecord> queryPendingRecord();
 
     ChefAuditRecord queryPendingRecordByChefUserId(Long chefUserId);
-
-    long updateById(@Param("records") List<ChefAuditRecord> record);
 }

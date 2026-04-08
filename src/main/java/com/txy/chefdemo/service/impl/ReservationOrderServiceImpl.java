@@ -37,7 +37,7 @@ public class ReservationOrderServiceImpl implements ReservationOrderService {
     private ChefAvailableTimeService chefAvailableTimeService;
 
     @Override
-    public Long updateById(ReservationOrder order) {
+    public int updateById(ReservationOrder order) {
         return reservationOrderMapper.updateById(order);
     }
 

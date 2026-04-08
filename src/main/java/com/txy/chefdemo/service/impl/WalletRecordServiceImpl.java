@@ -41,5 +41,4 @@ public class WalletRecordServiceImpl implements WalletRecordService {
     public List<WalletRecord> queryByOrderId(Long orderId) {
         return walletRecordMapper.queryByOrderId(orderId);
     }
-
 }

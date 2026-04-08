@@ -15,9 +15,9 @@ import java.util.List;
 public interface ReportMapper {
     Long insert(@Param("report") Report report);
 
+    int updateById(@Param("report") Report report);
+
     List<Report> queryByCondition(@Param("searchBo") ReportSearchBo reportSearchBo);
 
     int queryCnt(@Param("searchBo") ReportSearchBo reportSearchBo);
-
-    int updateById(@Param("report") Report report);
 }

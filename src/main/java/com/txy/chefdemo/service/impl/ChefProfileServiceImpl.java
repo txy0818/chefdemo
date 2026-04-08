@@ -6,6 +6,7 @@ import com.txy.chefdemo.mapper.ChefProfileMapper;
 import com.txy.chefdemo.service.ChefProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -18,11 +19,22 @@ public class ChefProfileServiceImpl implements ChefProfileService {
     private ChefProfileMapper chefProfileMapper;
 
     @Override
+    public Long insert(ChefProfile chefProfile) {
+        return chefProfileMapper.insert(chefProfile);
+    }
+
+    @Override
+    public int updateById(ChefProfile chefProfile) {
+        return chefProfileMapper.updateById(chefProfile);
+    }
+
+    @Override
     public Long upsert(ChefProfile chefProfile) {
         return chefProfileMapper.upsert(chefProfile);
     }
 
     @Override
+    @Deprecated
     public Long batchUpsert(List<ChefProfile> chefProfiles) {
         return chefProfileMapper.batchUpsert(chefProfiles);
     }

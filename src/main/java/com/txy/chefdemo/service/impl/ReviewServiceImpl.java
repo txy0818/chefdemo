@@ -18,6 +18,15 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewMapper reviewMapper;
 
+    @Override
+    public Long insert(Review review) {
+        return reviewMapper.insert(review);
+    }
+
+    @Override
+    public int updateById(Review review) {
+        return reviewMapper.updateById(review);
+    }
 
     @Override
     public Long upsert(Review review) {
@@ -33,5 +42,4 @@ public class ReviewServiceImpl implements ReviewService {
     public int queryCnt(ReviewSearchBo reviewSearchBo) {
         return reviewMapper.queryCnt(reviewSearchBo);
     }
-
 }

@@ -14,7 +14,10 @@ import java.util.List;
 @Mapper
 public interface ChefAvailableTimeMapper {
     Long insert(@Param("time") ChefAvailableTime time);
-    Integer updateById(@Param("time") ChefAvailableTime time);
+
+    int updateById(@Param("time") ChefAvailableTime time);
+
     List<ChefAvailableTime> queryByCondition(@Param("searchBo") ChefAvailableTimeSearchBo searchBo);
+
     int queryChefListCnt(@Param("searchBo") ChefAvailableTimeSearchBo searchBo);
 }

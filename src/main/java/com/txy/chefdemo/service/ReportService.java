@@ -12,9 +12,9 @@ import java.util.List;
 public interface ReportService {
     Long insert(Report report);
 
+    int updateById(Report report);
+
     List<Report> queryByCondition(ReportSearchBo reportSearchBo);
 
     int queryCnt(ReportSearchBo reportSearchBo);
-
-    int updateById(Report report);
 }

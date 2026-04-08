@@ -89,7 +89,7 @@ public class ChefProfileScoreTask {
 
                 chefProfile.setScore(Math.round(newScore));
                 chefProfile.setUpdateTime(now);
-                chefProfileMapper.upsert(chefProfile);
+                chefProfileMapper.updateById(chefProfile);
 
                 log.info("厨师 {} 的评分已更新为 {}", chefId, newScore);
             }

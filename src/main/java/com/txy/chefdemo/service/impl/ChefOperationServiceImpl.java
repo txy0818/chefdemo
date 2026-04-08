@@ -119,7 +119,11 @@ public class ChefOperationServiceImpl implements ChefOperationService {
         profile.setWorkYears(req.getWorkYears());
         profile.setUpdateTime(now);
         profile.setAuditStatus(AuditStatus.PENDING.getCode());
-        chefProfileService.upsert(profile);
+        if (ObjectUtils.isEmpty(profile.getId())) {
+            chefProfileService.insert(profile);
+        } else {
+            chefProfileService.updateById(profile);
+        }
 
         ChefAuditRecord auditRecord = new ChefAuditRecord();
         auditRecord.setChefUserId(currentChefId);

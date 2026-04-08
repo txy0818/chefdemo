@@ -15,7 +15,7 @@ import java.util.List;
 public interface ReservationOrderMapper {
     Long insert(@Param("order") ReservationOrder order);
 
-    Long updateById(@Param("order") ReservationOrder order);
+    int updateById(@Param("order") ReservationOrder order);
 
     List<ReservationOrder> queryByCondition(@Param("searchBo") ReservationOrderSearchBo searchBo);
 

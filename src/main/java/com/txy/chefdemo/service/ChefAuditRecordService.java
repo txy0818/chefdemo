@@ -10,9 +10,9 @@ import java.util.List;
 public interface ChefAuditRecordService {
     Long insert(ChefAuditRecord record);
 
+    int updateById(List<ChefAuditRecord> record);
+
     List<ChefAuditRecord> queryPendingRecord();
 
     ChefAuditRecord queryPendingRecordByChefUserId(Long chefUserId);
-
-    long updateById(List<ChefAuditRecord> record);
 }

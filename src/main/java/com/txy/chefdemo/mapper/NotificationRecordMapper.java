@@ -9,12 +9,17 @@ import java.util.List;
 @Mapper
 public interface NotificationRecordMapper {
     Long insert(@Param("record") NotificationRecord record);
+
+    int updateById(@Param("record") NotificationRecord record);
+
     NotificationRecord queryById(@Param("id") Long id);
+
     List<NotificationRecord> queryByUserId(@Param("userId") Long userId);
+
     List<NotificationRecord> queryPageByUserId(@Param("userId") Long userId,
                                                @Param("unreadOnly") Boolean unreadOnly,
                                                @Param("offset") Long offset,
                                                @Param("size") Long size);
-    Integer queryCountByUserId(@Param("userId") Long userId, @Param("unreadOnly") Boolean unreadOnly);
-    Integer updateById(@Param("record") NotificationRecord record);
+
+    int queryCountByUserId(@Param("userId") Long userId, @Param("unreadOnly") Boolean unreadOnly);
 }

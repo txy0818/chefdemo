@@ -16,6 +16,16 @@ public class WalletServiceImpl implements WalletService {
     private WalletMapper walletMapper;
 
     @Override
+    public Long insert(Wallet wallet) {
+        return walletMapper.insert(wallet);
+    }
+
+    @Override
+    public int updateById(Wallet wallet) {
+        return walletMapper.updateById(wallet);
+    }
+
+    @Override
     public Long upsert(Wallet wallet) {
         return walletMapper.upsert(wallet);
     }
@@ -28,10 +38,5 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public Wallet queryByUserId(Long userId) {
         return walletMapper.queryByUserId(userId);
-    }
-
-    @Override
-    public Long updateById(Wallet wallet) {
-        return walletMapper.upsert(wallet);
     }
 }

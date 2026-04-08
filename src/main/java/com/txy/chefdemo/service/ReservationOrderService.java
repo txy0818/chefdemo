@@ -13,11 +13,11 @@ import java.util.List;
 public interface ReservationOrderService {
     Long insert(ReservationOrder order);
 
+    int updateById(ReservationOrder order);
+
     List<ReservationOrder> queryByCondition(ReservationOrderSearchBo searchBo);
 
     int queryCnt(ReservationOrderSearchBo searchBo);
-
-    Long updateById(ReservationOrder order);
 
     OrderViewDTO buildOrderView(ReservationOrder order);
 }

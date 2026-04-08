@@ -9,14 +9,28 @@ import java.util.List;
  * @Create 2026-03-03
  */
 public interface WalletRecordService {
-    /** 新增钱包流水. */
+    /**
+     * 新增钱包流水。
+     */
     Long insert(WalletRecord record);
-    /** 根据用户ID查询钱包流水. */
+
+    /**
+     * 根据用户 ID 查询钱包流水。
+     */
     List<WalletRecord> queryByUserId(Long userId);
-    /** 根据用户ID分页查询钱包流水. */
+
+    /**
+     * 根据用户 ID 分页查询钱包流水。
+     */
     List<WalletRecord> queryByUserIdPage(Long userId, Long offset, Long size);
-    /** 根据用户ID查询钱包流水总数. */
+
+    /**
+     * 根据用户 ID 查询钱包流水总数。
+     */
     int queryByUserIdCount(Long userId);
-    /** 根据订单ID查询钱包流水. */
+
+    /**
+     * 根据订单 ID 查询钱包流水。
+     */
     List<WalletRecord> queryByOrderId(Long orderId);
 }

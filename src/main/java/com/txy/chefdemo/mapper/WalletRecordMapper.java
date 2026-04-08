@@ -13,8 +13,12 @@ import java.util.List;
 @Mapper
 public interface WalletRecordMapper {
     Long insert(@Param("record") WalletRecord record);
+
     List<WalletRecord> queryByUserId(@Param("userId") Long userId);
-    List<WalletRecord> queryByOrderId(@Param("reservationOrderId") Long orderId);
+
     List<WalletRecord> queryByUserIdPage(@Param("userId") Long userId, @Param("offset") Long offset, @Param("size") Long size);
+
     int queryByUserIdCount(@Param("userId") Long userId);
+
+    List<WalletRecord> queryByOrderId(@Param("reservationOrderId") Long orderId);
 }

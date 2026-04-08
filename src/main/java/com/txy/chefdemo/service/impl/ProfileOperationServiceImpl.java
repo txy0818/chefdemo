@@ -56,7 +56,7 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
             user.setPhone(req.getPhone());
         }
         user.setUpdateTime(System.currentTimeMillis());
-        userService.upsert(user);
+        userService.updateById(user);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ProfileOperationServiceImpl implements ProfileOperationService {
         }
         user.setPassword(newEncryptedPwd);
         user.setUpdateTime(System.currentTimeMillis());
-        userService.upsert(user);
+        userService.updateById(user);
         redissonClient.getBucket(AuthConstant.LOGIN_TOKEN_KEY_PREFIX + user.getId()).delete();
     }
 

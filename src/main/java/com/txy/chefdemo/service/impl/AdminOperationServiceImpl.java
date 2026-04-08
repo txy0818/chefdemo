@@ -69,7 +69,7 @@ public class AdminOperationServiceImpl implements AdminOperationService {
         Integer beforeStatus = user.getStatus();
         user.setStatus(req.getStatus());
         user.setUpdateTime(System.currentTimeMillis());
-        userService.upsert(user);
+        userService.updateById(user);
 
         long now = System.currentTimeMillis();
         UserStatusRecord userStatusRecord = new UserStatusRecord();
@@ -110,7 +110,7 @@ public class AdminOperationServiceImpl implements AdminOperationService {
 
         profile.setAuditStatus(req.getAuditStatus());
         profile.setUpdateTime(now);
-        chefProfileService.upsert(profile);
+        chefProfileService.updateById(profile);
         notifyChefAuditResult(req.getChefUserId(), req.getAuditStatus(), reason, now);
     }
 

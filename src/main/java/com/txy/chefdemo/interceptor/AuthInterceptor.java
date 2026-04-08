@@ -65,6 +65,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (StringUtils.isBlank(requestUri) || ObjectUtils.isEmpty(userRole)) {
             return false;
         }
+        if (StringUtils.equals(requestUri, "/user/notification/list")) {
+            return true;
+        }
         if (requestUri.startsWith("/admin/")) {
             return userRole.equals(UserRole.ADMIN.getCode());
         }

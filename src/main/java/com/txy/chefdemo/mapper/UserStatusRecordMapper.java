@@ -13,5 +13,6 @@ import java.util.List;
 @Mapper
 public interface UserStatusRecordMapper {
     Long insert(@Param("record") UserStatusRecord record);
+
     List<UserStatusRecord> queryByUserId(@Param("userId") Long userId);
 }

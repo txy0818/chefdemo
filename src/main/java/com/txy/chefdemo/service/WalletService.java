@@ -7,12 +7,16 @@ import com.txy.chefdemo.domain.Wallet;
  * @Create 2026-03-03
  */
 public interface WalletService {
-    /** 新增钱包. */
+    Long insert(Wallet wallet);
+
+    int updateById(Wallet wallet);
+
+    /**
+     * 仅保留兜底使用，业务代码优先走 insert / updateById。
+     */
     Long upsert(Wallet wallet);
-    /** 根据ID查询钱包. */
+
     Wallet queryById(Long id);
-    /** 根据用户ID查询钱包. */
+
     Wallet queryByUserId(Long userId);
-    /** 根据ID更新钱包. */
-    Long updateById(Wallet wallet);
 }

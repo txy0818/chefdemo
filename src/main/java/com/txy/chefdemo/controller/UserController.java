@@ -62,19 +62,19 @@ public class UserController {
     private volatile boolean running = true;
     private Thread cancelOrderThread;
 
-    // 用户模块页面：
-    // page1: 厨师搜索页（搜索/筛选厨师列表：按价格、评分、服务区域、关键词）
-    // page2: 厨师详情页（查看厨师完整资料、评价列表、可预约时间段）
-    // page3: 创建订单页（选择时间段、填写预约信息、确认订单）
-    // page4: 订单列表页（查看我的订单：待支付/待接单/已接单/已完成/已取消）
-    // page5: 订单详情页（查看订单详情、支付/取消订单）
-    // page6: 评价页（对已完成订单进行评分和评价）
-    // page7: 举报页（对已完成订单的厨师进行举报）
-    // page8: 个人中心页（查看/编辑个人资料、修改密码）统一到 ProfileController 中
-    // page9: 通知列表页（查看系统通知、标记已读）
-    // page10: 余额页（查看余额、充值）
-
     /**
+     * 用户端页面范围：
+     * 1. 厨师搜索页：按价格、评分、服务区域、关键词搜索/筛选厨师；
+     * 2. 厨师详情页：查看厨师完整资料、评价列表、可预约时间段；
+     * 3. 创建订单页：选择时间段、填写预约信息、确认订单；
+     * 4. 订单列表页：查看我的订单；
+     * 5. 订单详情页：查看订单详情、支付/取消订单；
+     * 6. 评价页：对已完成订单评分和评价；
+     * 7. 举报页：对已完成订单的厨师发起举报；
+     * 8. 个人中心页：统一放在 ProfileController；
+     * 9. 通知列表页：查看系统通知、标记已读；
+     * 10. 余额页：查看余额、充值。
+     *
      * 查询钱包余额：
      * 1. 校验用户存在；
      * 2. 若钱包不存在则先兜底创建；
@@ -187,8 +187,6 @@ public class UserController {
             log.error("[delay-queue] orderId={} 超时取消失败", orderId, e);
         }
     }
-
-
 
     /**
      * 搜索厨师列表：
@@ -371,7 +369,7 @@ public class UserController {
     @LogExecution(returnType = ListResp.class)
     @PostMapping("/notification/list")
     public ListResp<NotificationRecord> notificationList(@RequestBody QueryNotificationReq req, HttpServletRequest request) {
-        Long currentUserId = AuthRequestUtils.requireUser(request, UserRole.NORMAL_USER);
+        Long currentUserId = AuthRequestUtils.requireCurrentUserId(request);
         return userInteractionService.notificationList(currentUserId, req);
     }
 

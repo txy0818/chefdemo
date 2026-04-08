@@ -6,6 +6,7 @@ import com.txy.chefdemo.mapper.ChefAvailableTimeMapper;
 import com.txy.chefdemo.service.ChefAvailableTimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -14,7 +15,6 @@ import java.util.List;
  */
 @Service
 public class ChefAvailableTimeServiceImpl implements ChefAvailableTimeService {
-
     @Autowired
     private ChefAvailableTimeMapper chefAvailableTimeMapper;
 
@@ -24,7 +24,7 @@ public class ChefAvailableTimeServiceImpl implements ChefAvailableTimeService {
     }
 
     @Override
-    public Integer updateById(ChefAvailableTime time) {
+    public int updateById(ChefAvailableTime time) {
         return chefAvailableTimeMapper.updateById(time);
     }
 
@@ -37,6 +37,4 @@ public class ChefAvailableTimeServiceImpl implements ChefAvailableTimeService {
     public int queryChefListCnt(ChefAvailableTimeSearchBo searchBo) {
         return chefAvailableTimeMapper.queryChefListCnt(searchBo);
     }
-
-
 }
