@@ -48,7 +48,11 @@
             <el-rate v-model="row.score" disabled />
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="评价内容" min-width="200" />
+        <el-table-column label="评价内容" min-width="200">
+          <template #default="{ row }">
+            <div class="multiline-text">{{ row.content || '-' }}</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="auditStatusDesc" label="审核状态" width="100">
           <template #default="{ row }">
             <el-tag :type="getAuditStatusType(row.auditStatus)">
@@ -56,7 +60,11 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="auditReason" label="审核原因" width="150" />
+        <el-table-column label="审核原因" width="150">
+          <template #default="{ row }">
+            <div class="multiline-text">{{ row.auditReason || '-' }}</div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" fixed="right" width="232" align="center" header-align="center">
           <template #default="{ row }">
             <div class="action-stack">
@@ -380,6 +388,11 @@ onMounted(() => {
   flex: 1;
   min-width: 58px;
   margin-left: 0;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .review-list :deep(.el-pagination) {

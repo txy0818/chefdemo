@@ -104,8 +104,12 @@
             {{ item }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="服务区域" :span="2">{{ currentChef.serviceArea }}</el-descriptions-item>
-        <el-descriptions-item label="服务描述" :span="2">{{ currentChef.serviceDesc }}</el-descriptions-item>
+        <el-descriptions-item label="服务区域" :span="2">
+          <div class="multiline-text">{{ currentChef.serviceArea }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item label="服务描述" :span="2">
+          <div class="multiline-text">{{ currentChef.serviceDesc }}</div>
+        </el-descriptions-item>
         <el-descriptions-item label="价格">{{ currentChef.priceDesc }}元/小时</el-descriptions-item>
         <el-descriptions-item label="服务人数">{{ currentChef.minPeople }}-{{ currentChef.maxPeople }}人</el-descriptions-item>
         <el-descriptions-item label="身份证照片" :span="2">
@@ -326,6 +330,11 @@ onMounted(() => {
   min-height: 32px;
   border-radius: 10px;
   font-weight: 600;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .chef-list :deep(.el-pagination) {

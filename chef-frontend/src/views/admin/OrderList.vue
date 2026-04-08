@@ -107,8 +107,12 @@
         <el-descriptions-item label="用餐人数">{{ currentOrder.peopleCount }}人</el-descriptions-item>
         <el-descriptions-item label="联系人">{{ currentOrder.contactName }}</el-descriptions-item>
         <el-descriptions-item label="联系电话">{{ currentOrder.contactPhone }}</el-descriptions-item>
-        <el-descriptions-item label="联系地址" :span="2">{{ currentOrder.contactAddress }}</el-descriptions-item>
-        <el-descriptions-item label="特殊要求" :span="2">{{ currentOrder.specialRequirements || '无' }}</el-descriptions-item>
+        <el-descriptions-item label="联系地址" :span="2">
+          <div class="multiline-text">{{ currentOrder.contactAddress }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item label="特殊要求" :span="2">
+          <div class="multiline-text">{{ currentOrder.specialRequirements || '无' }}</div>
+        </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
   </div>
@@ -270,6 +274,11 @@ onMounted(() => {
   min-height: 32px;
   border-radius: 10px;
   font-weight: 600;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .order-list :deep(.el-pagination) {

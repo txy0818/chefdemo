@@ -70,9 +70,11 @@
             <el-descriptions-item label="用餐人数">{{ order.peopleCount }}人</el-descriptions-item>
             <el-descriptions-item label="订单金额">{{ order.totalAmountDesc }}</el-descriptions-item>
             <el-descriptions-item label="支付状态">{{ order.payStatusDesc }}</el-descriptions-item>
-            <el-descriptions-item label="联系地址" :span="2">{{ order.contactAddress }}</el-descriptions-item>
+            <el-descriptions-item label="联系地址" :span="2">
+              <div class="multiline-text">{{ order.contactAddress }}</div>
+            </el-descriptions-item>
             <el-descriptions-item label="特殊要求" :span="2">
-              {{ order.specialRequirements || '无' }}
+              <div class="multiline-text">{{ order.specialRequirements || '无' }}</div>
             </el-descriptions-item>
           </el-descriptions>
           
@@ -163,9 +165,11 @@
         <el-descriptions-item label="支付状态">
           {{ currentOrder.payStatusDesc }}
         </el-descriptions-item>
-        <el-descriptions-item label="联系地址" :span="2">{{ currentOrder.contactAddress }}</el-descriptions-item>
+        <el-descriptions-item label="联系地址" :span="2">
+          <div class="multiline-text">{{ currentOrder.contactAddress }}</div>
+        </el-descriptions-item>
         <el-descriptions-item label="特殊要求" :span="2">
-          {{ currentOrder.specialRequirements || '无' }}
+          <div class="multiline-text">{{ currentOrder.specialRequirements || '无' }}</div>
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -509,6 +513,11 @@ onMounted(() => {
 .pagination {
   margin-top: 24px;
   justify-content: flex-end;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .order-shell :deep(.el-tabs__nav-wrap::after) {

@@ -49,9 +49,12 @@ public class OrderChefFrozenCancelAction implements OrderAction {
                     reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         } else {
+            boolean paid = order.getPayStatus().equals(PayStatus.PAID.getCode());
             order.setStatus(OrderStatus.CANCELLED.getCode());
-            order.setPayStatus(PayStatus.REFUNDED.getCode());
-            support.refundIfPaid(order);
+            if (paid) {
+                support.refundIfPaid(order);
+                order.setPayStatus(PayStatus.REFUNDED.getCode());
+            }
             support.createBothSideNotification(
                     order,
                     "订单状态更新",

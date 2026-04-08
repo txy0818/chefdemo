@@ -78,8 +78,12 @@
         <el-descriptions-item label="年龄">{{ currentChef.age }}</el-descriptions-item>
         <el-descriptions-item label="性别">{{ currentChef.genderDesc }}</el-descriptions-item>
         <el-descriptions-item label="从业年限">{{ currentChef.workYears }}年</el-descriptions-item>
-        <el-descriptions-item label="服务区域" :span="2">{{ currentChef.serviceArea }}</el-descriptions-item>
-        <el-descriptions-item label="服务描述" :span="2">{{ currentChef.serviceDesc }}</el-descriptions-item>
+        <el-descriptions-item label="服务区域" :span="2">
+          <div class="multiline-text">{{ currentChef.serviceArea }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item label="服务描述" :span="2">
+          <div class="multiline-text">{{ currentChef.serviceDesc }}</div>
+        </el-descriptions-item>
         <el-descriptions-item label="价格">{{ currentChef.priceDesc }}元/小时</el-descriptions-item>
         <el-descriptions-item label="服务人数">{{ currentChef.minPeople }}-{{ currentChef.maxPeople }}人</el-descriptions-item>
         <el-descriptions-item label="身份证照片" :span="2">
@@ -345,6 +349,11 @@ onMounted(() => {
   flex: 1;
   min-width: 58px;
   margin-left: 0;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .clickable-image {

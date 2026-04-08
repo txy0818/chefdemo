@@ -35,10 +35,11 @@ public class OrderUserCancelAction implements OrderAction {
         long now = System.currentTimeMillis();
         order.setCancelReason(context.getReason());
         order.setCancelTime(now);
-        if (Objects.equals(order.getPayStatus(), PayStatus.PAID.getCode())) {
+        boolean paid = Objects.equals(order.getPayStatus(), PayStatus.PAID.getCode());
+        if (paid) {
             order.setStatus(OrderStatus.CANCELLED.getCode());
-            order.setPayStatus(PayStatus.REFUNDED.getCode());
             support.refundIfPaid(order);
+            order.setPayStatus(PayStatus.REFUNDED.getCode());
             support.createBothSideNotification(
                     order,
                     "订单状态更新",

@@ -57,12 +57,14 @@
               </el-descriptions-item>
               <el-descriptions-item label="联系人">{{ order.contactName }}</el-descriptions-item>
               <el-descriptions-item label="联系电话">{{ order.contactPhone }}</el-descriptions-item>
-              <el-descriptions-item label="联系地址" :span="2">{{ order.contactAddress }}</el-descriptions-item>
+              <el-descriptions-item label="联系地址" :span="2">
+                <div class="multiline-text">{{ order.contactAddress }}</div>
+              </el-descriptions-item>
               <el-descriptions-item label="特殊要求" :span="2">
-                {{ order.specialRequirements || '无' }}
+                <div class="multiline-text">{{ order.specialRequirements || '无' }}</div>
               </el-descriptions-item>
               <el-descriptions-item label="取消原因" :span="2" v-if="order.cancelReason && order.cancelReason !== '-'">
-                {{ order.cancelReason }}
+                <div class="multiline-text">{{ order.cancelReason }}</div>
               </el-descriptions-item>
             </el-descriptions>
           </el-card>
@@ -427,6 +429,11 @@ onMounted(() => {
 .amount-text {
   color: #b91c1c;
   font-weight: 800;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .action-stack {

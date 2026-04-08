@@ -43,8 +43,16 @@
         <el-table-column prop="reservationOrderId" label="订单ID" width="100" />
         <el-table-column prop="reporterName" label="举报人" width="120" />
         <el-table-column prop="targetUserName" label="被举报人" width="120" />
-        <el-table-column prop="reason" label="举报原因" min-width="200" />
-        <el-table-column prop="processResult" label="处理结果" width="150" />
+        <el-table-column label="举报原因" min-width="200">
+          <template #default="{ row }">
+            <div class="multiline-text">{{ row.reason || '-' }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="处理结果" width="150">
+          <template #default="{ row }">
+            <div class="multiline-text">{{ row.processResult || '-' }}</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="statusDesc" label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'warning' : 'success'">
@@ -307,6 +315,11 @@ onMounted(() => {
   min-height: 32px;
   border-radius: 10px;
   font-weight: 600;
+}
+
+.multiline-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .report-list :deep(.el-pagination) {

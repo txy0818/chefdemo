@@ -434,6 +434,8 @@ onMounted(() => {
   margin: 0;
   line-height: 1.9;
   color: #6b4a4a;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .content-grid {
