@@ -35,8 +35,7 @@ public class OrderCompleteAction implements OrderAction {
                 "订单状态更新",
                 "您的订单已完成，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”，欢迎对服务进行评价。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您已完成本次服务订单，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + order.getId(),
-                context.getSource()
+                "您已完成本次服务订单，当前状态为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + order.getId()
         );
         return support.updateOrder(order);
     }

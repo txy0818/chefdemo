@@ -137,8 +137,7 @@ public class OrderScheduleTask {
                         "订单退款通知",
                         "系统检测到该订单未完成退款，现已自动补退款。订单ID：" + order.getId(),
                         "订单退款通知",
-                        "系统已为该订单自动补退款。订单ID：" + order.getId(),
-                        "schedule-auto-refund"
+                        "系统已为该订单自动补退款。订单ID：" + order.getId()
                 );
                 log.info("[schedule-auto-refund] orderId={} 自动补退款成功", order.getId());
             } catch (Exception e) {

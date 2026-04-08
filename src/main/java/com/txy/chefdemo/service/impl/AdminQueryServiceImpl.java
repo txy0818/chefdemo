@@ -129,6 +129,7 @@ public class AdminQueryServiceImpl implements AdminQueryService {
     public OrderStatisticsDTO orderStatistics() {
         ReservationOrderSearchBo searchBo = new ReservationOrderSearchBo();
         long todayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        // 7天前的0点0分
         LocalDate startDate = LocalDate.now().minusDays(7);
         long start = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         searchBo.setStartTime(start);

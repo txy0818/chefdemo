@@ -33,8 +33,7 @@ public class OrderAutoCompleteAction implements OrderAction {
                 "订单状态更新",
                 "系统已将超时未完成的订单自动更新为“" + OrderStatus.COMPLETED.getDesc() + "”，欢迎对服务进行评价。订单ID：" + order.getId(),
                 "订单状态更新",
-                "订单在预约结束后5分钟内未手动完成，系统已自动更新为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + order.getId(),
-                context.getSource()
+                "订单在预约结束后5分钟内未手动完成，系统已自动更新为“" + OrderStatus.COMPLETED.getDesc() + "”。订单ID：" + order.getId()
         );
         log.info("[{}] orderId={} 自动完成通知已发送", context.getSource(), order.getId());
         return support.updateOrder(order);

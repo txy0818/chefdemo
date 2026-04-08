@@ -63,19 +63,13 @@ public class OrderTransitionSupport {
             return;
         }
         ChefAvailableTime time = times.get(0);
-        time.setStatus(AvailableTimeStatus.AVAILABLE.getCode());
+        if (time.getEndTime() > System.currentTimeMillis()) {
+            time.setStatus(AvailableTimeStatus.AVAILABLE.getCode());
+        } else {
+            time.setStatus(AvailableTimeStatus.EXPIRED.getCode());
+        }
         time.setUpdateTime(System.currentTimeMillis());
         chefAvailableTimeService.updateById(time);
-    }
-
-    public void refundIfPaid(ReservationOrder order, String notificationContent) {
-        refundIfPaid(order);
-        createNotification(order.getUserId(), "订单退款通知", notificationContent);
-    }
-
-    public void refundIfPaid(ReservationOrder order, String notificationContent, String source) {
-        refundIfPaid(order);
-        createNotification(order.getUserId(), "订单退款通知", appendSource(notificationContent, source));
     }
 
     public void refundIfPaid(ReservationOrder order) {
@@ -104,10 +98,6 @@ public class OrderTransitionSupport {
         notificationService.notifyUser(notificationRecord);
     }
 
-    public void createNotification(Long userId, String title, String content, String source) {
-        createNotification(userId, title, appendSource(content, source));
-    }
-
     public void createBothSideNotification(ReservationOrder order,
                                            String userTitle,
                                            String userContent,
@@ -115,22 +105,5 @@ public class OrderTransitionSupport {
                                            String chefContent) {
         createNotification(order.getUserId(), userTitle, userContent);
         createNotification(order.getChefId(), chefTitle, chefContent);
-    }
-
-    public void createBothSideNotification(ReservationOrder order,
-                                           String userTitle,
-                                           String userContent,
-                                           String chefTitle,
-                                           String chefContent,
-                                           String source) {
-        createNotification(order.getUserId(), userTitle, userContent, source);
-        createNotification(order.getChefId(), chefTitle, chefContent, source);
-    }
-
-    private String appendSource(String content, String source) {
-        if (Objects.isNull(source) || source.isBlank()) {
-            return content;
-        }
-        return content + " [来源:" + source + "]";
     }
 }

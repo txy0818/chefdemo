@@ -63,8 +63,7 @@ public class OrderPayAction implements OrderAction {
                 "订单状态更新",
                 "您的订单已支付成功，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您有一笔新订单待处理，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId(),
-                context.getSource()
+                "您有一笔新订单待处理，当前状态为“" + OrderStatus.PENDING_ACCEPT.getDesc() + "”。订单ID：" + order.getId()
         );
         return support.updateOrder(order);
     }

@@ -30,6 +30,8 @@ import org.springframework.util.CollectionUtils;
  *
  * 例：
  * ws://localhost:8080/ws/123?token=xxxxx
+ *
+ * 本项目中 厨师资料审核 ｜ 订单状态流转 ｜ 账号状态变化 会通过websocket通知
  */
 @Component
 @ServerEndpoint("/ws/{userId}")

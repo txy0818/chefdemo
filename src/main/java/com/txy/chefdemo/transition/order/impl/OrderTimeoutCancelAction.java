@@ -34,8 +34,7 @@ public class OrderTimeoutCancelAction implements OrderAction {
                     "订单状态更新",
                     "您的订单因5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    "订单因用户5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
-                    context.getSource()
+                    "订单因用户5分钟内未支付已自动取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         }
         return support.updateOrder(order);

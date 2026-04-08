@@ -42,8 +42,7 @@ public class OrderChefRejectAction implements OrderAction {
                 "订单状态更新",
                 "厨师已拒绝接单，退款已退回钱包，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId(),
                 "订单状态更新",
-                "您已拒绝该订单，系统已完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId(),
-                context.getSource()
+                "您已拒绝该订单，系统已完成退款，当前订单状态为“" + OrderStatus.REJECTED.getDesc() + "”。订单ID：" + order.getId()
         );
         return support.updateOrder(order);
     }

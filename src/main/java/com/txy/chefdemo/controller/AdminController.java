@@ -83,7 +83,7 @@ public class AdminController {
      * 2. 更新用户状态；
      * 3. 删除 Redis 登录态并记录状态变更日志；
      * 4. 发送通知；
-     * 5. 若冻结的是厨师，则发布事件处理相关订单(applicationEvent)。
+     * 5. 若冻结的是厨师，则发布事件处理相关订单(applicationEvent) 订单退单/待审核评论驳回/待审核举报驳回。
      */
     @Transactional
     @LogExecution(returnType = SimpleResp.class)

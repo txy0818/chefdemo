@@ -24,7 +24,7 @@ public class OrderChefFrozenCancelAction implements OrderAction {
      * 3. 释放该订单占用的可预约时间段。
      * 4. 向用户和厨师双方发送系统关闭订单通知。
      * 5. 回写最新订单状态。
-     *
+     * 更新订单，新增用户/厨师通知，更新chef_avaliable_time
      * 说明：
      * 冻结厨师后的资料/评论/举报清理由监听器作为主链路处理，
      * 这里仅负责订单关闭本身，避免状态机 action 额外承担跨模块清理职责。
@@ -46,8 +46,7 @@ public class OrderChefFrozenCancelAction implements OrderAction {
                     "订单状态更新",
                     reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
-                    context.getSource()
+                    reason + " 当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         } else {
             order.setStatus(OrderStatus.CANCELLED.getCode());
@@ -58,8 +57,7 @@ public class OrderChefFrozenCancelAction implements OrderAction {
                     "订单状态更新",
                     reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
-                    context.getSource()
+                    reason + " 当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         }
         

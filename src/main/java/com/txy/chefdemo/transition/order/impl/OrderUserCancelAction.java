@@ -44,8 +44,7 @@ public class OrderUserCancelAction implements OrderAction {
                     "订单状态更新",
                     "您的订单已取消，退款已退回钱包，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    "用户已取消订单，系统已完成退款，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
-                    context.getSource()
+                    "用户已取消订单，系统已完成退款，当前订单状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         } else {
             order.setStatus(OrderStatus.CANCELLED.getCode());
@@ -54,8 +53,7 @@ public class OrderUserCancelAction implements OrderAction {
                     "订单状态更新",
                     "您的订单已取消，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
                     "订单状态更新",
-                    "用户已取消订单，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId(),
-                    context.getSource()
+                    "用户已取消订单，当前状态为“" + OrderStatus.CANCELLED.getDesc() + "”。订单ID：" + order.getId()
             );
         }
         support.releaseTime(order.getChefAvailableTimeId());
