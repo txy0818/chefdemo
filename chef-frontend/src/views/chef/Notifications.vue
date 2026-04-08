@@ -59,12 +59,12 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Bell, BellFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { notificationList as fetchNotificationList, readNotification } from '@/api/chef'
-import { emitNotificationUnreadChange } from '@/utils/notification'
+import { emitNotificationUnreadChange, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 import { formatDateTime } from '@/utils/datetime'
 
 const userStore = useUserStore()
@@ -112,8 +112,17 @@ const handleRead = async notification => {
   }
 }
 
+const handleRealtimeRefresh = async () => {
+  await loadData()
+}
+
 onMounted(() => {
   loadData()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

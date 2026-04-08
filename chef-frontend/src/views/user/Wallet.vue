@@ -109,7 +109,7 @@ import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getWalletBalance, getWalletRecords, rechargeWallet } from '@/api/user'
 import { useUserStore } from '@/stores/user'
-import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
+import { isWalletRealtimePayload, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const userStore = useUserStore()
 const loading = ref(false)
@@ -205,7 +205,8 @@ const handleRecharge = async () => {
   }
 }
 
-const handleRealtimeRefresh = async () => {
+const handleRealtimeRefresh = async (event) => {
+  if (!isWalletRealtimePayload(event?.detail?.payload)) return
   await Promise.all([
     loadWalletBalance(),
     loadWalletRecords()

@@ -181,7 +181,7 @@ import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { orderDetail, payOrder, cancelOrder } from '@/api/user'
 import { getPaymentTypeOptions, getPayStatusLabelMap } from '@/api/constant'
-import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
+import { isOrderRealtimePayload, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, Wallet } from '@element-plus/icons-vue'
 
@@ -271,7 +271,8 @@ const loadPayStatusOptions = async () => {
   }
 }
 
-const handleRealtimeRefresh = async () => {
+const handleRealtimeRefresh = async (event) => {
+  if (!isOrderRealtimePayload(event?.detail?.payload)) return
   if (!route.params.id) return
   await loadData()
 }

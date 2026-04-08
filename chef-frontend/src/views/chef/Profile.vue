@@ -291,12 +291,13 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, onMounted } from 'vue'
+import { computed, ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getOfficialProfile, getProfile, saveProfile } from '@/api/chef'
 import { getCuisineTypeOptions, getGenderOptions } from '@/api/constant'
 import { useUserStore } from '@/stores/user'
 import ImageUpload from '@/components/ImageUpload.vue'
+import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const userStore = useUserStore()
 const profileFormRef = ref(null)
@@ -610,6 +611,13 @@ const showOfficialProfileDialog = async () => {
   }
 }
 
+const handleRealtimeRefresh = async () => {
+  await loadProfile()
+  if (officialProfileVisible.value) {
+    await showOfficialProfileDialog()
+  }
+}
+
 onMounted(() => {
   Promise.all([getCuisineTypeOptions(), getGenderOptions()])
     .then(([cuisineRes, genderRes]) => {
@@ -620,6 +628,11 @@ onMounted(() => {
       console.error('加载厨师资料枚举失败:', error)
     })
   loadProfile()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 

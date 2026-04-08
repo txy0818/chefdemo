@@ -72,11 +72,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { orderList as fetchOrderList } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import { getOrderStatusTabOptions } from '@/api/constant'
+import { isOrderRealtimePayload, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -146,6 +147,11 @@ const getCountText = (tabName) => {
   return '点击筛选'
 }
 
+const handleRealtimeRefresh = async (event) => {
+  if (!isOrderRealtimePayload(event?.detail?.payload)) return
+  await loadData()
+}
+
 onMounted(() => {
   getOrderStatusTabOptions()
     .then(options => {
@@ -158,6 +164,11 @@ onMounted(() => {
       console.error('加载订单状态枚举失败:', error)
     })
   loadData()
+  window.addEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(REALTIME_DATA_REFRESH_EVENT, handleRealtimeRefresh)
 })
 </script>
 
