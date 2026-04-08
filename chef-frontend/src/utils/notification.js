@@ -37,6 +37,14 @@ export function isWalletRealtimePayload(payload) {
   return text.includes('钱包') || text.includes('余额') || text.includes('退款') || text.includes('支付')
 }
 
+export function isChefNewOrderRealtimePayload(payload) {
+  if (!isRealtimeNotificationPayload(payload)) {
+    return false
+  }
+  const text = `${payload?.title || ''} ${payload?.content || ''}`
+  return text.includes('新订单待处理') || (text.includes('待接单') && text.includes('订单'))
+}
+
 export function showRealtimeNotification(payload) {
   if (!payload?.title && !payload?.content) return
   const notificationId = payload?.data?.id || payload?.id

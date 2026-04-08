@@ -135,7 +135,7 @@ public class UserOrderServiceImpl implements UserOrderService {
 
         long totalTime = req.getEndTime() - req.getStartTime();
         long avgPrice = ObjectUtils.defaultIfNull(profile.getPrice(), 0L);
-        long totalAmount = Math.max(avgPrice, (long) Math.ceil(avgPrice * (totalTime / 3600000D)));
+        long totalAmount = (long) Math.ceil(avgPrice * (totalTime / 3600000D));
 
         ReservationOrder order = new ReservationOrder();
         order.setUserId(currentUserId);

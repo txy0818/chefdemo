@@ -183,7 +183,7 @@ import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getOrderStatusTabOptions, isChefAuditApproved } from '@/api/constant'
-import { REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
+import { isChefNewOrderRealtimePayload, REALTIME_DATA_REFRESH_EVENT } from '@/utils/notification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -356,7 +356,12 @@ const handleViewDetail = (order) => {
   detailVisible.value = true
 }
 
-const handleRealtimeRefresh = async () => {
+const handleRealtimeRefresh = async (event) => {
+  const payload = event?.detail?.payload
+  queryForm.page = 1
+  if (isChefNewOrderRealtimePayload(payload)) {
+    activeTab.value = '2'
+  }
   const passed = await ensureAuditApproved()
   if (!passed) {
     orderList.value = []
