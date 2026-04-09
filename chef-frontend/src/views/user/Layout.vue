@@ -170,11 +170,15 @@ const startNotificationPolling = async () => {
   stopNotificationPolling()
   pollingTimerRef.value = setInterval(async () => {
     const unreadList = await loadUnreadCount()
+    const currentUnreadIds = new Set()
     unreadList.forEach(item => {
-      if (!item?.id || knownUnreadIds.has(item.id)) {
+      if (!item?.id) {
         return
       }
-      knownUnreadIds.add(item.id)
+      currentUnreadIds.add(item.id)
+      if (knownUnreadIds.has(item.id)) {
+        return
+      }
       emitRealtimeDataRefresh({
         type: 'NOTIFICATION',
         title: item.title,
@@ -187,6 +191,8 @@ const startNotificationPolling = async () => {
         id: item.id
       })
     })
+    knownUnreadIds.clear()
+    currentUnreadIds.forEach(id => knownUnreadIds.add(id))
   }, 3000)
 }
 

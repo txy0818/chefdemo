@@ -1,10 +1,23 @@
 <template>
   <div class="review">
-    <el-card>
+    <section class="section-heading action-heading">
+      <div>
+        <h2>评价厨师</h2>
+        <p>分享本次上门服务的真实体验，帮助平台持续优化服务质量。</p>
+      </div>
+      <el-button class="back-button" @click="goBack">
+        <el-icon><ArrowLeft /></el-icon>
+        返回订单详情
+      </el-button>
+    </section>
+
+    <el-card class="review-card glass-panel" shadow="never">
       <template #header>
         <div class="card-header">
-          <el-button @click="goBack" icon="ArrowLeft">返回</el-button>
-          <span>评价厨师</span>
+          <div>
+            <strong>评价表单</strong>
+            <p>建议描述服务过程、沟通体验和菜品完成度，内容会在审核后展示。</p>
+          </div>
         </div>
       </template>
       
@@ -42,7 +55,7 @@
           <el-button type="primary" @click="handleSubmit" :loading="submitting">
             提交评价
           </el-button>
-          <el-button @click="goBack">取消</el-button>
+          <el-button class="ghost-button" @click="goBack">返回订单详情</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -53,13 +66,11 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createReview, orderDetail } from '@/api/user'
-import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
-const userStore = useUserStore()
 const loading = ref(false)
 const submitting = ref(false)
 const reviewFormRef = ref(null)
@@ -142,15 +153,71 @@ onMounted(() => {
 
 <style scoped>
 .review {
-  max-width: 700px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.review-card {
+  border: none;
+}
+
+.action-heading {
+  align-items: center;
+}
+
+.action-heading h2 {
+  margin: 0 0 8px;
+}
+
+.action-heading p {
+  margin: 0;
+  color: #8a5c52;
+}
+
+.back-button {
+  min-width: 148px;
+  border-radius: 999px;
+  border-color: rgba(194, 110, 44, 0.2);
+  color: #8f4e20;
+  background: rgba(255, 248, 243, 0.92);
+  box-shadow: 0 12px 24px rgba(181, 103, 43, 0.08);
+}
+
+.back-button:hover {
+  border-color: rgba(194, 110, 44, 0.34);
+  color: #7f4116;
+  background: #fff4ea;
 }
 
 .card-header {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 18px;
-  font-weight: bold;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-header strong {
+  color: #3a2416;
+  font-size: 1.05rem;
+}
+
+.card-header p {
+  margin: 8px 0 0;
+  color: #9b7d68;
+  font-size: 13px;
+}
+
+.ghost-button {
+  border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  .action-heading {
+    align-items: flex-start;
+  }
+
+  .back-button {
+    width: 100%;
+  }
 }
 </style>

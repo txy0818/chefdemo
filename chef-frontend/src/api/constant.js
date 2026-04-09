@@ -4,6 +4,7 @@ let auditStatusOptionsPromise = null
 let orderStatusOptionsPromise = null
 let availableTimeStatusOptionsPromise = null
 let payStatusOptionsPromise = null
+let reportTypeOptionsPromise = null
 
 export function getUserRoleOptions() {
   return request({
@@ -54,6 +55,13 @@ export function getReviewAuditStatusOptions() {
 export function getReportStatusOptions() {
   return request({
     url: '/constant/reportStatus',
+    method: 'get'
+  })
+}
+
+export function getReportTypeOptions() {
+  return request({
+    url: '/constant/reportType',
     method: 'get'
   })
 }
@@ -136,6 +144,18 @@ async function getCachedPayStatusOptions() {
   return payStatusOptionsPromise
 }
 
+async function getCachedReportTypeOptions() {
+  if (!reportTypeOptionsPromise) {
+    reportTypeOptionsPromise = getReportTypeOptions()
+      .then(res => (Array.isArray(res.data) ? res.data : []))
+      .catch(error => {
+        reportTypeOptionsPromise = null
+        throw error
+      })
+  }
+  return reportTypeOptionsPromise
+}
+
 export async function getOrderStatusTabOptions() {
   const options = await getCachedOrderStatusOptions()
   return [{ label: '全部', value: 0 }, ...options]
@@ -151,6 +171,14 @@ export async function getAvailableTimeStatusLabelMap() {
 
 export async function getPayStatusLabelMap() {
   const options = await getCachedPayStatusOptions()
+  return options.reduce((result, item) => {
+    result[item.value] = item.label
+    return result
+  }, {})
+}
+
+export async function getReportTypeLabelMap() {
+  const options = await getCachedReportTypeOptions()
   return options.reduce((result, item) => {
     result[item.value] = item.label
     return result

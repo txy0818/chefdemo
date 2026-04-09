@@ -76,6 +76,13 @@ public class ConstantController {
         return new ListResp<>(BaseRespConstant.SUC, buildLabels(ReportStatus.values()));
     }
 
+    /** 返回举报类型枚举。 */
+    @LogExecution(returnType = ListResp.class)
+    @GetMapping("/reportType")
+    public ListResp<Label> getReportType() {
+        return new ListResp<>(BaseRespConstant.SUC, buildLabels(ReportType.values()));
+    }
+
     /** 返回评论审核状态枚举。 */
     @LogExecution(returnType = ListResp.class)
     @GetMapping("/reviewAuditStatus")
@@ -201,6 +208,14 @@ public class ConstantController {
     private List<Label> buildLabels(ReportStatus[] values) {
         List<Label> labels = new ArrayList<>();
         for (ReportStatus value : values) {
+            labels.add(new Label(value.getDesc(), value.getCode()));
+        }
+        return labels;
+    }
+
+    private List<Label> buildLabels(ReportType[] values) {
+        List<Label> labels = new ArrayList<>();
+        for (ReportType value : values) {
             labels.add(new Label(value.getDesc(), value.getCode()));
         }
         return labels;
