@@ -76,6 +76,13 @@
             <el-descriptions-item label="特殊要求" :span="2">
               <div class="multiline-text">{{ order.specialRequirements || '无' }}</div>
             </el-descriptions-item>
+            <el-descriptions-item
+              v-if="order.cancelReason && order.cancelReason !== '-'"
+              label="取消/拒单原因"
+              :span="2"
+            >
+              <div class="multiline-text">{{ order.cancelReason }}</div>
+            </el-descriptions-item>
           </el-descriptions>
           
           <div class="order-actions">
@@ -170,6 +177,13 @@
         </el-descriptions-item>
         <el-descriptions-item label="特殊要求" :span="2">
           <div class="multiline-text">{{ currentOrder.specialRequirements || '无' }}</div>
+        </el-descriptions-item>
+        <el-descriptions-item
+          v-if="currentOrder.cancelReason && currentOrder.cancelReason !== '-'"
+          label="取消/拒单原因"
+          :span="2"
+        >
+          <div class="multiline-text">{{ currentOrder.cancelReason }}</div>
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>

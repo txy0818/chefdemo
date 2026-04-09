@@ -258,6 +258,9 @@
               v-for="(img, index) in officialProfile.idCardImgs"
               :key="`id-${index}`"
               :src="img"
+              :preview-src-list="officialProfile.idCardImgs"
+              :initial-index="index"
+              preview-teleported
               fit="cover"
               class="cert-preview-image"
             />
@@ -269,6 +272,9 @@
               v-for="(img, index) in officialProfile.healthCertImgs"
               :key="`health-${index}`"
               :src="img"
+              :preview-src-list="officialProfile.healthCertImgs"
+              :initial-index="index"
+              preview-teleported
               fit="cover"
               class="cert-preview-image"
             />
@@ -280,6 +286,9 @@
               v-for="(img, index) in officialProfile.chefCertImgs"
               :key="`chef-${index}`"
               :src="img"
+              :preview-src-list="officialProfile.chefCertImgs"
+              :initial-index="index"
+              preview-teleported
               fit="cover"
               class="cert-preview-image"
             />

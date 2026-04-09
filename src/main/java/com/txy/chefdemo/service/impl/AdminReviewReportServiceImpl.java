@@ -85,6 +85,7 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
         }
         review.setUpdateTime(System.currentTimeMillis());
         reviewService.updateById(review);
+        notifyReviewAuditResult(review, reason);
     }
 
     @Override
@@ -144,6 +145,29 @@ public class AdminReviewReportServiceImpl implements AdminReviewReportService {
         notificationRecord.setTitle("举报处理结果");
         notificationRecord.setContent("您提交的订单举报已处理，处理结果为“" + statusDesc + "”。订单ID："
                 + report.getReservationOrderId() + "。处理说明：" + processResult);
+        notificationRecord.setReadStatus(NotificationReadStatus.UNREAD.getCode());
+        notificationRecord.setCreateTime(now);
+        notificationRecord.setUpdateTime(now);
+        notificationRecordService.insert(notificationRecord);
+        notificationService.notifyUser(notificationRecord);
+    }
+
+    private void notifyReviewAuditResult(Review review, String reason) {
+        if (ObjectUtils.isEmpty(review) || ObjectUtils.isEmpty(review.getUserId())) {
+            return;
+        }
+        AuditStatus auditStatus = AuditStatus.getByCode(review.getAuditStatus());
+        String statusDesc = ObjectUtils.isNotEmpty(auditStatus) ? auditStatus.getDesc() : "已处理";
+        String content = "您提交的订单评价已审核，处理结果为“" + statusDesc + "”。订单ID："
+                + review.getReservationOrderId();
+        if (AuditStatus.REJECTED.getCode() == review.getAuditStatus() && StringUtils.isNotBlank(reason)) {
+            content = content + "。原因：" + reason;
+        }
+        long now = System.currentTimeMillis();
+        NotificationRecord notificationRecord = new NotificationRecord();
+        notificationRecord.setUserId(review.getUserId());
+        notificationRecord.setTitle("评价审核结果");
+        notificationRecord.setContent(content);
         notificationRecord.setReadStatus(NotificationReadStatus.UNREAD.getCode());
         notificationRecord.setCreateTime(now);
         notificationRecord.setUpdateTime(now);
