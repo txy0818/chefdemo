@@ -127,9 +127,6 @@
               <div class="chef-avatar">
                 <el-avatar :size="84" :src="chef.avatar" />
               </div>
-              <el-tag class="service-tag" effect="dark" round>
-                {{ chef.cuisineTypeDesc || '家常定制' }}
-              </el-tag>
             </div>
             
             <div class="chef-info">
@@ -137,7 +134,6 @@
                 <h3>{{ chef.displayName }}</h3>
                 <span class="chef-price-chip">{{ chef.priceDesc }}元/小时</span>
               </div>
-              <p class="chef-summary">适合家庭聚餐、轻宴请和定制家宴场景，支持按区域预约上门。</p>
               
               <div class="info-item">
                 <el-icon><Location /></el-icon>
@@ -372,7 +368,19 @@ onMounted(() => {
   min-height: 400px;
 }
 
+.chef-list :deep(.el-row) {
+  align-items: stretch;
+}
+
+.chef-list :deep(.el-col) {
+  display: flex;
+}
+
 .chef-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
   margin-bottom: 20px;
   padding: 6px;
   cursor: pointer;
@@ -413,6 +421,9 @@ onMounted(() => {
 }
 
 .chef-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   text-align: left;
 }
 
@@ -469,8 +480,8 @@ onMounted(() => {
 }
 
 .rating {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: auto;
+  padding-top: 18px;
   border-top: 1px solid rgba(220, 38, 38, 0.08);
 }
 

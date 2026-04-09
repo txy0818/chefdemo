@@ -207,6 +207,7 @@ const startNotificationPolling = async () => {
       if (knownUnreadIds.has(item.id)) {
         return
       }
+      loadChefAuditStatus()
       emitRealtimeDataRefresh({
         type: 'NOTIFICATION',
         title: item.title,
