@@ -107,6 +107,15 @@
               >
                 <strong>{{ time.startTimeDesc }}</strong>
                 <span>{{ time.endTimeDesc }}</span>
+                <div v-if="time.occupiedTimeDescList && time.occupiedTimeDescList.length" class="occupied-time-list">
+                  <small
+                    v-for="(occupiedTime, index) in time.occupiedTimeDescList"
+                    :key="`${time.id}-occupied-${index}`"
+                    class="occupied-time-item"
+                  >
+                    已预约：{{ occupiedTime }}
+                  </small>
+                </div>
               </button>
             </div>
           </el-card>
@@ -543,6 +552,20 @@ onMounted(() => {
 .time-slot.is-disabled {
   opacity: 0.66;
   cursor: not-allowed;
+}
+
+.occupied-time-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.occupied-time-item {
+  color: #9f1239;
+  line-height: 1.5;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .reviews {

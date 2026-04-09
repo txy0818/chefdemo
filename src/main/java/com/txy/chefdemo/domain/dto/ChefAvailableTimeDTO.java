@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @Author tianxinyu
  * @Create 2026-04-02
@@ -22,4 +24,6 @@ public class ChefAvailableTimeDTO {
     /** 状态 1-可预约 2-已约满 3-已过期 4-已删除 */
     private Integer status;
     private String statusDesc;
+    /** 该时间段内已预约的子时间段描述。 */
+    private List<String> occupiedTimeDescList;
 }

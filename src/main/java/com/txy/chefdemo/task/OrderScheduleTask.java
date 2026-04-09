@@ -127,7 +127,10 @@ public class OrderScheduleTask {
                 continue;
             }
             try {
-                OrderContext context = new OrderContext(order.getId(), systemOperatorId, null, "厨师未在规定时间内接单，系统自动拒单");
+                String rejectReason = exceedAcceptWindow
+                        ? "支付成功后5分钟内未接单，系统自动拒单"
+                        : "距离预约开始时间不足5分钟仍未接单，系统自动拒单";
+                OrderContext context = new OrderContext(order.getId(), systemOperatorId, null, rejectReason);
                 context.setSource("schedule-auto-reject");
                 orderFlowService.trigger(OrderStatus.fromCode(order.getStatus()),
                         OrderStateEvent.CHEF_REJECT,

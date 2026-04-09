@@ -14,6 +14,7 @@ import com.txy.chefdemo.domain.constant.AuditStatus;
 import com.txy.chefdemo.domain.constant.AvailableTimeStatus;
 import com.txy.chefdemo.domain.constant.CuisineType;
 import com.txy.chefdemo.domain.constant.Gender;
+import com.txy.chefdemo.domain.constant.OrderStatus;
 import com.txy.chefdemo.domain.constant.ReviewAuditStatus;
 import com.txy.chefdemo.domain.dto.ChefAvailableTimeDTO;
 import com.txy.chefdemo.domain.dto.ChefCardDTO;
@@ -123,6 +124,17 @@ public class UserQueryServiceImpl implements UserQueryService {
             dto.setStatus(ObjectUtils.defaultIfNull(time.getStatus(), 0));
             dto.setStatusDesc(ObjectUtils.isNotEmpty(time.getStatus()) && ObjectUtils.isNotEmpty(AvailableTimeStatus.getByCode(time.getStatus()))
                     ? AvailableTimeStatus.getByCode(time.getStatus()).getDesc() : "-");
+            ReservationOrderSearchBo orderSearchBo = new ReservationOrderSearchBo();
+            orderSearchBo.setChefAvailableTimeId(time.getId());
+            orderSearchBo.setStatuses(OrderStatus.getValidCodes());
+            List<String> occupiedTimeDescList = reservationOrderService.queryByCondition(orderSearchBo).stream()
+                    .filter(order -> ObjectUtils.isNotEmpty(order.getStartTime()) && ObjectUtils.isNotEmpty(order.getEndTime()))
+                    .map(order -> DefaultValueUtil.defaultString(DateUtils.format(order.getStartTime(), DateUtils.DATE_TIME_FORMAT))
+                            + " - "
+                            + DefaultValueUtil.defaultString(DateUtils.format(order.getEndTime(), DateUtils.DATE_TIME_FORMAT)))
+                    .distinct()
+                    .collect(Collectors.toList());
+            dto.setOccupiedTimeDescList(DefaultValueUtil.defaultList(occupiedTimeDescList));
             return dto;
         }).collect(Collectors.toList());
         return new ChefTimeDetailResp(BaseRespConstant.SUC, timeDTOS, total);
