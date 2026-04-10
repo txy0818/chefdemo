@@ -321,6 +321,14 @@ onMounted(() => {
   border: 1px solid rgba(59, 130, 246, 0.08);
 }
 
+.query-form :deep(.el-input) {
+  width: 220px;
+}
+
+.query-form :deep(.el-input-number) {
+  width: 220px;
+}
+
 .query-form :deep(.el-form-item) {
   margin-bottom: 12px;
 }
