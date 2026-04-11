@@ -122,7 +122,9 @@ public class OrderScheduleTask {
             long payTime = ObjectUtils.defaultIfNull(order.getPayTime(), 0L);
             long startTime = ObjectUtils.defaultIfNull(order.getStartTime(), 0L);
             boolean exceedAcceptWindow = payTime > 0 && payTime + AUTO_REJECT_TIMEOUT_MILLIS <= now;
-            boolean closeToStartTime = startTime > 0 && startTime - now <= AUTO_REJECT_TIMEOUT_MILLIS;
+            boolean closeToStartTime = false;
+            // 距离预约开始时间只剩5分钟仍未接单 不好测试
+//            boolean closeToStartTime = startTime > 0 && startTime - now <= AUTO_REJECT_TIMEOUT_MILLIS;
             if (!exceedAcceptWindow && !closeToStartTime) {
                 continue;
             }
